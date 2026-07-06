@@ -154,7 +154,7 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 
 {1-2 sentence summary: what this PR does and why}
 
-> ⚠️ **Breaking Change**: {only if applicable — describe migration needed}
+> ⚠️ **Breaking Change**: {only if applicable: describe migration needed}
 
 ## 변경 사항
 
@@ -212,9 +212,9 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 ```markdown
 ## 개요
 
-{Release summary — what this release includes}
+{Release summary: what this release includes}
 
-> ⚠️ **배포 공지**: {Deployment impact notice — migration steps if any}
+> ⚠️ **배포 공지**: {Deployment impact notice: migration steps if any}
 
 ## 주요 변경사항
 
@@ -311,4 +311,5 @@ flowchart LR
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
 - **Assignee / Label**: Always include `--assignee @me` and `--label "{type_label}"` in `gh pr create`. If either flag fails due to insufficient permissions, retry without the failing flag(s) and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed.
+- **Dash characters**: Do not use em-dash (—) or en-dash (–) in the PR title or body. Replace with a colon, parentheses, or comma. Titles or text carried over from commit logs or imported (merged) PR titles must be normalized the same way. Before running `gh pr create`, self-check the drafted title and body: if either contains an em-dash or en-dash, replace it before creating the PR.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.

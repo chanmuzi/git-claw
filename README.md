@@ -109,7 +109,7 @@ npx skills update   # Update all installed skills
 
 ### `/commit` — Create a Git Commit
 
-Analyzes your staged/unstaged changes and proposes conventional commit messages. Before staging, files are grouped by intent — infrastructure, agent config, app code, build tooling, docs, tests — and multi-intent changes are automatically split into separate commits with same-intent exceptions for tightly coupled changes (schema+code, signature+call-sites, code+validating tests).
+Analyzes your staged/unstaged changes and proposes conventional commit messages. Before staging, files are grouped by intent — infrastructure, agent config, app code, build tooling, docs, tests — and multi-intent changes are automatically split into separate commits with same-intent exceptions for tightly coupled changes (schema+code, signature+call-sites, code+validating tests). Messages avoid em-dash/en-dash to stay clean of AI-generated markers.
 
 ```
 /commit              # Analyze and commit
@@ -120,7 +120,7 @@ Types: `feat` · `fix` · `refactor` · `style` · `docs` · `test` · `perf` ·
 
 ### `/pr` — Create a Pull Request
 
-Creates a PR with a structured template. Automatically detects Individual or Release mode.
+Creates a PR with a structured template. Automatically detects Individual or Release mode. Titles and bodies avoid em-dash/en-dash to stay clean of AI-generated markers.
 
 ```
 /pr              # Individual PR (Feat, Fix, Refactor, etc.)

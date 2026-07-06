@@ -43,7 +43,7 @@ git log @{u}..HEAD --oneline 2>/dev/null
 **Step 2 — Execute amend:**
 
 - Stage the relevant files and run `git commit --amend`.
-  - Use `--no-edit` if the change is a minor fix within the same intent.
+  - Use `--no-edit` if the change is a minor fix within the same intent AND the existing message contains no em-dash (—) or en-dash (–). If the existing message contains either, amend with an edited message that replaces them (colon, parentheses, or comma) instead of `--no-edit`.
   - Update the commit message if the scope or meaning has changed.
 
 - **NOT pushed** → amend directly and display:
@@ -214,9 +214,10 @@ Add scope in parentheses when the change targets a specific module or component:
 ### Description Rules
 
 - Write the description in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language.
-- Keep the subject line concise — aim for under 50 characters.
+- Keep the subject line concise (aim for under 50 characters).
 - Use natural, fluent phrasing. Do not force-translate well-known technical terms. For example, write `source_map` as-is rather than translating it.
 - Focus on WHAT changed and WHY, not HOW.
+- Do not use em-dash (—) or en-dash (–) in the subject or body. Replace with a colon, parentheses, or comma.
 
 ### Multi-line Body (for complex changes)
 

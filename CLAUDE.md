@@ -239,6 +239,7 @@ ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 - **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
 - **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
+- **Dash 금지**: git 메시지(커밋·PR 제목/본문)에 em-dash(—)·en-dash(–) 사용 금지. 콜론·괄호·쉼표로 대체 (코드/문서 산문은 대상 아님)
 
 ## 터미널 렌더링 가이드라인
 

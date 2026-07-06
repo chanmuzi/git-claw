@@ -232,7 +232,7 @@ ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 
 ## 스킬 공통 규칙
 
-모든 스킬(pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
+모든 스킬(commit, pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
 
 - **Assignee / Label**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me`와 적용 가능한 `--label`을 포함. 권한 부족 등으로 `--assignee`/`--label` fallback이 발생하면, drop된 플래그가 무엇이고 왜 빠졌는지 사용자에게 명시적으로 고지한다 (silent drop 금지)
 - **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지

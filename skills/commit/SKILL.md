@@ -217,6 +217,7 @@ Add scope in parentheses when the change targets a specific module or component:
 - Keep the subject line concise — aim for under 50 characters.
 - Use natural, fluent phrasing. Do not force-translate well-known technical terms. For example, write `source_map` as-is rather than translating it.
 - Focus on WHAT changed and WHY, not HOW.
+- Do not use em-dash (—) or en-dash (–) in the subject or body. Replace with a colon, parentheses, or comma.
 
 ### Multi-line Body (for complex changes)
 

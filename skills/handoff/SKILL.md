@@ -59,13 +59,23 @@ From this, take exactly two facts: the branch name, and whether uncommitted chan
 - Reference by path only. Never quote, summarize, or paraphrase the content of a file into the handoff.
 - Do NOT go hunting for documents the session never touched. No speculative `Glob` over spec/plan directories, no scanning for artifacts that "might be relevant". If the conversation did not mention it, it does not belong in the handoff.
 
+## The Handoff Is an Order, Not a Briefing
+
+The output is a **prompt the user pastes to put the next agent to work immediately**. It is not a status report the user then has to act on by writing a second message. If the user has to follow the handoff with "so go do it," the handoff failed.
+
+Two consequences for how you write it:
+
+**Write it as the user speaking to the agent.** Use the user's own conversational register, the way they actually talk in this session — plain spoken Korean (`~해줘`, `~부터 시작하면 돼`, `~는 이미 해놨어`), not spec prose (`~할 것`, `~를 수행한다`). You are drafting the message the user would have typed themselves, so it should sound like them, not like a requirements document.
+
+**Every handoff ends in an action.** Even when the direction is genuinely undecided, the directive still commands: *"먼저 X 훑어보고 어떻게 갈지 정리해서 알려줘"* — investigate and report is an action. What is never acceptable is a directive-free summary that leaves the agent waiting for instructions.
+
 ## Build the Handoff
 
 Three parts, in order. Nothing else.
 
-**Directive** — 1~3 lines opening the prompt. What to do first, concretely enough to act on. If the work is exploratory, say what to investigate and what the output should be. Include the branch here, plus the uncommitted-changes fact if there is any.
+**Directive** — 1~3 lines opening the prompt, in the user's spoken voice. Name the branch, say what to do first, and make it concrete enough to start on without asking a follow-up question. Mention uncommitted changes here if there are any.
 
-**맥락** — 0~4 bullets. Only decisions, reasons, dead ends, and constraints. If the session produced nothing that survives the One Principle, omit this section entirely. An empty 맥락 is a correct outcome, not a failure.
+**맥락** — 0~4 bullets. Only decisions, reasons, dead ends, and constraints — still in the user's voice ("미들웨어로 하려다 접었어. SSR에서 쿠키를 못 읽더라"). If the session produced nothing that survives the One Principle, omit this section entirely. An empty 맥락 is a correct outcome, not a failure.
 
 **참고** — paths, PR numbers, issue numbers. Only ones the next session will actually open to do its first action. Omit if there are none.
 
@@ -80,19 +90,21 @@ The single exception: the user explicitly asks for a skill in the handoff. In th
 ### Example
 
 ```markdown
-feat/auth-refactor 브랜치에서 세션 만료 처리 구현을 이어서 진행할 것.
-커밋되지 않은 변경이 있으니 git status로 먼저 확인.
+feat/auth-refactor 브랜치에서 세션 만료 처리 이어서 해줘.
+커밋 안 한 변경이 남아 있으니 git status부터 확인하고 시작하면 돼.
 
 **맥락**
-- 토큰 갱신은 미들웨어가 아니라 클라이언트 인터셉터에서 처리하기로 결정. 미들웨어 방식은 SSR 경로에서 쿠키를 못 읽어 폐기함
-- 리프레시 토큰 회전(rotation)은 이번 스코프에서 제외 (사용자 요청)
+- 토큰 갱신은 미들웨어 말고 클라이언트 인터셉터에서 처리하기로 했어. 미들웨어로 하려다 접었는데, SSR 경로에서 쿠키를 못 읽더라
+- 리프레시 토큰 회전은 이번 스코프에서 빼기로 했으니 건드리지 마
 
 **참고**
 - docs/auth-design.md
 - #128
 ```
 
-The directive names the branch and the first action. The 맥락 bullets are things no file states: a rejected approach with its reason, and a scope boundary. The 참고 lines are paths, not summaries. Notice what is absent — no file list, no commit log, no recap of what this session accomplished, no skill names.
+Read that as the user's own message: it tells the agent to start, in the voice the user actually uses. The 맥락 bullets carry things no file states — a rejected approach with the reason it failed, and a scope boundary. The 참고 lines are paths, not summaries.
+
+Notice what is absent: no file list, no commit log, no recap of what this session accomplished, no skill names, and no "상황을 파악하라"-style preamble that would leave the agent idling instead of working.
 
 ## Output
 

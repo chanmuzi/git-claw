@@ -8,306 +8,100 @@ version: "1.0.0"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 
-## Core Principles
+## The One Principle
 
-**1. Next-action relevance.** Include only information the next session needs to act. Completed work from this session belongs in the handoff **only if it is a precondition** for the next task. The question to ask for every bullet: *"If I remove this, where does the next session get stuck?"* — if nothing breaks, drop it. The handoff is not a session recap.
+**Write only what the next session cannot recover by reading the repo.**
 
-**2. Reference, never repeat.** If a spec, plan, or document exists, reference its path. The handoff prompt contains only: (1) pointers to existing artifacts, (2) session context not captured elsewhere, (3) a directive for the next session's first action.
+The next session is a capable agent with full access to the code, the docs, the git history, and the GitHub API. It will explore on its own. Anything it can find by reading a file is noise in the handoff — it costs tokens, and worse, a stale restatement of a file competes with the file itself.
+
+What it *cannot* recover by reading:
+
+- **Decisions and their reasons** — the code shows what was chosen, never why, nor what was rejected.
+- **Dead ends** — an approach that was tried and abandoned leaves no trace in the repo, so the next session will happily retry it.
+- **Constraints stated by the user** — preferences, scope boundaries, "don't touch X".
+- **The next action** — what to do first, which the repo cannot tell it.
+
+That is the entire content of a handoff. Everything else is a session recap, and a session recap is not a handoff.
+
+Test every line before writing it: *"Could the next session learn this by opening a file?"* If yes, delete it and reference the path instead.
 
 ## Parse Arguments
 
-Parse `$ARGUMENTS` to determine the handoff mode.
-
 | Argument | Type | Description |
 |----------|------|-------------|
-| `topic` | Optional string | Focus filter — handoff concentrates on this topic only (e.g., `/handoff auth 리팩토링`) |
-| `-y` | Optional flag | Skip confirmation — output handoff prompt directly without draft review |
+| `topic` | Optional string | Focus filter — scope the handoff to this topic only (e.g., `/handoff auth 리팩토링`) |
+| `-y` | Optional flag | Skip the draft step and output the handoff directly |
 
-If `$ARGUMENTS` contains `-y`, extract it as the skip-confirmation flag. The remaining text (if any) is the topic filter.
+If `$ARGUMENTS` contains `-y`, treat it as the skip flag; the remaining text is the topic filter. If `$ARGUMENTS` is empty, scope the handoff to whatever the session was actually working on.
 
-If `$ARGUMENTS` is empty, proceed with auto-detection and default confirmation flow.
+## Gather Context
 
-## Detection Cascade
+**1. The conversation.** This is the only real source. Identify, from the next session's perspective:
 
-Run the following detection layers in priority order. Each layer enriches the handoff context.
+- What it should do first
+- What was decided, and why
+- What was tried and rejected
+- What constraints it must respect
 
----
+If a topic filter was given, drop everything outside it.
 
-**Layer 0 — Topic Override**
-
-If a topic was provided in `$ARGUMENTS`, use it to scope the handoff. The topic guides which parts of the session context to include. Continue to subsequent layers for context detection, but filter all results through this topic.
-
----
-
-**Layer 1 — Sentinel Skill Detection (Zero-cost)**
-
-Check if these sentinel skill names exist in the current session's available skills. This is zero-cost: no Bash, no filesystem reads — check the session's context window for skill names.
-
-| Sentinel | Plugin | What it enables |
-|----------|--------|-----------------|
-| `oh-my-claudecode:autopilot` | OMC | Recommend `/autopilot` or `/ralph` for spec/plan-based execution |
-| `git-claw:commit` | git-claw (self) | Recommend `/commit` for uncommitted changes |
-| `git-claw:pr` | git-claw (self) | Recommend `/pr` for committed changes without PR |
-
-Store detected sentinels for use in the skill recommendation step.
-
----
-
-**Layer 2 — Conversation Context Analysis**
-
-Analyze the current conversation to identify **what the next session needs to act**, not to summarize what this session did. This is the **primary context source** — it always runs and is never a fallback.
-
-Extract from the **next-session perspective**:
-- The starting state the next session must enter from (entry preconditions)
-- Decisions or constraints the next session must respect
-- Open questions or trade-offs that block the next first action
-
-**Exclusion criteria — drop these even if they happened in this session:**
-- Completed side work whose outcome does not gate the next task (e.g., a merged PR on an unrelated feature, a renamed component, branding/styling tweaks)
-- Closed or abandoned threads (e.g., issues marked NOT_PLANNED, dropped alternatives) that the next task does not depend on
-- Recap-style "we did X, Y, Z" enumerations — keep only items that are entry preconditions for the first next action
-
-The output of this layer scopes all subsequent layers — Layer 3 (Git) and Layer 4 (Artifact Search) are filtered through this understanding.
-
-If a topic filter was provided (Layer 0), focus the analysis accordingly.
-
-**This layer triggers the confirmation flow** (unless `-y` flag is set or a relevant artifact is found in Layer 4), because conversation-derived summaries need user validation before handoff.
-
----
-
-**Layer 3 — Git State Detection**
-
-Gather current git state:
+**2. Git — branch name only.**
 
 ```bash
 git branch --show-current
 git status --short
-git diff --stat
-git log --oneline -5
-git stash list
 ```
 
-Use these as data inputs for the `상황` section, applying the **Next-action relevance** filter from the Core Principles — include each item only when it gates the next action:
-- Current branch name — always (the next session needs to know where to start)
-- Uncommitted changes (count and nature) — only when the next session must continue from them
-- Recent commits — only when a specific commit is a precondition for the next action; do NOT dump the full `git log` output as a session recap
-- Stashed work — only when the next session must restore it
+From this, take exactly two facts: the branch name, and whether uncommitted changes exist. Do NOT run `git log`, `git diff --stat`, or `git stash list`, and do NOT list changed files — the next session runs `git status` itself in one command. The handoff says *that* there is uncommitted work, never *what* it is.
 
----
+**3. Referenced paths.** If the session created or worked against a spec, plan, design doc, or issue, note its path or number. Verify the path exists before citing it.
 
-**Layer 4 — Artifact Search (Context-Scoped)**
+- Reference by path only. Never quote, summarize, or paraphrase the content of a file into the handoff.
+- Do NOT go hunting for documents the session never touched. No speculative `Glob` over spec/plan directories, no scanning for artifacts that "might be relevant". If the conversation did not mention it, it does not belong in the handoff.
 
-Search for existing structured artifacts using the Glob tool:
+## Build the Handoff
 
-```
-Glob: .omc/specs/*.md
-Glob: .omc/plans/*.md
-```
+Three parts, in order. Nothing else.
 
-Combine results from both patterns.
+**Directive** — 1~3 lines opening the prompt. What to do first, concretely enough to act on. If the work is exploratory, say what to investigate and what the output should be. Include the branch here, plus the uncommitted-changes fact if there is any.
 
-**Important:** Only select artifacts that are **relevant to the conversation context identified in Layer 2**. Artifacts from other sessions or unrelated work MUST be ignored. The conversation context is the filter — not the other way around.
+**맥락** — 0~4 bullets. Only decisions, reasons, dead ends, and constraints. If the session produced nothing that survives the One Principle, omit this section entirely. An empty 맥락 is a correct outcome, not a failure.
 
-If relevant artifacts are found:
-- Read the first few lines **only to verify relevance** to the current session's work.
-- Do **not** copy or quote any artifact content into the handoff; reference the artifact **by its path only**.
-- If **multiple** artifacts appear relevant, use the conversation context (Layer 2) to autonomously select the best match — the conversation typically mentions which artifact was created or worked on. Only ask the user if the model genuinely cannot determine the most relevant one after analysis.
-- This is the **artifact-present** path. Skip confirmation — generate the final handoff prompt directly.
+**참고** — paths, PR numbers, issue numbers. Only ones the next session will actually open to do its first action. Omit if there are none.
 
-If no relevant artifacts are found, proceed with conversation-derived context from Layer 2.
+Hard limits: 15 lines total, 4 bullets in 맥락. If it does not fit, the extra content was recap.
 
-## Build Handoff Prompt
+### Skills and slash commands
 
-Construct the handoff using the two-zone output structure.
+Do NOT mention skills, slash commands, or plugins in the handoff by default — not `/commit`, not `/pr`, not third-party plugin commands. The next session picks its own tools, and it may not be running in the same agent or with the same plugins installed.
 
-### Zone 1 — Meta Zone (terminal display only)
+The single exception: the user explicitly asks for a skill in the handoff. In that case, pick only from the skills actually available in the current session, and weave the name into the directive so a copy-paste triggers it.
 
-Display detection results to the user for transparency. This zone is NOT part of the handoff prompt and will not be included when the user runs `/copy`.
-
-Show:
-- Which artifacts were found (paths)
-- Which sentinel skills were detected (plugin names)
-- Which skill is recommended and why
-
-### Zone 2 — Handoff Zone (the copy target)
-
-Separate the Meta Zone and Handoff Zone with a clear `---` divider.
-
-**Wrap the entire Handoff Zone in a fenced code block with the language set to `markdown`.** This enables `/copy` to present it as a selectable item in the picker UI, so the user can copy only the handoff content without the Meta Zone.
-
-### Directive Line
-
-The handoff prompt always opens with a **directive** — 1~3 lines that tell the next session what to do first.
-
-- When the intent is clear: a concrete command (what, where, how)
-- When exploration is needed: scope the investigation and specify expected output
-- When continuing with a skill: weave the skill name into the directive so copy-paste triggers it directly
-
-The tone does not need to be strictly imperative. Natural phrasing is fine as long as the intended action is unambiguous.
-
-### Section Pool
-
-Below the directive, add structured context by selecting from the section pool. Each section uses a **bold heading** followed by bullets.
-
-| Section | Purpose | When to include |
-|---------|---------|-----------------|
-| `상황` | Entry preconditions for the next action — minimum facts the next session needs to start, plus git metadata | **Always** |
-| `원인` | Diagnosed root cause of a problem | Bug/issue where root cause was identified |
-| `진행 상황` | Completed vs remaining work | Work is partially done |
-| `판단 필요 사항` | Options and criteria for a pending decision | Direction not yet determined |
-| `조사 결과` | Investigation/analysis findings | Research done, execution not started |
-| `참고` | Files, PRs, issues, artifact paths, branches | References exist (**almost always**) |
-
-**Composition rules:**
-- `상황` is always present. `참고` is present whenever references exist.
-- Select 0–2 variable sections (`원인`, `진행 상황`, `판단 필요 사항`, `조사 결과`) based on the scenario. Do not include sections that have no content.
-- Keep each section to 5 bullets or fewer. Consolidate or point to artifact paths for detail.
-- Omit empty sections entirely.
-- Artifact paths from Layer 4 belong in `참고`. Never copy artifact content inline — reference by path only.
-- Git state (branch, status) is included in `상황` as inline info, not as a standalone section.
-
-**Anti-patterns — do not do these:**
-- ❌ Listing this session's PR/commit details (renames, color tweaks, branding, side refactors) when they are not preconditions for the next task.
-- ❌ Treating `상황` as a session recap (*"we merged X, decided Y, closed Z"*) instead of entry preconditions for the next action.
-- ❌ Citing closed or NOT_PLANNED side issues that the next task does not depend on.
-- ❌ Including `git log --oneline -5` items in `상황` or `참고` when those commits are not entry preconditions.
-- ❌ Padding `참고` with PRs/issues that the next session has no reason to open.
-
-### Scenario Patterns
-
-Typical combinations — adapt based on actual session content, not rigid templates.
-
-**Clear task** — directive + `상황` + `원인` + `참고`:
+### Example
 
 ```markdown
-{project}에서 {problem}을 {approach}로 해결할 것.
+feat/auth-refactor 브랜치에서 세션 만료 처리 구현을 이어서 진행할 것.
+커밋되지 않은 변경이 있으니 git status로 먼저 확인.
 
-**상황**
-- {background and current state}
-- Branch: `{branch}` / Status: {state}
-
-**원인**
-- {root cause analysis}
+**맥락**
+- 토큰 갱신은 미들웨어가 아니라 클라이언트 인터셉터에서 처리하기로 결정. 미들웨어 방식은 SSR 경로에서 쿠키를 못 읽어 폐기함
+- 리프레시 토큰 회전(rotation)은 이번 스코프에서 제외 (사용자 요청)
 
 **참고**
-- {files, PRs, etc.}
+- docs/auth-design.md
+- #128
 ```
 
-**Direction needed** — directive + `상황` + `판단 필요 사항` + `참고`:
-
-```markdown
-{project}에서 아래 이슈의 영향 범위를 진단하고
-대응 방식을 결정하여 작업 계획을 제시할 것.
-
-**상황**
-- {background and current state}
-
-**판단 필요 사항**
-- {option A vs option B, criteria}
-
-**참고**
-- {files, PRs, etc.}
-```
-
-**Partial progress** — directive + `상황` + `진행 상황` + `참고`:
-
-```markdown
-{artifact} 참고하여 {next step}부터 이어서 진행할 것.
-
-**상황**
-- {background and what this session was about}
-- Branch: `{branch}` / Status: {state}
-
-**진행 상황**
-- {completed items}
-- {remaining items}
-
-**참고**
-- Spec: {artifact_path}
-```
-
-**Investigation complete** — directive + `상황` + `조사 결과` + `참고`:
-
-```markdown
-아래 조사 결과를 바탕으로 {topic}에 대한 구현 방향을
-결정하고 작업을 시작할 것.
-
-**상황**
-- {background}
-
-**조사 결과**
-- {key findings}
-- {implications}
-
-**참고**
-- {files, PRs, etc.}
-```
-
-**Skill continuation (minimal)** — directive + `상황`:
-
-```markdown
-/autopilot으로 {artifact} 참고하여 {next step}부터 진행.
-
-**상황**
-- {brief context}
-- Branch: `{branch}` / Status: {state}
-```
-
-### Skill Recommendation Mapping
-
-Based on sentinel detection (Layer 1) + context type (Layers 2-4):
-
-| Context | OMC Available | No OMC | Strategy |
-|---------|---------------|--------|----------|
-| Spec exists (`.omc/specs/`) | `/autopilot` or `/ralph` | "spec 참고하여 작업 진행" | Spec-driven execution |
-| Plan exists (`.omc/plans/`) | `/autopilot` | "plan 참고하여 작업 진행" | Plan-driven execution |
-| Code changes (uncommitted) | `/commit` | `/commit` | Stage and commit first |
-| Committed, no PR | `/pr` | `/pr` | Create PR |
-| Conversation only | Context-dependent | Plain task description | Varies by topic |
-
-**Important:** Weave the skill name into the directive line so that copy-paste triggers the skill directly:
-- Good: `/autopilot으로 spec 참고하여 Step 4부터 진행`
-- Bad: `Step 4부터 진행 (추천: /autopilot)`
-
-## Pre-output Self-check
-
-Before showing the draft (or before final output when `-y` / artifact-present path skips confirmation), apply the next-action relevance test to every bullet across all sections.
-
-For each bullet, ask:
-
-> *"If this bullet is removed, where does the next session get stuck?"*
-
-- **Concrete answer** (e.g., "would not know which branch to start from", "would re-investigate a constraint already decided", "would miss the file that gates the first action") → keep.
-- **Vague answer or "they would still proceed fine"** → drop. The bullet is session recap, not handoff context.
-
-Apply the same check to `참고`: every PR / issue / file path must be something the next session will actually consult to perform its first action — not a session-history dump.
-
-If a section ends up empty after pruning, omit it entirely.
-
-```
-Conversation analyzed → Relevant artifact found? ──yes──→ Output directly
-                              │
-                              no
-                              │
-                              ├── -y flag? ──yes──→ Output directly
-                              │
-                              no
-                              │
-                              └── Show draft → user reviews and uses `/copy` or requests modifications
-```
-
-- **Relevant artifact found**: Skip confirmation. The handoff is a straightforward directive with minimal context sections.
-- **No relevant artifact, no -y**: Show draft directly. The user reviews the output and either uses `/copy` to accept, or requests modifications.
-- **-y flag**: Always skip confirmation regardless of artifact presence.
-
-Do NOT append confirmation questions like "이 내용으로 handoff 하면 될까요?" — the code block output is self-evident. If the user wants changes, they will ask.
+The directive names the branch and the first action. The 맥락 bullets are things no file states: a rejected approach with its reason, and a scope boundary. The 참고 lines are paths, not summaries. Notice what is absent — no file list, no commit log, no recap of what this session accomplished, no skill names.
 
 ## Output
 
-Output the final handoff prompt to the terminal. The user can then use `/copy` to copy it for the next session.
+Show the handoff wrapped in a fenced ` ```markdown ` block so `/copy` can pick it up as a single selectable item. Put nothing above it except, at most, one line noting a referenced artifact if one was found.
 
-**Important:**
-- Do NOT create any files. The terminal output IS the deliverable.
-- Do NOT execute the recommended next action. Only suggest it.
-- Do NOT modify any git state (no commit, push, branch creation). This skill is strictly read-only.
-- Do NOT repeat artifact content inline. Reference file paths only.
+Do not append a confirmation question — the block speaks for itself, and the user will ask if they want changes. When `-y` is passed, output with no preamble at all.
+
+**Constraints:**
+
+- Create no files. The terminal output IS the deliverable.
+- Do not execute the next action. Only describe it.
+- Do not touch git state. This skill is strictly read-only.

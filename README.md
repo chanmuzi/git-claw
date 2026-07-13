@@ -140,7 +140,7 @@ Creates a structured issue with the appropriate template and auto-assigns type/p
 
 ### `/review-reply` — Review & Reply to PR Comments
 
-Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you.
+Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you. Each item quotes the source verbatim and shows the proposed change as a diff, so you can accept or reject a suggestion without opening the files yourself — including dismissals, which quote the code that refutes the reviewer.
 
 ```
 /review-reply          # Review current branch's PR
@@ -149,7 +149,7 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 
 ### `/code-review` — Context-Aware Code Review
 
-Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens — catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. Produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens — catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. Produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). Every finding quotes the offending code verbatim and shows the fix as a diff, so a report is readable on its own — no jumping to the file to work out what was wrong. When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
 
 ```
 /code-review           # Auto-detect PR, review changes, or review cwd (context-aware)

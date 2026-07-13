@@ -193,6 +193,8 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 <details>
 <summary>Details</summary>
 
+**An order, not a briefing:** The output is a prompt you paste to put the next agent to work immediately, written in your own conversational voice — not a status report you then have to act on by writing a second message. Every handoff ends in an action; even an undecided direction becomes "look into X first and tell me how you'd go."
+
 **Structure:** A directive (what to do first, on which branch), up to 4 context bullets, and reference paths. 15 lines total, hard cap. Sections with nothing to say are omitted — an empty context section is a correct outcome.
 
 **Git:** Branch name and whether uncommitted changes exist. Nothing more — no commit log, no diff stat, no file list. The next session runs `git status` itself.

@@ -286,14 +286,22 @@ For each Valid or Debatable suggestion:
    - **Follow-up (out of scope)**: Valid but out of scope for this PR. Will be tracked as an issue.
    - **Follow-up (blocked)**: The user approved it, but Step 4 was blocked (head mismatch or dirty tree), so it could not be applied here. Never record it as Applied (there is no commit) and never as Won't Fix (nobody decided against it). Tracked as an issue like any other Follow-up.
 4. After all approved changes are applied, suggest a commit message following the project's commit convention (e.g., `fix: 리뷰 피드백 반영`).
+5. **Record what you produced.** After the fix commit is created and pushed, save its SHA as `{expected_head_sha}`. The PR head is now *supposed* to differ from `{baseline_sha}` — you moved it. Step 5 uses `{expected_head_sha}` to tell your own push apart from someone else's, so without this the normal review-reply flow would abort on its own commit.
 
 ## Step 5: Reply to Review Comments
 
-**Precondition**: re-read `headRefOid` and compare it to `{baseline_sha}` (see "Verify the working tree matches the PR head") — not to local `HEAD`, which legitimately advances when Step 4 creates a commit. Two guards, both about not recording work that did not happen:
-- **No commit exists** (Step 4 was blocked, or the user approved a change that could not be applied): do NOT post `✅ 반영 완료` — there is no commit to link — and do NOT resolve the thread. An approved-but-unapplied item is **Follow-up (blocked)**, never Applied and never Won't Fix. Alternatively defer Step 5 entirely until the branch is checked out.
-- **The PR head moved during analysis** (`headRefOid` ≠ `{baseline_sha}`): your judgments were made against a revision that is no longer current. Stop and re-collect rather than replying. Posting and resolving are not reversible.
+**Precondition**: re-read `headRefOid` and compare it against what you expect it to be. **Which SHA you expect depends on whether Step 4 produced a commit** — conflating the two either aborts the normal flow or records work that is not on the remote:
 
-A `✅ 반영 완료` reply links a commit SHA. If the fix commit has not been pushed yet, say so or push first — a link to a commit that is not on the remote resolves to nothing for the reviewer.
+| Step 4 outcome | Expected `headRefOid` | If it differs |
+|----------------|----------------------|---------------|
+| Fixes applied, committed **and pushed** | `{expected_head_sha}` (the fix commit you pushed) | Someone else pushed on top of yours. Stop and re-collect. |
+| No fixes applied (all Won't Fix, or Step 4 blocked) | `{baseline_sha}` (unchanged since collection) | The PR moved under you. Stop and re-collect. |
+
+Never compare against local `HEAD`: it advances when Step 4 commits, and on the read-at-head path it never matches by design.
+
+Two guards, both about not recording work that did not happen:
+- **No commit exists** (Step 4 was blocked, or the user approved a change that could not be applied): do NOT post `✅ 반영 완료` — there is no commit to link — and do NOT resolve the thread. An approved-but-unapplied item is **Follow-up (blocked)**, never Applied and never Won't Fix. Alternatively defer Step 5 entirely until the branch is checked out.
+- **The fix commit exists locally but is NOT pushed**: `✅ 반영 완료` links a commit SHA, and a link to a commit that is not on the remote resolves to nothing for the reviewer. **Push first, then reply.** Do not post the reply and do not resolve the thread until the remote PR head is `{expected_head_sha}`. Posting and resolving are not reversible; pushing afterwards does not repair a dead link that reviewers already saw.
 
 After the commit is created, reply to each review comment on GitHub to record the resolution.
 

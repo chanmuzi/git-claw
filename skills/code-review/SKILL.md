@@ -322,7 +322,13 @@ Return findings as a structured list. Each finding must contain:
 - title: Short descriptive name (do not repeat the file name)
 - file_path: Exact file path
 - primary_line: Line number in the NEW version of the file where the issue is most visible; this is the canonical line-reference field for evidence requirements. **Omit it entirely** when the new version has no such line — the file is deleted by this change, is a binary/generated artifact, or does not exist yet. Never emit `null` and never invent a line number.
-- location_marker: Required **only** when `primary_line` is omitted. One of `deleted` / `binary` / `missing`. The evidence block then quotes the removed lines (`-`-only, from the diff) or the anchor per the absence rule. Such findings are NOT dropped for lack of a line — a validation or auth check deleted by this change is exactly the kind of finding that must survive.
+- location_marker: Required **only** when `primary_line` is omitted. One of:
+  - `deleted` — the file is deleted by this change. Evidence quotes the **removed lines** (`-`-only, from the diff).
+  - `binary` — a binary/generated artifact with no readable hunk. Evidence quotes the diff's `Binary files ... differ` line.
+  - `missing` — the file **genuinely does not exist**. Evidence quotes the anchor per the absence rule.
+  - `file-level` — **the file exists, but the finding has no single line** (it concerns the file as a whole, or the source gave no line). Evidence quotes the part of the file the finding is actually about, as a plain block. Do NOT use `missing` for this: claiming a file is absent when it is present makes the evidence itself false, and the removed-lines rule would demand lines that do not exist.
+
+  Such findings are NOT dropped for lack of a line — a validation or auth check deleted by this change is exactly the kind of finding that must survive.
 - occurrence_count: Number of instances of this pattern in the diff
 - current_code: The offending source lines, **copied verbatim** from the file — never paraphrased, summarized, or reconstructed from memory. Read the file to obtain them. Include only enough surrounding context to make the lines intelligible (12 lines max; elide the middle with `…` if longer).
 - proposed_code: The replacement lines, whenever a concrete localized fix exists — **at any severity, Info included**. Whether you produce this field is decided by whether a replacement exists, NOT by the severity. Omit only when there is nothing concrete to replace (the fix is directional/structural, or the finding needs no change at all).
@@ -355,7 +361,7 @@ Prioritize findings by: severity × exploitability × blast radius.
 8. Assess security logging: auth failures and access denials logged? No sensitive data in logs?
 
 ## Evidence Gate
-Every finding MUST cite the exact file path, and a line number whenever one exists in the new version. If you cannot point to a specific line in the diff or surrounding context, do not report it — with two exceptions: **absent-code** findings (a missing auth check, a missing validation) satisfy this gate via the anchor line; **deleted / binary / missing-file** findings satisfy it via the file path plus `location_marker` and the quoted removed lines. See the absence and no-line rules in the Output Format below. "No line to cite" is grounds to use those branches, never grounds to drop the finding — a security control deleted or never added is exactly what this gate must not silently swallow.
+Every finding MUST cite the exact file path, and a line number whenever one exists in the new version. If you cannot point to a specific line in the diff or surrounding context, do not report it — with two exceptions: **absent-code** findings (a missing auth check, a missing validation) satisfy this gate via the anchor line; **no-line** findings (`deleted` / `binary` / `missing` / `file-level`) satisfy it via the file path plus `location_marker` and whatever evidence that marker calls for. See the absence and no-line rules in the Output Format below. "No line to cite" is grounds to use those branches, never grounds to drop the finding — a security control deleted or never added is exactly what this gate must not silently swallow.
 ```
 
 #### ⚡ Performance
@@ -418,7 +424,7 @@ Every finding MUST cite the exact file path, and a line number whenever one exis
 
 Each finding must include: title, file path, **primary line number**, occurrence count, **verbatim current code**, description, and action line — `suggested fix` for Critical/Warning severity, `recommendation label` (Accept / Monitor / Won't Fix) for Info severity. Any finding with a concrete localized fix must also include the proposed replacement lines, **regardless of severity** — severity decides the action line, not whether a replacement is produced.
 
-**Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Used for inline comment targeting in PR mode and for the location header above the evidence block. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number. When the new version has no such line (deleted file, binary artifact, file not yet created), omit the field and set `location_marker` instead — never fabricate a line, and never drop the finding for lack of one.
+**Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Used for inline comment targeting in PR mode and for the location header above the evidence block. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number. When the new version has no such line (deleted file, binary artifact, file not yet created, or a finding that is about the file as a whole), omit the field and set `location_marker` instead — never fabricate a line, and never drop the finding for lack of one.
 
 **Verbatim current code**: The reader must be able to see what the code actually says without opening the file. Quote it exactly as written; do not reconstruct it. This is also the reviewer's own guard against false positives — a finding whose quoted lines do not actually say what the description claims is a false positive, and quoting exposes it before it reaches the user.
 
@@ -518,11 +524,12 @@ retain their original severity and are included via contextual mapping
 
 ### No-Line Findings (`location_marker` set)
 
-A finding carrying `location_marker` (`deleted` / `binary` / `missing`) instead of `primary_line` **cannot have its file Read** — the file's absence *is* the finding's premise, not a verification failure. Reading it fails, and a failed read must never be mistaken for "unverifiable → Dismissed". Substitute the context source:
+A finding carrying `location_marker` instead of `primary_line` has no line to Read around. For three of the four markers the file itself cannot be Read either — and that absence *is* the finding's premise, not a verification failure. A failed read must never be mistaken for "unverifiable → Dismissed". Substitute the context source per marker:
 
 - `deleted`: verify against the diff's LEFT side (`gh pr diff {number}`). The removed lines must actually say what the finding claims. Then check whether the removed logic reappears elsewhere in the diff — an auth check *moved* to middleware is **Dismissed**; one simply *removed* is **Confirmed**.
 - `missing`: verify the anchor / sibling quoted as evidence, not the absent file.
 - `binary`: verify the diff's `Binary files ... differ` line plus whatever was claimed out-of-band.
+- `file-level`: **the file exists** — Read it normally and verify the finding against the part of the file it concerns. This marker means "no single line", not "no file". Do not look for removed lines here; there are none.
 
 "I could not Read the file" is never grounds for Dismissed on this path. A deleted validation or auth check is precisely the finding this branch exists to carry to the user.
 
@@ -562,7 +569,7 @@ If Codex mode is NOT **disabled**, collect findings from the Codex agent(s) afte
    | Standard field | From Codex |
    |----------------|-----------|
    | `file_path` | the cited file |
-   | `primary_line` | the line from `{file}:{n}` or `{file}:{n}-{m}`. **The line suffix may be absent** — the renderer omits it when the finding carries no line, and the companion does not enforce per-finding required fields at runtime. When there is no line, omit `primary_line` and set `location_marker` (`deleted` if the file is deleted in the diff, otherwise `missing`) so the finding routes through Step 6 tier 0. Never fabricate a line to force an inline anchor. |
+   | `primary_line` | the line from `{file}:{n}` or `{file}:{n}-{m}`. **The line suffix may be absent** — the renderer omits it when the finding carries no line, and the companion does not enforce per-finding required fields at runtime. The free-form `review` output routinely has no line at all. When there is no line, omit `primary_line` and pick the marker **by the file's actual state, not by default**: `deleted` if the diff deletes the file; `missing` only if the file genuinely does not exist; otherwise **`file-level`** — the file is right there, the finding simply has no single line. Check before you label. Marking a present file `missing` makes the evidence a lie (it would demand removed lines that do not exist) and tells the reader the file is gone when it is not. Never fabricate a line to force an inline anchor. |
    | `title` | carry over as-is. Do not re-invent it from the body. |
    | `description` | the body |
    | `severity` | Map `critical` → Critical; `high` → Critical if it meets the local Critical criteria (security vulnerability, data loss, crash), otherwise Warning; `medium` → Warning; `low` → Info. **Do not free-reclassify from the body** — re-deriving severity silently promotes or demotes findings. Override only when cross-validation gives positive grounds, and say so. |
@@ -656,7 +663,7 @@ Each finding reads top-down as: what it is (title) → where (location) → **wh
 
 The evidence block is a fenced ` ```diff ` block. This format is deliberate: the `-` / `+` characters carry the meaning as plain text, so the block stays readable in agents whose renderers lack syntax highlighting (Codex CLI, Gemini CLI, plain pipes). Never rely on color alone to convey before/after.
 
-The location header below is written as `` `{file}:{primary_line}` `` throughout. When the finding carries a `location_marker` instead (deleted / binary / missing file — no line exists in the new version), the header becomes `` `{file}` ({marker}) `` and the evidence block quotes the removed lines (`-`-only). This substitution applies to every template that follows; it is not repeated in each one.
+The location header below is written as `` `{file}:{primary_line}` `` throughout. When the finding carries a `location_marker` instead (no line exists for it), the header becomes `` `{file}` ({marker}) `` and the evidence block follows that marker's rule: `deleted` quotes the removed lines (`-`-only), `binary` quotes the diff's `Binary files ... differ` line, `missing` quotes the anchor, and **`file-level` quotes the relevant part of the file as a plain block** (the file exists — there are no removed lines to show). This substitution applies to every template that follows; it is not repeated in each one.
 
 ````markdown
 ## Code Review: {target}
@@ -814,11 +821,16 @@ flowchart LR
 {if primary_line exists:}
 `{file}:{primary_line}` ({N}곳)
 {else — location_marker is set:}
-`{file}` ({deleted | binary | missing}) ({N}곳)
+`{file}` ({deleted | binary | missing | file-level}) ({N}곳)
 {end if}
 
-{if location_marker is set:}
-{The code is gone from the new version — quote the REMOVED lines from the diff, `-`-only. For a binary artifact, quote the diff's `Binary files ... differ` line and state what was verified out-of-band.}
+{if location_marker is `file-level`:}
+{The file EXISTS; the finding just has no single line. Quote the relevant part of it as a plain block — there are no removed lines here.}
+```{lang}
+{the part of the file the finding concerns, verbatim}
+```
+{else if location_marker is set (deleted / binary / missing):}
+{The code is gone from the new version — quote the REMOVED lines from the diff, `-`-only. For a binary artifact, quote the diff's `Binary files ... differ` line and state what was verified out-of-band. For `missing`, quote the anchor.}
 ```diff
 - {removed lines, verbatim from the diff}
 ```
@@ -941,7 +953,7 @@ Severity does not decide this. An **Info** finding with a concrete one-line fix 
 
 **Common rules (both formats)**:
 - Location: `` `{file}:{primary_line}` `` on its own line, followed by the occurrence count (e.g., "(3곳)", "(1곳)"). The line number anchors the evidence block that follows; because the quoted lines are shown, the reader can still find the code if the line has since shifted.
-- **No line exists in the new version** (the finding concerns a deleted file, a binary/generated artifact, or a file that does not exist yet): omit `:{primary_line}` and write `` `{file}` `` alone with a marker — `` `{file}` (deleted) ``, `` `{file}` (binary) ``, `` `{file}` (missing) ``. Never emit `:null` and never invent a line number. The evidence block then quotes the removed lines (`-`-only, taken from the diff) or the anchor/sibling per the absence rule. These findings are not dropped for lack of a quotable line.
+- **No line exists for the finding** (a deleted file, a binary/generated artifact, a file that does not exist yet, or a finding about the file as a whole): omit `:{primary_line}` and write `` `{file}` `` alone with a marker — `` `{file}` (deleted) ``, `` `{file}` (binary) ``, `` `{file}` (missing) ``, `` `{file}` (file-level) ``. Never emit `:null` and never invent a line number. The evidence block follows the marker: removed lines (`-`-only, from the diff) for `deleted`, the diff header for `binary`, the anchor for `missing`, and the relevant part of the file as a plain block for `file-level` (the file exists, so there is nothing removed to quote). These findings are not dropped for lack of a quotable line.
 - Line numbers belong in the location header (and in the source attribution of a quoted conflict) only. Do NOT scatter them through descriptions, `왜` text, or Fix suggestions — those reference locations by section heading, function name, or searchable code pattern.
 - Finding title must NOT repeat the file name (location is already on its own line).
 - Omit severity sections that have 0 findings.
@@ -1019,7 +1031,7 @@ gh pr diff {number}
 
 For each confirmed finding, resolve its target line in the PR diff:
 
-0. **No line to target** (`primary_line` was omitted and `location_marker` is set — `deleted` / `binary` / `missing`): there is no RIGHT-side line to anchor to. A deleted file's code lives on the diff's LEFT side, a binary file has no hunk at all, and this skill does not post LEFT-side comments. Skip tiers 1–2 entirely and route the finding straight to **General Findings** (tier 3) in the review body, keeping its `` `{file}` (deleted|binary|missing) `` header and evidence block. Never fabricate a line to force an inline anchor — the Review API would 422, and the no-line rule forbids it. Never drop the finding either: a validation or auth check deleted by this PR is exactly what this branch exists to carry.
+0. **No line to target** (`primary_line` was omitted and `location_marker` is set — `deleted` / `binary` / `missing` / `file-level`): there is no line to anchor an inline comment to. A deleted file's code lives on the diff's LEFT side (and this skill does not post LEFT-side comments), a binary file has no hunk at all, and a `file-level` finding is about the file as a whole rather than any one line. Skip tiers 1–2 entirely and route the finding straight to **General Findings** (tier 3) in the review body, keeping its `` `{file}` ({marker}) `` header and evidence block. Never fabricate a line to force an inline anchor — the Review API would 422, and the no-line rule forbids it. Never drop the finding either: a validation or auth check deleted by this PR is exactly what this branch exists to carry.
 
 1. **Exact match**: The finding's file + line appears in a diff hunk (added line `+`,
    or context line on the RIGHT side). Include as an inline comment at that location.

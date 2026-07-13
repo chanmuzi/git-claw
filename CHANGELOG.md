@@ -26,6 +26,8 @@
   - **Artifact Search(Layer 4) 하드코딩 glob 삭제** — `.omc/specs/*.md`, `.omc/plans/*.md` 투기적 탐색이 무관한 산출물의 유입 경로였음. 대화에서 실제로 생성·참조한 경로만 인용
   - **Git 수집 범위 축소** — `git log`/`git diff --stat`/`git stash list` 제거. 브랜치 이름과 커밋되지 않은 변경의 유무 두 가지만 사용. 변경 파일 목록도 나열하지 않음 (다음 세션이 `git status` 한 번으로 확인 가능)
   - **Section pool 6종 → 3부 고정** (directive / 맥락 / 참고), 시나리오 템플릿 4종과 anti-pattern 목록 제거. 전체 15줄·맥락 불릿 4개 상한 명시. 맥락이 비는 것을 실패가 아닌 정상 결과로 규정
+  - **산출물을 "상태 브리핑"이 아닌 "지시 프롬프트"로 재정의** — 기존 출력은 붙여넣어도 다음 에이전트가 바로 움직이지 않아, 사용자가 읽고 나서 "그럼 이거 해줘"라고 한 번 더 지시해야 하는 이중 단계가 발생했음. 이제 directive를 사용자의 구어체(`~해줘`, `~부터 시작하면 돼`)로 작성하여 사용자가 직접 타이핑했을 메시지 형태로 산출한다(사양서 톤 `~할 것` 금지). 방향이 미정인 경우에도 "먼저 X 훑어보고 어떻게 갈지 알려줘"처럼 조사 자체를 지시하여, **모든 handoff가 행동으로 끝나도록** 강제. 지시 없는 요약은 실패로 규정
+- CLAUDE.md 브랜치 테스트 절차에 검증 단계 추가 — `/reload-plugins`가 marketplace(main)에서 새 hash의 cache 디렉토리를 생성하면 직전에 복사한 로컬 스킬이 활성 경로에서 밀려나 **구버전이 로드되는 함정**이 있음(실제로 발생). "복사 → reload" 2단계로 끝났다고 가정하지 않고, reload 후 활성 cache를 재탐색해 `diff -q`로 신버전 여부를 대조하며, 불일치 시 재복사 후 reload를 한 번 더 수행하도록 절차 보강. 테스트 안내 흐름에도 검증 단계를 명시하고, 이를 건너뛴 채 테스트 결과를 보고하지 않도록 규정(구버전 실행 결과를 신버전 결과로 오인 보고하는 것 방지)
 - `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
 - `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시
 - `/commit` Intent Grouping 단계 추가 (commit skill v1.5.0) — staging 전 변경 파일을 6종 카테고리(`infra-deploy`/`agent-meta`/`app-runtime`/`build-tooling`/`docs`/`test`)로 그룹핑하고, 2+ 카테고리 시 카테고리당 별도 commit 강제. Push 상태(이미 push 여부)가 분할 결정에 영향 주지 않도록 명시. Force push가 필요한 경우 Amend 섹션과 동일한 confirmation 패턴 적용

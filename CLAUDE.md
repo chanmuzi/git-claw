@@ -99,7 +99,9 @@ fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 
 플러그인 cache 디렉토리에 로컬 스킬 파일을 복사한 뒤 `/reload-plugins`로 반영한다.
 marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작한다.
 
-**중요**: `installed_plugins.json`의 `installPath`와 실제 로드되는 cache 경로가 다를 수 있다 (`/reload-plugins`가 새 hash를 생성하면서 `installed_plugins.json`을 갱신하지 않음). 가장 최근에 수정된 cache 디렉토리가 활성 경로이므로, `ls -td`로 탐색한다. 복사는 반드시 `/reload-plugins` **전에** 수행한다.
+**중요**: `installed_plugins.json`의 `installPath`와 실제 로드되는 cache 경로가 다를 수 있다 (`/reload-plugins`가 새 hash를 생성하면서 `installed_plugins.json`을 갱신하지 않음). 가장 최근에 수정된 cache 디렉토리가 활성 경로이므로, `ls -td`로 탐색한다.
+
+**함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
 > `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리한다:
 > `ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf`
@@ -111,14 +113,22 @@ cp -r skills/ "$CACHE/skills/"
 
 # 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
 
-# 3. 수정한 스킬 테스트 수행
-/{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
+# 3. 검증 — reload가 새 cache를 만들지 않았는지 확인 (필수)
+#    로드된 스킬 본문에만 있는 고유 문자열로 확인한다
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKILL.md" \
+  && echo "신버전 로드됨" \
+  || { cp -r skills/ "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
 
-# 4. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
+# 4. 수정한 스킬 테스트 수행
+/{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
+#    스킬 실행 시 출력되는 "Base directory"가 위 $CACHE와 같은지 확인할 것
+
+# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
 CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
 cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 
-# 5. (이 세션에서 실행) /reload-plugins   ← 원본 복원
+# 6. (이 세션에서 실행) /reload-plugins   ← 원본 복원
 ```
 
 > **`/reload-plugins`는 반드시 이 Claude Code 세션에서 실행**해야 한다. 별도 터미널에서 실행하면 현재 세션의 메모리에 반영되지 않는다.
@@ -129,8 +139,9 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 
 1. **최신 cache 탐색 + 복사**: `ls -td` 로 최신 cache 경로 탐색 → 로컬 스킬 복사
 2. **reload 요청**: 사용자에게 이 세션에서 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드)
-3. **테스트 실행 + 결과 리포트**: 스킬 실행 및 결과 보고
-4. **복원 + reload 안내**: marketplace에서 최신 cache로 복원 → 사용자에게 이 세션에서 `/reload-plugins` 실행 안내
+3. **검증**: reload 후 활성 cache를 다시 탐색해 `diff -q`로 신버전 여부 확인. 새 cache가 생겨 구버전이 로드됐으면 재복사 후 reload를 한 번 더 요청한다. 스킬 실행 시 표시되는 `Base directory`가 활성 cache와 일치하는지도 함께 확인한다. **이 단계를 건너뛰고 테스트 결과를 보고하지 않는다** (구버전 실행 결과를 신버전 결과로 오인해 보고하게 됨)
+4. **테스트 실행 + 결과 리포트**: 스킬 실행 및 결과 보고
+5. **복원 + reload 안내**: marketplace에서 최신 cache로 복원 → 사용자에게 이 세션에서 `/reload-plugins` 실행 안내
 
 복원 절차를 테스트 전에 미리 보여주지 않는다. 시나리오 소개와 복원이 한 번에 나오면 정보 과부하.
 

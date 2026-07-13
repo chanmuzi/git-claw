@@ -252,7 +252,7 @@ Launch activated domain agents in parallel. Each agent receives the full diff an
 When `--quick` is set, skip all agent spawning (team and sub-agent). Instead, perform the analysis directly in the main context:
 
 1. For each activated domain (max 2 from Step 2), analyze the diff using that domain's Investigation Protocol (see Domain Definitions below).
-2. Produce findings in the same format as agent results: title, file path, primary line number, occurrence count, description, and action line.
+2. Produce findings in the same format as agent results — the **Output Format in the Common Prompt Suffix below applies in full**, even though no agent is spawned: title, file path, primary line number, occurrence count, `current_code` (verbatim), `proposed_code` (when a concrete fix exists), description, and action line. Evidence is mandatory in Quick mode too; read the file to quote the offending lines.
 3. Produce findings for **all severity levels** (Critical, Warning, Info). The output step decides which severities to display based on results (see Step 5 Quick Mode Output).
 4. Skip Codex execution entirely (mode is **disabled**).
 
@@ -272,7 +272,7 @@ Used when `-s`/`--sub` flag is NOT set. Each domain agent gets its own context w
 1. `TeamCreate` — name: `code-review`.
 2. For each activated domain:
    - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and the domain-specific prompt/protocol from Domain Definitions.
-   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and finding format (title, file path, primary line number, occurrence count, description, and action line per severity).
+   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and the finding format defined by the Common Prompt Suffix Output Format (which is the single source of truth for finding fields — do not restate a shorter field list here, it drifts).
    - `TaskUpdate` — set `owner` to the agent name.
 3. Monitor `TaskList` until all domain tasks complete. Collect findings from agent messages.
 4. Shut down agents via `SendMessage` with `shutdown_request`.
@@ -282,7 +282,7 @@ Fallback: if `TeamCreate` is unavailable, switch to Sub-agent mode.
 
 ### Sub-agent Mode
 
-Used when `-s`/`--sub` flag IS set, or as fallback. For each activated domain, launch an agent via `Agent` in parallel with `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and finding format. Results return to the main context.
+Used when `-s`/`--sub` flag IS set, or as fallback. For each activated domain, launch an agent via `Agent` in parallel with `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and the finding format defined by the Common Prompt Suffix Output Format. Results return to the main context.
 
 ### Domain Definitions
 
@@ -321,10 +321,20 @@ When reviewing code, use this PR purpose as your primary lens:
 Return findings as a structured list. Each finding must contain:
 - title: Short descriptive name (do not repeat the file name)
 - file_path: Exact file path
-- primary_line: Line number in the NEW version of the file where the issue is most visible; this is the canonical line-reference field for evidence requirements
+- primary_line: Line number in the NEW version of the file where the issue is most visible; this is the canonical line-reference field for evidence requirements. **Omit it entirely** when the new version has no such line — the file is deleted by this change, is a binary/generated artifact, or does not exist yet. Never emit `null` and never invent a line number.
+- location_marker: Required **only** when `primary_line` is omitted. One of `deleted` / `binary` / `missing`. The evidence block then quotes the removed lines (`-`-only, from the diff) or the anchor per the absence rule. Such findings are NOT dropped for lack of a line — a validation or auth check deleted by this change is exactly the kind of finding that must survive.
 - occurrence_count: Number of instances of this pattern in the diff
-- description: Issue explanation (reference locations by function name or code pattern; do not repeat line numbers here, since `primary_line` provides the line-based evidence)
+- current_code: The offending source lines, **copied verbatim** from the file — never paraphrased, summarized, or reconstructed from memory. Read the file to obtain them. Include only enough surrounding context to make the lines intelligible (12 lines max; elide the middle with `…` if longer).
+- proposed_code: The replacement lines, whenever a concrete localized fix exists — **at any severity, Info included**. Whether you produce this field is decided by whether a replacement exists, NOT by the severity. Omit only when there is nothing concrete to replace (the fix is directional/structural, or the finding needs no change at all).
+- description: Why the current code is a problem. If it conflicts with a rule, convention, or another file, quote that source verbatim too (file path + the conflicting lines) — a claim of inconsistency is not verifiable without both sides shown. Reference locations by function name or code pattern; do not repeat line numbers here, since `primary_line` provides the line-based evidence.
 - action: For Critical/Warning — suggested fix. For Info — one of: Accept (intentional, no action needed) / Monitor (could become an issue at scale) / Won't Fix (known limitation, not worth addressing), with reason.
+
+**Evidence is mandatory.** A finding without `current_code` is not reportable. If you cannot quote the exact lines you are objecting to, you have not verified the issue exists — drop it rather than reporting it from inference.
+
+**When the problem is absent code** — a missing check, a missing entry, a file never updated to match a new pattern — there are no offending lines to quote. Do NOT drop these findings; quote the **anchor** instead:
+- the existing lines the missing code should sit next to (the insertion point), or
+- the sibling that already does it right, which this location fails to match (quote the sibling with its own path).
+Set `current_code` to that anchor and `proposed_code` to the anchor with the addition included. In the output, a `+`-only diff block is the correct rendering. "Nothing to quote" is never grounds to drop an absence finding — it is grounds to quote the anchor.
 ```
 
 #### 🛡️ Security
@@ -345,7 +355,7 @@ Prioritize findings by: severity × exploitability × blast radius.
 8. Assess security logging: auth failures and access denials logged? No sensitive data in logs?
 
 ## Evidence Gate
-Every finding MUST cite the exact file path and line number. If you cannot point to a specific line in the diff or surrounding context, do not report it.
+Every finding MUST cite the exact file path, and a line number whenever one exists in the new version. If you cannot point to a specific line in the diff or surrounding context, do not report it — with two exceptions: **absent-code** findings (a missing auth check, a missing validation) satisfy this gate via the anchor line; **deleted / binary / missing-file** findings satisfy it via the file path plus `location_marker` and the quoted removed lines. See the absence and no-line rules in the Output Format below. "No line to cite" is grounds to use those branches, never grounds to drop the finding — a security control deleted or never added is exactly what this gate must not silently swallow.
 ```
 
 #### ⚡ Performance
@@ -363,7 +373,7 @@ Focus on issues that degrade under real-world load, not micro-optimizations.
 6. Check resource management: connection pool sizing, file handle leaks, stream backpressure
 
 ## Evidence Gate
-Every finding MUST cite the exact file path and line number. Only report issues with measurable impact under realistic load. Do not flag theoretical micro-optimizations.
+Every finding MUST cite the exact file path, and a line number whenever one exists in the new version (otherwise use the absence / no-line branches defined in the Output Format — never fabricate a line, never drop the finding for lack of one). Only report issues with measurable impact under realistic load. Do not flag theoretical micro-optimizations.
 ```
 
 #### 🏗️ Architecture
@@ -381,7 +391,7 @@ You evaluate whether changes align with existing codebase patterns and introduce
 6. Assess technical debt: does this change introduce shortcuts that will compound?
 
 ## Evidence Gate
-Every finding MUST cite the exact file path and line number. Reference the existing pattern or file that the change should align with. When recommending a change, state the trade-off (what is gained vs. what is sacrificed). Do not report subjective style preferences.
+Every finding MUST cite the exact file path, and a line number whenever one exists in the new version (otherwise use the absence / no-line branches defined in the Output Format — never fabricate a line, never drop the finding for lack of one). Reference the existing pattern or file that the change should align with. When recommending a change, state the trade-off (what is gained vs. what is sacrificed). Do not report subjective style preferences.
 ```
 
 #### 🔍 Domain Logic
@@ -403,12 +413,14 @@ You focus on whether the code does what it's supposed to do, handles all cases, 
 Your scope is correctness and behavioral soundness. Do not flag style, pattern consistency, or maintainability concerns — the Architecture domain covers those.
 
 ## Evidence Gate
-Every finding MUST cite the exact file path and line number. Describe the specific input or scenario that triggers the bug. Do not report hypothetical issues without a concrete trigger.
+Every finding MUST cite the exact file path, and a line number whenever one exists in the new version (otherwise use the absence / no-line branches defined in the Output Format — never fabricate a line, never drop the finding for lack of one). Describe the specific input or scenario that triggers the bug. Do not report hypothetical issues without a concrete trigger.
 ```
 
-Each finding must include: title, file path, **primary line number**, occurrence count, description, and action line — `suggested fix` for Critical/Warning severity, `recommendation label` (Accept / Monitor / Won't Fix) for Info severity.
+Each finding must include: title, file path, **primary line number**, occurrence count, **verbatim current code**, description, and action line — `suggested fix` for Critical/Warning severity, `recommendation label` (Accept / Monitor / Won't Fix) for Info severity. Any finding with a concrete localized fix must also include the proposed replacement lines, **regardless of severity** — severity decides the action line, not whether a replacement is produced.
 
-**Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Required for inline comment targeting in PR mode. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number (line numbers are used only for comment placement, not in the output text).
+**Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Used for inline comment targeting in PR mode and for the location header above the evidence block. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number. When the new version has no such line (deleted file, binary artifact, file not yet created), omit the field and set `location_marker` instead — never fabricate a line, and never drop the finding for lack of one.
+
+**Verbatim current code**: The reader must be able to see what the code actually says without opening the file. Quote it exactly as written; do not reconstruct it. This is also the reviewer's own guard against false positives — a finding whose quoted lines do not actually say what the description claims is a false positive, and quoting exposes it before it reaches the user.
 
 ### Codex Parallel Execution
 
@@ -460,6 +472,8 @@ If a Codex agent reports a non-zero exit code or returns an error (e.g., quota e
 
 If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI as the runner platform), perform all domain analyses sequentially in a single pass. Analyze each domain's Investigation Protocol one by one and collect findings.
 
+The **Output Format in the Common Prompt Suffix applies in full on this path too**, even though no agent is spawned and the Suffix is never injected as a prompt: every finding carries `current_code` (verbatim, read from the file), plus `proposed_code` when a concrete fix exists. Evidence is mandatory here as well — this is the path non-Claude-Code hosts actually take, so dropping the requirement here would exempt exactly the agents this skill is meant to support.
+
 ---
 
 ## Step 4: Cross-Validation
@@ -470,7 +484,7 @@ This is the quality gate. Review ALL findings from domain agents against the ful
 
 When `--quick` is set, perform a reduced validation pass:
 
-1. **Expanded context**: Read at least 15 lines around the flagged location using Read (half of normal).
+1. **Expanded context**: Read at least 15 lines around the flagged location using Read (half of normal). For `location_marker` findings, apply the No-Line Findings rules below instead — a failed Read is never grounds for Dismissed there either.
 2. **Sanity check**: Verify the finding references real code (not a false match from diff noise).
 
 Skip git history, comments/docs search, and PR description cross-reference. Apply Confirmed / Dismissed verdicts only (no Demoted). This trades thoroughness for speed — obvious false positives are still caught, but edge cases may pass through.
@@ -502,9 +516,19 @@ Findings that pass the causality test (or are included via `--full-scan`)
 retain their original severity and are included via contextual mapping
 (Step 6 tier 2) or General Findings (tier 3) as appropriate.
 
+### No-Line Findings (`location_marker` set)
+
+A finding carrying `location_marker` (`deleted` / `binary` / `missing`) instead of `primary_line` **cannot have its file Read** — the file's absence *is* the finding's premise, not a verification failure. Reading it fails, and a failed read must never be mistaken for "unverifiable → Dismissed". Substitute the context source:
+
+- `deleted`: verify against the diff's LEFT side (`gh pr diff {number}`). The removed lines must actually say what the finding claims. Then check whether the removed logic reappears elsewhere in the diff — an auth check *moved* to middleware is **Dismissed**; one simply *removed* is **Confirmed**.
+- `missing`: verify the anchor / sibling quoted as evidence, not the absent file.
+- `binary`: verify the diff's `Binary files ... differ` line plus whatever was claimed out-of-band.
+
+"I could not Read the file" is never grounds for Dismissed on this path. A deleted validation or auth check is precisely the finding this branch exists to carry to the user.
+
 ### Normal Mode
 
-For each finding:
+For each finding **that has a `primary_line`**:
 
 1. **Expanded context**: Read at least 30 lines around the flagged location using Read.
 2. **Git history**: Check if the code was intentionally written this way:
@@ -528,7 +552,26 @@ Log dismissed findings internally (do not output them) to avoid noise.
 
 If Codex mode is NOT **disabled**, collect findings from the Codex agent(s) after they complete. Codex findings join the cross-validation process identically to domain agent findings:
 
-1. **Merge into unified pool**: Combine Codex findings with domain agent findings before cross-validation.
+0. **Hydrate the Codex finding into the standard schema first.** What you receive depends on the subcommand — they are NOT the same artifact, and the agent sees **rendered text, not JSON** (the Bash command has no `--json`):
+
+   - **`adversarial-review`**: the model's output is validated against the companion's finding schema, then rendered as `- [{severity}] {title} ({file}:{line_start}-{line_end})` followed by the body and `Recommendation: ...`. Parse those rendered lines.
+   - **`review`**: the built-in codex reviewer's free-form stdout — **this schema does not apply**. Extract file / line / severity / rationale from the prose as best you can. A field the prose does not state is simply absent; do not invent it.
+
+   Map to the standard schema:
+
+   | Standard field | From Codex |
+   |----------------|-----------|
+   | `file_path` | the cited file |
+   | `primary_line` | the line from `{file}:{n}` or `{file}:{n}-{m}`. **The line suffix may be absent** — the renderer omits it when the finding carries no line, and the companion does not enforce per-finding required fields at runtime. When there is no line, omit `primary_line` and set `location_marker` (`deleted` if the file is deleted in the diff, otherwise `missing`) so the finding routes through Step 6 tier 0. Never fabricate a line to force an inline anchor. |
+   | `title` | carry over as-is. Do not re-invent it from the body. |
+   | `description` | the body |
+   | `severity` | Map `critical` → Critical; `high` → Critical if it meets the local Critical criteria (security vulnerability, data loss, crash), otherwise Warning; `medium` → Warning; `low` → Info. **Do not free-reclassify from the body** — re-deriving severity silently promotes or demotes findings. Override only when cross-validation gives positive grounds, and say so. |
+   | `occurrence_count` | Not provided — count the instances you can actually verify in the diff (default 1). |
+   | `current_code` / `proposed_code` | **Not provided.** Read the cited file and quote the cited lines verbatim; add the replacement when the recommendation implies a concrete one. **If the file is deleted in this diff, do not try to read it** — quote the removed lines from the diff's LEFT side and set `location_marker: deleted` (see No-Line Findings in Step 4). A failed read is not a false positive. |
+
+   The source read is itself a verification step: if the cited lines do not say what the body claims, the finding is a false positive and is dismissed in cross-validation below.
+
+1. **Merge into unified pool**: Combine hydrated Codex findings with domain agent findings before cross-validation.
 2. **Apply the same verdict process**: Each Codex finding undergoes the same Confirmed / Demoted / Dismissed evaluation (expanded context, git history, comments/docs, PR description).
 3. **Tag preservation**: Preserve the Codex origin tag on each finding (see Step 5 for tag rules). The tag indicates which Codex subcommand produced the finding.
 
@@ -555,6 +598,7 @@ When `--quick` is set, the output severity is determined by results:
 - **전체 0건**: Terminal/GitHub 공통 zero-findings 규칙 적용 (`✅ No issues found.`).
 
 Common rules:
+- **Evidence** — same as Normal mode. Quick mode reduces the number of findings, never the evidence behind one. A finding without verbatim current code is not reportable in any mode.
 - **Source Tags** — same as Normal mode, using domain names.
 - **Graph** — always omitted (see Quick Mode Implicit Effects).
 - **Codex tags** — not applicable (Codex disabled).
@@ -570,7 +614,7 @@ Common rules:
 
 ### Recommendation Labels
 
-Info findings use a recommendation label instead of a fix suggestion. The label conveys the reviewer's assessment of whether action is needed.
+Info findings use a recommendation label as their **action line**, in place of `> **Fix**:`. This concerns the action line only — an Info finding still carries a `diff` / `suggestion` block when a concrete fix exists (block format is decided by the fix, not the severity; see Formatting Rules). The label conveys the reviewer's assessment of whether action is needed.
 
 | Label | Meaning | When to use |
 |-------|---------|-------------|
@@ -608,9 +652,13 @@ There are two output formats depending on the rendering medium:
 
 Optimized for CLI readability. No HTML tags, no tables, flat structure.
 Three-level visual hierarchy: `────────────────────` (Unicode thin × 20) between severity sections, `---` between findings and after severity headers, blank lines within findings.
-Finding title comes first (renders as bold/bright in terminal), file path second.
+Each finding reads top-down as: what it is (title) → where (location) → **what the code says now and what it should say (evidence block)** → why that is a problem (근거).
 
-```markdown
+The evidence block is a fenced ` ```diff ` block. This format is deliberate: the `-` / `+` characters carry the meaning as plain text, so the block stays readable in agents whose renderers lack syntax highlighting (Codex CLI, Gemini CLI, plain pipes). Never rely on color alone to convey before/after.
+
+The location header below is written as `` `{file}:{primary_line}` `` throughout. When the finding carries a `location_marker` instead (deleted / binary / missing file — no line exists in the new version), the header becomes `` `{file}` ({marker}) `` and the evidence block quotes the removed lines (`-`-only). This substitution applies to every template that follows; it is not repeated in each one.
+
+````markdown
 ## Code Review: {target}
 
 Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
@@ -629,20 +677,27 @@ Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · �
 ---
 
 **C1. {finding title}** — {domain}
-`{file}` ({N}곳)
+`{file}:{primary_line}` ({N}곳)
 
-{description}
+```diff
+- {current code, verbatim}
++ {proposed replacement}
+```
 
-> **Fix**: {suggestion}
+**왜**: {why the current code is wrong — what breaks, under what input or condition}
 
 ---
 
 **C2. {finding title}** — {domain}
-`{file}` ({N}곳)
+`{file}:{primary_line}` ({N}곳)
 
-{description}
+```diff
+  {unchanged context line, if needed for intelligibility}
+- {current code, verbatim}
++ {proposed replacement}
+```
 
-> **Fix**: {suggestion}
+**왜**: {why}
 
 ────────────────────
 
@@ -651,20 +706,32 @@ Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · �
 ---
 
 **W1. {finding title}** — {domain}
-`{file}` ({N}곳)
+`{file}:{primary_line}` ({N}곳)
 
-{description}
+```diff
+- {current code, verbatim}
++ {proposed replacement}
+```
 
-> **Fix**: {suggestion}
+**왜**: {why — if this conflicts with a rule or another file, name it and quote it:}
+> {verbatim quote of the conflicting rule / code, with its source path}
+
+{one or two sentences tying the quote back to the finding}
 
 ---
 
 **W2. {finding title}** — {domain}
-`{file}` ({N}곳)
+`{file}:{primary_line}` ({N}곳)
 
-{description}
+{When the fix is directional or structural — no single localized replacement — quote the current code alone and put the direction in the Fix line:}
 
-> **Fix**: {suggestion}
+```{lang}
+{current code, verbatim}
+```
+
+**왜**: {why}
+
+> **Fix**: {directional suggestion, referencing sections/functions by name}
 
 ────────────────────
 
@@ -672,28 +739,41 @@ Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · �
 
 ---
 
+{Info with a concrete fix — the block is a diff, exactly as at any other severity. Severity changes the action line, not the evidence format:}
+
 **I1. {finding title}** — {domain}
-`{file}` ({N}곳)
+`{file}:{primary_line}` ({N}곳)
 
-{description}
+```diff
+- {current code, verbatim}
++ {proposed replacement}
+```
 
-> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
+**왜**: {what was observed and why it is worth changing}
+
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {why this judgment — NOT how to fix it; the diff above already shows that}
 
 ---
 
-**I2. {finding title}** — {domain}
-`{file}` ({N}곳)
+{Info with nothing to replace — an intentional trade-off, or an observation to watch. Quote the code alone:}
 
-{description}
+**I2. {finding title}** — {domain}
+`{file}:{primary_line}` ({N}곳)
+
+```{lang}
+{current code, verbatim}
+```
+
+**왜**: {what was observed, and why it does not warrant a change}
 
 > **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
-```
+````
 
 #### GitHub Format: Review Summary
 
 Posted as the pull request review `body`. Contains the severity counts, key changes, and any findings that could not be mapped to diff lines (unmapped findings).
 
-```markdown
+````markdown
 ## Code Review: {target}
 
 **Domains**: {activated domains joined by " • "}{if Codex enabled: " · **Codex 🤖**"}
@@ -731,13 +811,34 @@ flowchart LR
 {for each unmapped finding, sorted by severity:}
 
 {severity_icon} **{finding title}** — {domain}
-`{file}` ({N}곳)
+{if primary_line exists:}
+`{file}:{primary_line}` ({N}곳)
+{else — location_marker is set:}
+`{file}` ({deleted | binary | missing}) ({N}곳)
+{end if}
 
-{description}
+{if location_marker is set:}
+{The code is gone from the new version — quote the REMOVED lines from the diff, `-`-only. For a binary artifact, quote the diff's `Binary files ... differ` line and state what was verified out-of-band.}
+```diff
+- {removed lines, verbatim from the diff}
+```
+{else if a concrete replacement exists:}
+```diff
+- {current code, verbatim}
++ {proposed replacement}
+```
+{else:}
+```{lang}
+{current code, verbatim}
+```
+{end if}
 
-{if severity is Critical or Warning:}
-> **Fix**: {suggestion}
-{else (Info):}
+**왜**: {why — quote the conflicting rule/code verbatim if the finding is about an inconsistency}
+
+{if severity is Critical or Warning AND no concrete replacement was shown above:}
+> **Fix**: {directional suggestion}
+{end if}
+{if severity is Info:}
 > **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
 {end if}
 
@@ -746,7 +847,7 @@ flowchart LR
 {end for}
 
 Generated with [Claude Code](https://claude.com/claude-code)
-```
+````
 
 - **Summary**: 1-2문장으로 PR 목적과 리뷰 핵심 판단을 기술. PR description의 요약이 아닌 리뷰어 관점의 평가.
 - **Key Changes**: 개념적 변경사항 bullet. 각 bullet은 하나의 논리적 변경 단위를 기술. 개수 제한 없이, PR이 수행한 변경만큼 기재.
@@ -758,54 +859,90 @@ If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No is
 
 Posted as individual review comments, each attached to a specific file and line in the diff. One finding per comment.
 
+The comment is already anchored to the offending lines in GitHub's diff view, so the reader can see the current code without an evidence block. Do NOT re-quote the commented-on lines here. The `왜` line still applies, and if the finding asserts a conflict with a rule or another file, that other side is NOT visible in the diff — quote it verbatim.
+
 ````markdown
 {severity_icon} **{prefix}{n}. {finding title}** — {domain}
 
-{description}
+**왜**: {why the flagged lines are a problem}
+{if the finding asserts a conflict with a rule or another file:}
+> {verbatim quote of the conflicting rule / code}
+> — `{source_file}:{line}`
+{end if}
 
-{if severity is Critical or Warning:}
+{Block: decided by whether a concrete replacement exists — at ANY severity.}
 {if concrete code change:}
 ```suggestion
 {suggested code — only the replacement lines, matching GitHub suggestion block format}
 ```
-{else:}
-> **Fix**: {suggestion}
+{end if}
+
+{Action line: decided by severity.}
+{if severity is Critical or Warning:}
+{if no suggestion block was emitted above:}
+> **Fix**: {directional suggestion}
 {end if}
 {else (Info):}
-> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {why this judgment, not how to fix}
 {end if}
 ````
 
 Numbering uses the same scheme as Terminal format: `C{n}` / `W{n}` / `I{n}`, starting from 1 per severity. Terminal preview and GitHub inline comments share the same numbers for cross-reference.
 
-For contextual match findings (mapped via contextual fallback):
+For contextual match findings (mapped via contextual fallback), the comment is anchored to a diff line, but the issue lives in a **different** file that the reader cannot see. Quote that file's current code verbatim — without it the comment is unreadable.
 
 ````markdown
 {severity_icon} **{prefix}{n}. {finding title}** — {domain}
 
-📍 이 변경의 영향: `{affected_file}` ({N}곳)
+📍 이 변경의 영향: `{affected_file}:{primary_line}` ({N}곳)
 
-{description}
-
-{if severity is Critical or Warning:}
-{if concrete code change:}
-```suggestion
-{suggested code — only the replacement lines, matching GitHub suggestion block format}
+{if a concrete replacement exists:}
+```diff
+- {current code of affected_file, verbatim}
++ {proposed replacement}
 ```
 {else:}
-> **Fix**: {suggestion}
+```{lang}
+{current code of affected_file, verbatim}
+```
 {end if}
-{else (Info):}
+
+**왜**: {why}
+
+{if severity is Critical or Warning AND no concrete replacement was shown above:}
+> **Fix**: {directional suggestion}
+{end if}
+{if severity is Info:}
 > **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
 {end if}
 ````
 
-Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations. Info findings always use `> **Recommendation**: ...` — suggestion blocks are not applicable.
+Contextual-match comments do not use ```suggestion``` blocks — GitHub applies suggestions to the commented line, which is in the wrong file here. Use a ```diff``` block instead.
+
+Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations.
+
+Severity does not decide this. An **Info** finding with a concrete one-line fix gets a `suggestion` block too — it simply carries `> **Recommendation**: ...` as its action line instead of `> **Fix**: ...`. Only findings with nothing concrete to replace (an accepted trade-off, an observation to monitor) go without a block.
 
 ### Formatting Rules
 
+**Evidence rules** — a finding must let the reader judge it without opening the file. These apply to Terminal format and to the GitHub Review Summary (General Findings). **GitHub inline comments are the one exception**: the flagged lines are already visible in the diff there, so they are never re-quoted (see GitHub-specific rules). Everything the diff does NOT show — a conflicting rule, another file, a contextual-match target — is still quoted verbatim even in inline comments.
+- **Verbatim only**: lines inside an evidence block are copied from the file as-is. Never paraphrase, re-indent, translate, or reconstruct them from memory. If the quoted lines do not actually say what the description claims, the finding is a false positive — drop it.
+- **Block format is decided by the fix, NOT by the severity.** These are independent axes; do not couple them:
+  - A concrete replacement exists → ` ```diff ` (`-` current, `+` proposed, unprefixed context lines as needed). This holds **at every severity** — an Info finding with a one-line fix gets a `diff` block just as a Critical one does.
+  - Nothing to replace (the fix is directional/structural, or the finding needs no change at all) → a plain ` ```{lang} ` block quoting the current code.
+  - Nothing exists yet (absent code) → a `+`-only ` ```diff ` block anchored per the absence rule below.
+  - `-`/`+` must carry the meaning as text — never depend on the renderer's colors, which are absent in several host agents.
+- **Absent code**: when the problem is that code is missing (a missing check, a missing entry, a file not updated to match a new pattern), quote the **anchor** — the existing lines the addition should sit next to, or the sibling that already does it right (with its own path) — and show the addition as `+` lines. Never drop an absence finding for lack of quotable lines.
+- **Length**: 12 lines max per block. If the relevant lines are farther apart, keep the essential ones and elide the middle with `…`.
+- **No change needed** (Info marked Accept / Won't Fix): still quote the current code, then state why it is acceptable. "No action" without evidence is the least verifiable claim in a review and needs the most support, not the least.
+- **Conflict claims**: if a finding asserts that code contradicts a rule, a convention, or another file, quote **both** sides verbatim with their paths. One-sided evidence cannot establish an inconsistency.
+- **Action line is decided by the severity** (the other axis): Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. When a `diff` block already shows the replacement, omit `> **Fix**:` — it would just restate the block. Use `> **Fix**:` only for directional or structural suggestions no single replacement expresses.
+- The `{reason}` in `> **Recommendation**: {label} — {reason}` explains **why that judgment**, not how to fix it. If a fix needs describing, it belongs in the evidence block (as a `diff`), not squeezed into the reason.
+
 **Common rules (both formats)**:
-- Location: file path on its own line, occurrence count only (e.g., "(3곳)", "(1곳)"). No line numbers (`L42`, `L58` 등) anywhere — descriptions and Fix suggestions reference locations by section heading, function name, or searchable code pattern instead.
+- Location: `` `{file}:{primary_line}` `` on its own line, followed by the occurrence count (e.g., "(3곳)", "(1곳)"). The line number anchors the evidence block that follows; because the quoted lines are shown, the reader can still find the code if the line has since shifted.
+- **No line exists in the new version** (the finding concerns a deleted file, a binary/generated artifact, or a file that does not exist yet): omit `:{primary_line}` and write `` `{file}` `` alone with a marker — `` `{file}` (deleted) ``, `` `{file}` (binary) ``, `` `{file}` (missing) ``. Never emit `:null` and never invent a line number. The evidence block then quotes the removed lines (`-`-only, taken from the diff) or the anchor/sibling per the absence rule. These findings are not dropped for lack of a quotable line.
+- Line numbers belong in the location header (and in the source attribution of a quoted conflict) only. Do NOT scatter them through descriptions, `왜` text, or Fix suggestions — those reference locations by section heading, function name, or searchable code pattern.
 - Finding title must NOT repeat the file name (location is already on its own line).
 - Omit severity sections that have 0 findings.
 - **Bullet management**: If a single finding has more than 5 sub-points, consolidate.
@@ -826,8 +963,9 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Severity sections are separated by `────────────────────` (Unicode thin box drawing × 20).
 - Severity header is followed by `---` before the first finding. Findings within the same severity are also separated by `---`.
 - Each finding is numbered with a severity prefix: `C{n}` (Critical), `W{n}` (Warning), `I{n}` (Info), starting from 1 per severity.
-- Finding title first (bold — renders bright in CLI), file path second.
-- Action line by severity: Critical/Warning use `> **Fix**: ...` (natural language, referencing by section/pattern). Info uses `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` to convey whether action is needed.
+- Finding order: title (bold — renders bright in CLI) → location → evidence block → `**왜**` → action line (if any).
+- `**왜**` is a bold paragraph, not a list item, so blank lines around it render. Quoted conflicting rules go in a `>` blockquote directly under it.
+- Action line by severity: Critical/Warning use `> **Fix**: ...` only when the evidence block did not already show the replacement. Info uses `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` to convey whether action is needed.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
 - Zero findings overall: display `## Code Review: {target}\n\n✅ No issues found.` — severity sections, summary line 모두 생략.
 - Codex failure notice (if applicable): append after the summary line per the error classification in Step 3 Codex Failure Handling (`⚠️` for auth errors, `ℹ️` for other failures). Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
@@ -835,10 +973,10 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 **GitHub-specific rules (inline review comments)**:
 - Review Summary: severity counts and key changes at the top. Unmapped findings (after contextual mapping) included below under "General Findings" as fallback only.
 - Inline Comment: one finding per comment. No `<details>` tags — each comment is self-contained.
-- Action line format in inline comments:
-  - Critical/Warning with concrete, localized code change → GitHub `suggestion` block (enables one-click apply).
-  - Critical/Warning with directional or multi-location suggestion → `> **Fix**: ...` natural language.
-  - Info → `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` (no suggestion block).
+- Evidence in inline comments: the flagged lines are visible in GitHub's diff view, so do NOT re-quote them. Anything the diff does NOT show — a conflicting rule, another file's code, a contextual-match target — must still be quoted verbatim.
+- Block vs. action line are independent axes in inline comments too:
+  - **Block** (decided by the fix, at any severity): concrete localized change → GitHub `suggestion` block (enables one-click apply). Nothing concrete to replace → no block. Contextual-match findings target a different file, so `suggestion` would apply to the wrong lines — use a `diff` block there instead.
+  - **Action line** (decided by severity): Critical/Warning → `> **Fix**: ...`, emitted only when no `suggestion` block already showed the fix. Info → `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}`, which may accompany a `suggestion` block when the Info finding has a concrete fix.
 - Domains with no findings: omit entirely from both summary and inline comments.
 
 ---
@@ -879,7 +1017,9 @@ For each confirmed finding, verify its primary line number exists in the PR diff
 gh pr diff {number}
 ```
 
-For each confirmed finding, resolve its target line in the PR diff using a three-tier strategy:
+For each confirmed finding, resolve its target line in the PR diff:
+
+0. **No line to target** (`primary_line` was omitted and `location_marker` is set — `deleted` / `binary` / `missing`): there is no RIGHT-side line to anchor to. A deleted file's code lives on the diff's LEFT side, a binary file has no hunk at all, and this skill does not post LEFT-side comments. Skip tiers 1–2 entirely and route the finding straight to **General Findings** (tier 3) in the review body, keeping its `` `{file}` (deleted|binary|missing) `` header and evidence block. Never fabricate a line to force an inline anchor — the Review API would 422, and the no-line rule forbids it. Never drop the finding either: a validation or auth check deleted by this PR is exactly what this branch exists to carry.
 
 1. **Exact match**: The finding's file + line appears in a diff hunk (added line `+`,
    or context line on the RIGHT side). Include as an inline comment at that location.
@@ -889,13 +1029,11 @@ For each confirmed finding, resolve its target line in the PR diff using a three
    - Rename not propagated → map to the diff line where the rename occurred
    - Missing entry that should accompany new entries → map to the nearest new entry line
    - Dead code from a removal → map to a nearby RIGHT-side context or addition line adjacent to the removal
-   Include as an inline comment at the contextual location (must be a RIGHT-side line). Prepend to the comment body:
-   `📍 이 변경의 영향: \`{affected_file}\` ({N}곳)`
-   followed by the original finding description.
+   Include as an inline comment at the contextual location (must be a RIGHT-side line). Build the comment body with the **contextual match template** in Step 5 (GitHub Format: Inline Comment) — location header `📍 이 변경의 영향: \`{affected_file}:{primary_line}\` ({N}곳)`, then an evidence block quoting the affected file's current code verbatim, then `**왜**`. The affected file is not visible in this diff, so the quote is what makes the comment readable; do not drop it.
 
-3. **Unmapped**: Neither exact nor contextual match is possible (e.g., finding references
-   a file/pattern with no related changes in the diff). Include in the review body under
-   "📋 General Findings" as a last resort.
+3. **Unmapped**: Neither exact nor contextual match is possible (e.g., the finding references
+   a file/pattern with no related changes in the diff), **or the finding has no `primary_line`
+   per tier 0**. Include in the review body under "📋 General Findings".
 
 **2. Build review payload**
 
@@ -923,6 +1061,7 @@ Construct a JSON payload for the Review API:
 - `body`: Review Summary template (severity counts + key changes + unmapped findings if any + footer)
 - `comments`: Array of mapped findings, each using the Inline Comment template
 - For single-line findings, omit `start_line` and `start_side` — only `line` and `side` are needed.
+- Findings carrying a `location_marker` (no `primary_line`) NEVER appear in the `comments` array. They are body-only, under General Findings. The Review API has no valid anchor for them, and coercing one into `"side": "RIGHT"` either 422s or points at unrelated code.
 - Serialize the JSON payload using `jq -n` or write to a temp file — do NOT manually escape strings in a heredoc. Comment bodies contain multi-line markdown, code fences, and `suggestion` blocks that break raw string interpolation.
 
 If there are no mapped findings (all unmapped), the `comments` array is empty. The review body contains all findings.

@@ -182,7 +182,7 @@ When the [Codex plugin](https://github.com/openai/codex) is installed (`claude p
 
 ### `/handoff` — Session Handoff Prompt
 
-Generates a copy-ready handoff prompt that transfers work context to a new session. Auto-detects artifacts, git state, and conversation context, then structures a concise prompt following two principles: **next-action relevance** (include only what the next session needs to act, drop session recap) and **reference-not-repeat** (cite artifact paths instead of copying content).
+Generates a copy-ready handoff prompt that transfers work context to a new session. Built on a single principle: **write only what the next session cannot recover by reading the repo.** The next session is a capable agent that will explore the code itself, so the handoff carries only decisions and their reasons, abandoned approaches, user constraints, and the first action. Everything else is referenced by path.
 
 ```
 /handoff                   # Auto-detect and generate handoff prompt
@@ -193,11 +193,13 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 <details>
 <summary>Details</summary>
 
-**Detection cascade:** Artifacts (`.omc/specs/`, `.omc/plans/`) → Git state → Conversation context
+**Structure:** A directive (what to do first, on which branch), up to 4 context bullets, and reference paths. 15 lines total, hard cap. Sections with nothing to say are omitted — an empty context section is a correct outcome.
 
-**Skill recommendation:** When plugins like OMC or Codex are detected, the handoff recommends the most appropriate skill for the next session (e.g., `/autopilot`, `/ralph`, `/commit`).
+**Git:** Branch name and whether uncommitted changes exist. Nothing more — no commit log, no diff stat, no file list. The next session runs `git status` itself.
 
-**Output:** Terminal text optimized for `/copy`. Never repeats artifact content — references file paths instead.
+**No skill names:** The handoff never suggests slash commands or plugin skills unless you explicitly ask for one. The next session may run in a different agent with different plugins installed, so it picks its own tools.
+
+**Output:** Terminal text optimized for `/copy`. Never repeats file content — references paths instead.
 
 </details>
 

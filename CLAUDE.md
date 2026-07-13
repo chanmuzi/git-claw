@@ -240,6 +240,13 @@ ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
 - **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
 - **Dash 금지**: git 메시지(커밋·PR 제목/본문)에 em-dash(—)·en-dash(–) 사용 금지. 콜론·괄호·쉼표로 대체 (코드/문서 산문은 대상 아님)
+- **Evidence 우선**(review-reply, code-review): finding을 제시할 때 근거가 되는 원문을 **파일에서 그대로 복사**하여 함께 보여준다. 사용자가 파일을 직접 열지 않고도 판단할 수 있어야 한다
+  - **블록 형태는 severity가 아니라 "수정안 존재 여부"로 결정한다** (두 축 분리). 수정안이 있으면 ` ```diff `(`-` 현재 / `+` 제안) — Info여도 마찬가지다. 대체할 게 없으면(방향성 제안, 변경 불필요) ` ```{lang} ` 인용 블록. 최대 12줄, 초과 시 `…`로 중략
+  - **Action line은 severity로 결정한다**: Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. `{reason}`은 "왜 그 판단인지"를 쓰는 자리이지 수정 방법을 밀어넣는 자리가 아니다 — 수정 방법은 diff 블록으로
+  - 인용문 재구성 금지 — 요약·의역·기억에 의한 복원 모두 금지. 인용할 수 없는 finding은 검증되지 않은 finding이므로 제시하지 않는다
+  - **부재(absent code)가 문제인 경우**: 인용할 원문이 없다고 finding을 버리지 않는다. anchor(추가될 자리의 인접 코드, 또는 이미 올바르게 된 sibling)를 인용하고 `+`만 있는 diff로 제안한다
+  - 충돌 주장(규칙·컨벤션·다른 파일과 모순)은 **양쪽 원문을 모두** 인용한다. 한쪽만으로는 불일치가 성립하지 않는다
+  - 변경 불필요 판정(Accept / Won't Fix / ❌ Ignore)일수록 근거 인용이 더 중요하다. 반박하는 코드를 보여주지 못하면 기각할 수 없다
 
 ## 터미널 렌더링 가이드라인
 
@@ -265,6 +272,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | `━` (heavy box drawing) | 리터럴 텍스트 | `─`보다 두꺼움. 섹션 간 구분에 적합 |
 | `<details>`, `<summary>` | **렌더링 안 됨** — raw HTML 표시 | 터미널 출력에서 절대 사용 금지 |
 | 빈 줄 (list 내) | **무시됨** | bold paragraph로 전환하여 list 컨텍스트 회피 |
+| ` ```diff ` 블록 | 코드 블록 (하이라이팅은 호스트별 상이) | `-`/`+` 문자 자체가 의미를 담으므로 색상 미지원 환경에서도 안전. before/after 표현의 기본형 |
 
 ### 원칙
 
@@ -272,6 +280,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 - 항목 간 분리가 필요하면 numbered list 대신 bold paragraph(`**1. ...**`)를 사용한다. List 밖에서는 빈 줄이 정상 렌더링됨.
 - `---`는 카테고리 구분 및 항목 간 구분 모두 사용 가능. 위계가 필요하면 Unicode 구분자(`────────────────────`)와 조합하여 3단 위계를 구성한다.
 - GitHub에 게시하는 포맷과 터미널 포맷의 차이를 인식하고, 각 매체에 맞는 템플릿을 사용한다.
+- **크로스 에이전트 안전성**: 이 스킬은 Claude Code 전용이 아니다(Codex CLI, Gemini CLI, Cursor 등). 위 표는 Claude Code 기준이므로, 출력 템플릿은 렌더러 간 공통분모(heading, bold, fenced code block, list, blockquote)만 사용한다. 색상·하이라이팅에 **의미를 의존시키지 않는다** — 정보는 문자 자체로 전달되어야 한다. 표는 폭이 좁은 터미널에서 깨지므로 출력 템플릿에 쓰지 않는다 (문서용은 무방).
 
 ### 3단 위계 가이드
 
@@ -304,6 +313,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 |----------|----------|------|
 | `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
+| Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 
 ## 새 스킬 추가 체크리스트
 

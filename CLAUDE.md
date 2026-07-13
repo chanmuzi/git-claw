@@ -152,9 +152,10 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
   # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
-- main push 후 Codex(Skills CLI) 동기화:
-  - `npx skills`는 자동 갱신되지 않음. `~/.codex/skills/{name}/.installed-ref`에 저장된 commit SHA 기준 수동 update 필요.
-  - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 update 후 세션 재시작 필요.
+- main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
+  - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.
+  - 이 저장소의 Codex install은 **Codex 전용**(`~/.codex/skills`)이다. 이 형태를 유지하려면 marketplace에서 직접 복사하고 `.installed-ref`를 수동 기록한다.
+  - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 동기화 후 **세션 재시작** 필요.
   ```bash
   # 1. 동기화 상태 확인
   #    Codex 전용 install(~/.codex/skills) + universal install(~/.agents/skills) 모두 탐색
@@ -167,15 +168,26 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
       printf "%-15s %s [%s]\n" "$(basename "$d"):" "$(cat "$d/.installed-ref")" "$scope"
     done
   done
-  # 2. 최신 main으로 업데이트 (단, copy-mode install이면 silent no-op일 수 있음 — 함정 참고)
-  npx skills update -g chanmuzi/git-claw
+
+  # 2. marketplace를 최신 main으로 pull 후 직접 복사 + .installed-ref 기록
+  git -C ~/.claude/plugins/marketplaces/git-claw pull
+  SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
+  for s in commit pr issue review-reply code-review handoff; do
+    rm -rf ~/.codex/skills/$s
+    cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
+    echo "$SHA" > ~/.codex/skills/$s/.installed-ref
+  done
+
+  # 3. 검증 — 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
+  diff -q ~/.claude/plugins/marketplaces/git-claw/skills/code-review/SKILL.md ~/.codex/skills/code-review/SKILL.md
+  ls ~/.claude/skills/   # git-claw skill이 보이면 universal install로 오염된 것
   ```
 - 스킬 rename / 제거 시 stale 폴더 cleanup:
   - `npx skills` CLI는 rename·제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
-  - rename/제거 PR의 CHANGELOG 항목에 반드시 다음 cleanup 안내를 포함한다:
+  - rename/제거 PR의 CHANGELOG 항목에 반드시 다음 cleanup 안내를 포함한다 (install 형태를 바꾸지 않는 직접 삭제를 우선한다):
     ```bash
-    npx skills remove {old-name} -g          # 또는
-    rm -rf ~/.codex/skills/{old-name}
+    rm -rf ~/.codex/skills/{old-name}        # 권장
+    npx skills remove {old-name} -g          # 대안. 단, 설치 scope과 일치해야 함
     ```
   - Claude Code plugin 쪽은 cache가 marketplace 트리를 그대로 미러링하므로 rename 시 자동 정리됨 (별도 cleanup 불필요).
 

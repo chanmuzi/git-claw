@@ -3,6 +3,7 @@
 ## Unreleased
 
 **Fixed**
+- `/commit` 커밋 메시지 전달 방식 명시 — `-m`(멀티라인은 heredoc-into-`-m`)을 사용하고 `-F`/`--file`은 쓰지 않도록 지시. 기존에는 호출 형태를 지정하지 않아 멀티라인 메시지 작성 시 `-F <파일>`을 즉흥적으로 시도하다 enforcement 훅에 차단되어 매번 fallback 나레이션이 발생했음. `pr`/`issue` 스킬의 `--body "$(cat <<'EOF' ... EOF)"` 패턴과 일치시킴
 - Codex UI에서 `/review-reply` 스킬이 `review`로 노출되던 메타데이터 불일치 수정 — `agents/openai.yaml`의 `display_name`을 실제 스킬명과 동기화
 - `/code-review` 도메인 에이전트 spawn 시 외부 agent type 사용 방지 — prompt-only 방식 명시적 강제
 - `/pr` `--assignee`/`--label` 권한 fallback 시 silent drop 방지 — 누락된 플래그를 사용자에게 명시적으로 고지하여 수동 보완 가능하도록 변경

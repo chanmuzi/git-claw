@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.9.0 (2026-07-17)
 
 **Fixed**
 - `/commit` 커밋 메시지 전달 방식 명시 — `-m`(멀티라인은 heredoc-into-`-m`)을 사용하고 `-F`/`--file`은 쓰지 않도록 지시. 기존에는 호출 형태를 지정하지 않아 멀티라인 메시지 작성 시 `-F <파일>`을 즉흥적으로 시도하다 enforcement 훅에 차단되어 매번 fallback 나레이션이 발생했음. `pr`/`issue` 스킬의 `--body "$(cat <<'EOF' ... EOF)"` 패턴과 일치시킴

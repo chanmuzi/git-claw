@@ -231,6 +231,19 @@ When the diff involves multiple files or logical units, add a body after a blank
 - {detail 3}
 ```
 
+Pass a multi-line message with `-m` wrapping a heredoc via command substitution (same pattern as the `pr`/`issue` skills' `--body`). Never use `-F`/`--file` — it reads the message from a file and bypasses this skill's message-generation logic:
+
+```bash
+git commit -m "$(cat <<'EOF'
+{type}: {subject line}
+
+- {detail 1}
+- {detail 2}
+- {detail 3}
+EOF
+)"
+```
+
 **When to use multi-line:**
 - 3+ files changed across different concerns
 - Non-obvious reasoning behind the change
@@ -283,7 +296,7 @@ For each commit unit produced by Intent Classification:
 
 3. **Compose the message** per the Convention section above. Use a multi-line body when 3+ files are involved or the reasoning is non-obvious.
 
-4. **Commit**. Approval follows the session's tool permission settings.
+4. **Commit** with `git commit -m "..."`. For a multi-line message, use the heredoc-into-`-m` pattern from the Convention section. Never use `-F`/`--file` (it bypasses this skill and may be blocked by enforcement hooks). Approval follows the session's tool permission settings.
 
 After all units are committed:
 
@@ -293,5 +306,6 @@ After all units are committed:
 
 **Important:**
 - Never use `git add -A` or `git add .` — stage specific files by name.
+- Never use `git commit -F`/`--file` — pass the message via `-m` (heredoc-into-`-m` for multi-line).
 - Never include files that may contain secrets (`.env`, credentials, tokens, etc.).
 - When multiple commit units were planned, do NOT stop after the first commit — handle all units within this single skill invocation.

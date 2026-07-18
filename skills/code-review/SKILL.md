@@ -309,7 +309,7 @@ When reviewing code, use this PR purpose as your primary lens:
 
 ## Constraints
 - You are read-only. Do not attempt to modify any files.
-- Write findings in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language.
+- Write findings in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback). If no language is configured, follow the user's conversational language.
 - If no issues are found, return an empty findings list (no items) and state "No issues found." Do not manufacture findings.
 
 ## Severity Criteria
@@ -542,7 +542,7 @@ For each finding **that has a `primary_line`**:
    ```
    git log --oneline -5 -- {file}
    ```
-3. **Comments/docs**: Search for TODO, FIXME, or design notes near the flagged code. Check if the project's CLAUDE.md or other documentation addresses the pattern.
+3. **Comments/docs**: Search for TODO, FIXME, or design notes near the flagged code. Check if the project's AGENTS.md (or CLAUDE.md as fallback) or other documentation addresses the pattern.
 4. **PR description/commit messages**: Cross-reference against the author's stated intent (from Step 1).
 
 ### Verdict per finding
@@ -647,7 +647,7 @@ All findings (domain + Codex) are sorted together by severity (Critical → Warn
 
 ### Output Templates
 
-Write the review in the language configured in the project's CLAUDE.md.
+Write the review in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback).
 If no language is configured, follow the user's conversational language.
 Examples below are in Korean.
 
@@ -1126,5 +1126,5 @@ If the Review API call fails (e.g., 422 due to invalid line mapping):
 - This skill is independent from `review-reply`. `code-review` generates reviews (proactive); `review-reply` responds to received reviews (reactive).
 - **Assignee**: If creating GitHub PRs or issues, always include `--assignee @me`.
 - **Commit references**: Never wrap commit SHAs in backticks. Use plain text or explicit markdown links.
-- Adapt output language to the project's CLAUDE.md language setting.
+- Adapt output language to the project's AGENTS.md (or CLAUDE.md as fallback) language setting.
 - When Agent tool is unavailable, perform all analyses sequentially as a single-pass fallback.

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+**Changed**
+- 전 스킬의 프로젝트 설정 조회를 AGENTS.md 우선 + CLAUDE.md fallback으로 전환 (#48) — Branch Strategy, 언어, 릴리스 프로세스, label 규칙 등 "project's CLAUDE.md"를 읽던 17개 지점 통일. adapter 체계(CLAUDE.md가 @AGENTS.md 한 줄) 프로젝트에서 @ import를 해석하지 않는 호스트(Codex CLI, Gemini CLI, Cursor 등)가 프로젝트 규칙을 읽지 못하던 문제 해소. AGENTS.md 스킬 간 공유 로직 테이블에도 등재
+
 **New**
 - `/pr` Individual PR 생성 후 `/explain-diff` 설명 문서 옵트인 제안 — PR URL 반환 뒤 한 줄로만 묻고(기본 No), 거절·무응답 시 재질문하지 않음. explain-diff 스킬이 없는 호스트이거나 같은 diff의 설명 문서를 이미 생성한 세션에서는 제안 자체를 생략
 

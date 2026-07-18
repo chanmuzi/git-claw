@@ -58,7 +58,7 @@ Parse `$ARGUMENTS` and conversation context:
 
 ## Issue Templates
 
-Write the issue title and body in the language configured in the project's CLAUDE.md.
+Write the issue title and body in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback).
 If no language is configured, follow the user's conversational language.
 Keep technical terms in their original form.
 Examples below are in Korean.
@@ -150,7 +150,7 @@ Examples below are in Korean.
 5. Determine labels:
    - **Type label**: always assign based on issue type.
    - **Priority label**: assign only if the user specified priority or urgency is clearly implied.
-   - **Project-specific labels**: check the project's CLAUDE.md for custom label conventions.
+   - **Project-specific labels**: check the project's AGENTS.md (or CLAUDE.md as fallback) for custom label conventions.
 6. Ensure all labels exist:
    ```
    gh label create "{label}" --color "{hex}" 2>/dev/null || true
@@ -168,7 +168,7 @@ Examples below are in Korean.
 **Important:**
 - Do NOT create issues without sufficient context. If the request is too vague, ask for clarification.
 - Do NOT assign priority labels unless the user specifies priority or urgency is clearly implied.
-- Adapt section headers and content language to the project's CLAUDE.md language setting.
+- Adapt section headers and content language to the project's AGENTS.md (or CLAUDE.md as fallback) language setting.
 - Always prioritize the project's own issue conventions over the defaults above.
 - **Assignee**: Always include `--assignee @me` in `gh issue create`. If it fails due to insufficient permissions, retry without it.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.

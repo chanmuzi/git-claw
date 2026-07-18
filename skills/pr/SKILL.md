@@ -14,7 +14,7 @@ allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob
 Resolve the target base branch before proceeding. Use the first matching rule:
 
 1. **Explicit override**: If `$ARGUMENTS` contains `--base <branch>`, use that branch.
-2. **Project config**: Read the project's CLAUDE.md for a `Branch Strategy` section:
+2. **Project config**: Read the project's AGENTS.md (or CLAUDE.md as fallback) for a `Branch Strategy` section:
    ```
    ## Branch Strategy
    - default-base: dev
@@ -96,7 +96,7 @@ Format: `{Type}: {description}`
 | `Hotfix:` | Urgent fix |
 | `Release:` | Release integration (e.g., `Release: {default-base} → {release-base} 통합 (v0.5.0)`) |
 
-Write the description in the language configured in the project's CLAUDE.md.
+Write the description in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback).
 If no language is configured, follow the user's conversational language.
 
 ---
@@ -271,7 +271,7 @@ flowchart LR
 4. Push the branch if not already pushed: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry the push. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 5. Ensure the type label exists: `gh label create "{type_label}" --color "{hex}" 2>/dev/null || true`
 6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags **and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed**. Follow the session's tool permission settings for approval.
-7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "CLAUDE.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
+7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "AGENTS.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
 8. Offer an understanding explainer (opt-in, never blocking): after the URL, ask exactly one line — "이 PR의 이해용 설명 문서를 만들까요? (/explain-diff, 기본 No)". If the user declines or does not answer, do nothing and never re-ask in this session. If they accept, invoke the explain-diff skill with this PR's number. Skip the offer entirely when the explain-diff skill is not available in this host, or when an explainer for this same diff was already generated in this session.
 
 ### If Release PR:
@@ -279,7 +279,7 @@ flowchart LR
 4. **Determine version:**
    a. Check `$ARGUMENTS` for an explicit version (e.g., `/pr release v1.2.0`).
    b. If not provided, detect the current version from the project:
-      - Read the project's CLAUDE.md for release process instructions or version conventions.
+      - Read the project's AGENTS.md (or CLAUDE.md as fallback) for release process instructions or version conventions.
       - Search for version sources: `package.json`, `pyproject.toml`, `Cargo.toml`, `marketplace.json`, or similar files that already exist in the project.
       - Check recent git tags: `git tag --sort=-v:refname | head -5`
    c. Analyze included changes (via merged PR titles or commit messages) and recommend a semver bump:
@@ -289,7 +289,7 @@ flowchart LR
    d. Present the detected current version, the recommended next version, and the reasoning to the user. Confirm before proceeding.
 
 5. **Pre-release file updates (conditional):**
-   a. If the project's CLAUDE.md defines a release process → follow it exactly.
+   a. If the project's AGENTS.md (or CLAUDE.md as fallback) defines a release process → follow it exactly.
    b. Otherwise, scan for files that commonly hold version or release info and propose updates for **only files that already exist in the project**. Do NOT create new files.
       - Version files (`package.json`, `pyproject.toml`, `marketplace.json`, etc.) → bump version
       - `CHANGELOG.md` or similar → add release entry based on included changes
@@ -303,12 +303,12 @@ flowchart LR
    - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`
    - Sync the source branch back with the base branch (e.g., `git checkout {default-base} && git merge {release-base} && git push origin {default-base}`)
-   - Any project-specific deployment steps described in the project's CLAUDE.md
+   - Any project-specific deployment steps described in the project's AGENTS.md (or CLAUDE.md as fallback)
 
 **Important:**
 - Do NOT modify commit history (squash, rebase, amend, reorder) before pushing unless the user explicitly requests it. Preserve all commits to maintain traceable context for agents and reviewers.
 - For Release PRs, automatically collect all included PRs from the merge history.
-- Adapt section headers and content language to the project's CLAUDE.md language setting.
+- Adapt section headers and content language to the project's AGENTS.md (or CLAUDE.md as fallback) language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
 - **Assignee / Label**: Always include `--assignee @me` and `--label "{type_label}"` in `gh pr create`. If either flag fails due to insufficient permissions, retry without the failing flag(s) and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed.

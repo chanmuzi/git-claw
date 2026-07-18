@@ -243,7 +243,7 @@ Builds a throwaway interactive HTML simulation of a specific behavior — a stat
 
 ## Language Behavior
 
-All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
+All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `AGENTS.md` (or `CLAUDE.md` as fallback). If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
 
 ## Conventions at a Glance
 

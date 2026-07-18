@@ -97,7 +97,7 @@ Mechanics (already implemented by the template JS — supply only content):
 
 1. Write the file to the **repository root**: `explain-diff-<slug>.html` (slug from the change topic, kebab-case).
 2. Report the **absolute path** to the user. Do NOT auto-open it, do NOT commit it, do NOT add it to .gitignore. Delete it only when the user asks.
-3. Content language follows the project's CLAUDE.md/AGENTS.md language setting; if none, the user's conversational language. Korean output uses 해요체 throughout (headings may stay nominal).
+3. Content language follows the project's AGENTS.md (or CLAUDE.md as fallback) language setting; if none, the user's conversational language. Korean output uses 해요체 throughout (headings may stay nominal).
 
 **Constraints:**
 

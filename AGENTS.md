@@ -360,6 +360,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
+| 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
 
 ## 새 스킬 추가 체크리스트
 

@@ -254,7 +254,7 @@ PR 전체 코멘트 · {reviewer_name}
 
 Rejecting a suggestion demands **more** evidence than accepting one, not less. `❌ Can Safely Ignore` therefore quotes the code that actually refutes the reviewer — the user cannot check "this is already handled elsewhere" against a claim alone. An X item with no evidence at all is not dismissible; re-examine it. (For an unanchored comment there is no code to quote — then the evidence is the files you checked and what you found there, stated explicitly.)
 
-**Evidence rules** (kept in sync with `code-review` — see CLAUDE.md 스킬 간 공유 로직):
+**Evidence rules** (kept in sync with `code-review` — see AGENTS.md 스킬 간 공유 로직):
 - **Two sources per item**: the reviewer's words AND the code. Quote both. The comment is the claim under evaluation; the code is what decides it. Dropping either leaves the user unable to check your assessment.
 - **Verbatim only**: lines inside an evidence block are copied from the file as-is. Never paraphrase, re-indent, or reconstruct them from memory. If the file does not say what you expected, that is a finding in itself — the reviewer (or you) misread it.
 - **Block format is decided by the fix, NOT by the category**: a concrete replacement exists → ` ```diff `; nothing to replace (directional fix, or the item needs no change) → a plain ` ```{lang} ` block quoting the current code; the problem is *absent* code → a `+`-only ` ```diff ` anchored on the lines the addition should sit next to, or on the sibling that already does it right. Never drop an item for lack of quotable lines — quote the anchor.
@@ -323,7 +323,7 @@ This quote line is part of the format for issue comments — it does not apply t
 
 Replies MUST follow the exact structured format below. Do NOT use free-form prose or unstructured sentences.
 
-Write the reply body in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language. Examples below are in Korean:
+Write the reply body in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback). If no language is configured, follow the user's conversational language. Examples below are in Korean:
 
 **If applied:**
 ```
@@ -405,6 +405,6 @@ EOF
 - A blanket instruction (e.g., "모두 반영해줘", "apply all") counts as explicit approval for all steps. Do not ask again per-step.
 - Read the actual code context before judging — do not rely solely on the review comment.
 - **Show the evidence, do not just consult it.** Every item in Step 3 quotes the source verbatim. An item you cannot quote is an item you have not verified, in either direction: neither a suggestion nor a dismissal of it may rest on recollection.
-- Consider the project's existing patterns, conventions, and CLAUDE.md instructions.
+- Consider the project's existing patterns, conventions, and AGENTS.md instructions (or CLAUDE.md as fallback).
 - Be honest when a review catches a genuine issue — do not dismiss valid feedback.
 - If no review comments are found, inform the user.

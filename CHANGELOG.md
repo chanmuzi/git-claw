@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.10.0 (2026-07-18)
 
 **New**
 - `/explain-diff` 스킬 추가 — diff/커밋/브랜치/PR을 이해 중심의 self-contained 인터랙티브 HTML 설명 문서로 생성. Geoffrey Litt의 explain-diff 개념(이해가 병목)을 도입한 것으로, 조사 우선 프로토콜(모든 hunk + 감싸는 함수 정독, 명시 의도 추출, 호출자·테스트 탐색, 분석 렌즈)을 거친 뒤 3파트 골격(개요: 배경+디렉토리 트리+선택적 인터랙티브 피규어 / 변경 사항: 테마별 카드+verbatim diff+핵심 정리 / 이해 점검: 리스크+퀴즈)으로 문서를 구성. 5문항 퀴즈는 오답 시 정답 대신 관련 섹션 힌트 + 다시 풀기를 제공하고, 완료 게이트는 전원 정답에서만 열리며 가짜 액션 문구를 금지. 디자인 토큰·컴포넌트·범용 퀴즈 JS를 담은 `template.html`을 스킬 폴더에 동봉해 Skills CLI 배포(스킬 폴더만 복사)에서도 디자인 시스템이 함께 설치되도록 함. 산출물은 저장소 루트에 `explain-diff-<slug>.html`로 저장하고 절대경로만 안내(자동 열기·커밋 없음). 근거: `docs/decisions/2026-07-explain-diff-design-system.md`

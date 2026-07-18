@@ -1,0 +1,479 @@
+<!doctype html>
+<!--
+  explain-diff output template.
+  Fill every {{PLACEHOLDER}} and repeat blocks marked with REPEAT comments.
+  Do NOT restyle: tokens and component classes are fixed by the design system
+  (git-claw docs/decisions/2026-07-explain-diff-design-system.md).
+  The quiz/gate JS is generic: it derives the total from the number of .q blocks
+  and reads per-question hints from data-hint. Only the optional custom figure
+  needs bespoke JS (see the FIGURE SLOT comment in Part 1).
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>explain-diff: {{DOC_TITLE_SHORT}}</title>
+<style>
+  :root{
+    --gray900:#191F28; --gray700:#333D4B; --gray600:#4E5968; --gray500:#6B7684;
+    --gray400:#8B95A1; --gray300:#B0B8C1; --gray200:#D1D6DB; --gray100:#E5E8EB;
+    --gray50:#F2F4F6;  --gray25:#F9FAFB;
+    --blue:#3182F6; --blue-dark:#1B64DA; --blue-soft:#E8F3FF;
+    --red:#F04452; --red-soft:#FDEDEE;
+    --green:#0CA678; --green-soft:#E6F6F0;
+    --amber:#B76E00; --amber-soft:#FFF4DE;
+    --bg:var(--gray50); --card:#ffffff;
+    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+    --r-card:20px; --r-el:14px;
+    --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:0 20px 150px; }
+
+  .top{ padding:48px 4px 8px; }
+  .top .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:var(--blue);
+    background:var(--blue-soft); border-radius:100px; padding:5px 13px; margin-bottom:16px;
+  }
+  .top h1{
+    font-size:clamp(24px,4vw,28px); font-weight:700; letter-spacing:-0.03em;
+    line-height:1.35; margin:0 0 10px; text-wrap:balance;
+  }
+  .top .lede{ font-size:16px; color:var(--sub); margin:0 0 22px; max-width:58ch; }
+  .metabar{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .meta-chip{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:12.5px; font-weight:600; color:var(--gray600);
+    background:var(--card); border-radius:100px; padding:7px 14px; box-shadow:var(--shadow);
+  }
+  .meta-chip .mono{ font-family:var(--mono); font-size:11.5px; font-weight:500; }
+  .meta-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--blue); }
+  .meta-chip .plus{ color:var(--green); } .meta-chip .minus{ color:var(--red); }
+
+  .card{
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow);
+    padding:24px 26px; margin-top:22px;
+    scroll-margin-top:16px;
+  }
+
+  /* 그룹 계층: 카드 묶음 사이의 파트 라벨 */
+  .group-label{
+    display:flex; align-items:center; gap:12px;
+    margin:44px 4px 0; scroll-margin-top:16px;
+  }
+  .group-label .g-part{
+    font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue);
+    letter-spacing:.06em;
+  }
+  .group-label .g-name{
+    font-size:13.5px; font-weight:700; color:var(--ink); letter-spacing:-0.01em;
+  }
+  .group-label::after{ content:""; flex:1; height:1px; background:var(--gray200); }
+
+  .toc-group{
+    font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--faint); padding:16px 4px 4px;
+  }
+  .toc-group:first-of-type{ padding-top:8px; }
+  .toc-group .g-part{ color:var(--blue); font-family:var(--mono); margin-right:8px; }
+
+  .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .list-header .num{
+    width:22px; height:22px; border-radius:7px; flex:none;
+    display:grid; place-items:center;
+    background:var(--blue-soft); color:var(--blue); font-size:11.5px; font-weight:700;
+  }
+  .list-header h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; margin:0; }
+  .prose{ font-size:15px; color:var(--sub); max-width:62ch; margin:10px 0 18px; }
+  .prose b{ color:var(--ink); font-weight:700; }
+  .prose code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+
+  /* 목차: 클릭 이동, 각 행 = 해당 섹션의 한 줄 요약 */
+  a.toc-row{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 4px; border-bottom:1px solid var(--gray50);
+    font-size:15px; font-weight:600; color:var(--ink);
+    text-decoration:none; border-radius:8px;
+    transition:background .15s ease;
+  }
+  a.toc-row:last-child{ border-bottom:none; }
+  a.toc-row:hover{ background:var(--blue-soft); }
+  a.toc-row:hover .chev{ color:var(--blue); }
+  a.toc-row:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .toc-row .idx{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--gray400); width:20px; flex:none; text-align:center; }
+  .toc-row .desc{ display:block; font-size:12.5px; font-weight:500; color:var(--faint); margin-top:1px; }
+  .toc-row .chev{ margin-left:auto; color:var(--gray300); font-size:14px; flex:none; padding-left:10px; }
+
+  /* 코드/diff */
+  .codeblock{
+    background:var(--gray25); border:1px solid var(--gray50);
+    border-radius:var(--r-el); overflow-x:auto; margin:0 0 18px;
+  }
+  .cb-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 16px; border-bottom:1px solid var(--gray50);
+    font-family:var(--mono); font-size:11px; color:var(--faint);
+  }
+  .cb-head .file{ font-weight:600; color:var(--gray500); }
+  .codeblock pre{ margin:0; padding:12px 0; font-family:var(--mono); font-size:12.5px; line-height:1.8; }
+  .ln{ display:block; padding:0 18px; white-space:pre; color:var(--gray500); }
+  .ln.add{ background:var(--green-soft); color:var(--green); }
+  .ln.del{ background:var(--red-soft); color:var(--red); }
+
+  /* 구조 트리 (before & after) */
+  .tree{
+    background:var(--gray25); border:1px solid var(--gray50);
+    border-radius:var(--r-el); overflow-x:auto; margin:0 0 6px;
+  }
+  .tree-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:10px 16px; border-bottom:1px solid var(--gray50);
+  }
+  .tree-head .t-title{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); }
+  .tree-legend{ display:flex; gap:6px; align-items:center; }
+  .tree-body{ font-family:var(--mono); font-size:12.5px; line-height:2.05; padding:12px 8px; }
+  .tr-row{ display:flex; align-items:center; gap:10px; padding:0 12px; white-space:nowrap; }
+  .tr-row .path{ color:var(--gray600); }
+  .tr-row .path b{ color:var(--ink); font-weight:600; }
+  .tr-row.gone .path{ color:var(--gray400); text-decoration:line-through; }
+  .tr-chip{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    font-size:10px; font-weight:600; letter-spacing:-0.01em;
+    padding:1px 7px; border-radius:100px; flex:none; line-height:1.6;
+  }
+  .tr-chip.mod{ background:var(--amber-soft); color:var(--amber); }
+  .tr-chip.del{ background:var(--red-soft); color:var(--red); }
+  .tr-chip.core{ background:var(--green-soft); color:var(--green); }
+
+  /* 선택적 인터랙티브 피규어 (blue-soft 그라데이션 컨테이너 + 세그먼트 토글) */
+  .sim{
+    background:linear-gradient(180deg, var(--blue-soft), color-mix(in srgb, var(--blue-soft) 35%, #fff));
+    border-radius:var(--r-el); padding:20px; margin:4px 0 6px;
+  }
+  .sim-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin-bottom:14px; }
+  .sim-toggle-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .sim-toggle-row .lbl{ font-size:13px; font-weight:600; color:var(--gray600); }
+  .seg{ display:inline-flex; background:rgba(25,31,40,.055); border-radius:11px; padding:3px; }
+  .seg button{
+    appearance:none; border:none; font:inherit; cursor:pointer;
+    font-size:12.5px; font-weight:600; color:var(--gray600);
+    background:transparent;
+    padding:6px 14px; border-radius:9px; transition:all .15s ease;
+  }
+  .seg button:not(.on):hover{ background:#fff; color:var(--blue); }
+  .seg button.on{ background:var(--blue); color:#fff; box-shadow:0 2px 6px color-mix(in srgb, var(--blue) 30%, transparent); }
+  .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .sim-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:560px){ .sim-grid{ grid-template-columns:1fr; } }
+  .sim-col{ background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 1px 3px rgba(25,31,40,.06); }
+  .sim-col h3{ font-size:13.5px; font-weight:700; margin:0 0 10px; display:flex; align-items:center; gap:7px; }
+  .sim-col h3 .agent-dot{ width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .sim-step{ display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--gray600); padding:4px 0; line-height:1.55; }
+  .sim-step .st{ width:7px; height:7px; border-radius:50%; flex:none; margin-top:7px; background:var(--gray300); }
+  .sim-step.ok .st{ background:var(--green); }
+  .sim-step.act .st{ background:var(--amber); }
+  .sim-step.ok{ color:var(--green); font-weight:600; }
+  .sim-step.act{ color:var(--amber); font-weight:600; }
+  .sim-note{ margin:14px 2px 0; font-size:12.5px; color:var(--gray600); line-height:1.6; }
+  .sim-note b{ color:var(--ink); }
+
+  /* 핵심 정리 (섹션 마무리 요약: 퀴즈 해설과 같은 시각 언어) */
+  .takeaway{ background:var(--blue-soft); border-radius:12px; padding:14px 16px; margin:2px 0 4px; }
+  .takeaway .tk-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
+  .takeaway .tk-core{ font-size:14px; font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1.55; }
+  .takeaway ul{ margin:0; padding-left:18px; }
+  .takeaway li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
+  .takeaway li:last-child{ margin-bottom:0; }
+  .takeaway code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
+
+  /* 리스크 */
+  .risk-row{ display:flex; gap:14px; align-items:flex-start; padding:16px 4px; border-bottom:1px solid var(--gray50); }
+  .risk-row:last-child{ border-bottom:none; }
+  .risk-body{ font-size:14px; color:var(--sub); max-width:56ch; }
+  .risk-body b{ display:block; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+  .risk-body code{ font-family:var(--mono); font-size:12px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .risk-body .hint{ display:block; font-size:12.5px; color:var(--faint); margin-top:4px; }
+  .badge{ margin-left:auto; flex:none; font-size:10.5px; font-weight:600; padding:2px 9px; border-radius:100px; line-height:1.7; }
+  .badge.watch{ background:var(--amber-soft); color:var(--amber); }
+  .badge.crit{ background:var(--red-soft); color:var(--red); }
+
+  /* 퀴즈 */
+  .q{ padding:6px 0 18px; border-bottom:1px solid var(--gray50); margin-bottom:18px; }
+  .q:last-of-type{ border-bottom:none; margin-bottom:0; }
+  .q-text{ font-size:15.5px; font-weight:700; margin:8px 0 14px; line-height:1.55; }
+  .q-text .qn{ color:var(--blue); font-weight:700; margin-right:6px; }
+  .q-text code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .opts{ display:flex; flex-direction:column; gap:9px; }
+  .opt{
+    appearance:none; text-align:left; font:inherit; font-size:14px; font-weight:600;
+    color:var(--gray600); background:var(--gray25);
+    border:1.5px solid transparent; border-radius:var(--r-el);
+    padding:12px 16px; cursor:pointer; transition:all .15s ease; line-height:1.5;
+  }
+  .opt:hover{ background:var(--blue-soft); color:var(--blue); }
+  .opt:active{ transform:scale(.99); }
+  .opt:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .opt:disabled{ cursor:default; }
+  .opt.correct{ background:var(--green-soft); border-color:var(--green); color:var(--green); }
+  .opt.wrong{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
+  .opt code{ font-family:var(--mono); font-size:12px; }
+
+  /* 오답: 힌트 + 다시 풀기 (정답 비공개) */
+  .q-retry{ display:none; margin-top:12px; background:var(--amber-soft); border-radius:12px; padding:12px 16px; }
+  .q.wrongstate .q-retry{ display:block; }
+  .q-retry .rt-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+  .q-retry p{ margin:0 0 10px; font-size:13.5px; color:var(--gray700); line-height:1.6; }
+  .btn{
+    appearance:none; border:none; font:inherit; cursor:pointer;
+    font-size:13px; font-weight:600; letter-spacing:-0.01em;
+    padding:8px 14px; border-radius:10px;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .btn.retry{ background:#fff; color:var(--amber); }
+  .btn.fill{ background:var(--blue); color:#fff; }
+  .btn.fill:hover{ background:var(--blue-dark); }
+  .btn.weak{ background:#fff; color:var(--blue); }
+
+  /* 정답 해설: 라벨 + 핵심 한 줄 + 불릿 */
+  .q-explain{ display:none; margin-top:12px; background:var(--blue-soft); border-radius:12px; padding:14px 16px; }
+  .q.correctstate .q-explain{ display:block; }
+  .q-explain .ex-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
+  .q-explain .ex-core{ font-size:14px; font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1.55; }
+  .q-explain ul{ margin:0; padding-left:18px; }
+  .q-explain li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
+  .q-explain li:last-child{ margin-bottom:0; }
+  .q-explain code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
+
+  /* BottomCTA: 이해 게이트 (가짜 액션 문구 금지) */
+  .bottom-cta{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    background:linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 80%, transparent) 30%, var(--bg) 70%);
+    padding:28px 20px 22px; pointer-events:none;
+  }
+  .bottom-cta-inner{ max-width:760px; margin:0 auto; pointer-events:auto; }
+  .cta{
+    width:100%; appearance:none; border:none; font:inherit; cursor:pointer;
+    font-size:15px; font-weight:700; letter-spacing:-0.01em;
+    padding:14px; border-radius:14px;
+    background:var(--gray200); color:var(--gray400);
+    transition:all .25s ease;
+  }
+  .cta .sub{ display:block; font-size:12px; font-weight:600; margin-top:2px; opacity:.8; }
+  .cta.armed{ background:var(--green); color:#fff; box-shadow:0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
+  .cta:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; transform:none !important; scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">explain-diff</span>
+    <h1>{{DOC_TITLE}}</h1>
+    <p class="lede">{{LEDE_2_3_SENTENCES}}</p>
+    <div class="metabar">
+      <span class="meta-chip"><span class="dot"></span>{{TARGET_LABEL}}</span>
+      <span class="meta-chip"><span class="mono">{{COMMIT_RANGE}}</span></span>
+      <span class="meta-chip">{{N}}개 파일 · <span class="plus">+{{ADDED}}</span> <span class="minus">−{{REMOVED}}</span></span>
+      <span class="meta-chip"><span class="mono">{{DATE}}</span></span>
+    </div>
+  </header>
+
+  <!-- 목차: 그룹 헤더 포함, 각 행 = 해당 섹션의 한 줄 요약 -->
+  <section class="card">
+    <div class="list-header"><h2>이 문서에서 다뤄요</h2></div>
+    <div class="toc-group"><span class="g-part">Part 1</span>개요</div>
+    <a class="toc-row" href="#sec1"><span class="idx">1</span><span>배경<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
+    <a class="toc-row" href="#sec2"><span class="idx">2</span><span>구조 한눈에 보기<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
+    <div class="toc-group"><span class="g-part">Part 2</span>변경 사항</div>
+    <!-- REPEAT: one row per theme section (sec3..secK) -->
+    <a class="toc-row" href="#sec3"><span class="idx">3</span><span>{{THEME_TITLE}}<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
+    <div class="toc-group"><span class="g-part">Part 3</span>이해 점검</div>
+    <a class="toc-row" href="#risks"><span class="idx">{{K+1}}</span><span>주의해서 볼 지점<span class="desc">{{RISK_SUMMARY}}</span></span><span class="chev">›</span></a>
+    <a class="toc-row" href="#quiz"><span class="idx">{{K+2}}</span><span>이해도 퀴즈<span class="desc">5문항 · 전부 맞혀야 이해 완료 · 틀리면 힌트 보고 다시 풀 수 있어요</span></span><span class="chev">›</span></a>
+  </section>
+
+  <div class="group-label"><span class="g-part">Part 1</span><span class="g-name">개요</span></div>
+
+  <section class="card" id="sec1">
+    <div class="list-header"><span class="num">1</span><h2>배경</h2></div>
+    <p class="prose">{{WHY_THIS_CHANGE — before-state and its cost}}</p>
+    <p class="prose">{{AFTER_STATE — what the change achieves, behavior-level}}</p>
+  </section>
+
+  <section class="card" id="sec2">
+    <div class="list-header"><span class="num">2</span><h2>구조 한눈에 보기</h2></div>
+    <p class="prose">이 변경이 디렉토리 전체에서 어디를 건드렸는지예요.</p>
+
+    <div class="tree">
+      <div class="tree-head">
+        <span class="t-title">디렉토리 변화</span>
+        <div class="tree-legend">
+          <span class="tr-chip core">승격·신설</span>
+          <span class="tr-chip mod">수정</span>
+          <span class="tr-chip del">삭제</span>
+        </div>
+      </div>
+      <div class="tree-body">
+        <div class="tr-row"><span class="path"><b>{{REPO_NAME}}/</b></span></div>
+        <!-- REPEAT: one row per touched file/dir. Deleted files use class="tr-row gone" + del chip.
+             Chip text states WHAT happened in a few words, not the filename. No section links. -->
+        <div class="tr-row"><span class="path">├─ {{PATH}}</span><span class="tr-chip mod">{{WHAT_CHANGED}}</span></div>
+      </div>
+    </div>
+
+    <!-- FIGURE SLOT (optional): include ONLY when a meaningful interaction exists,
+         i.e. the user's input changes the outcome (a scenario toggle, a state switch).
+         Never build a step-through that reveals already-visible content in order.
+         Use the .sim / .seg / .sim-grid / .sim-step components above and inline the
+         bespoke JS at the bottom of the page. Delete this slot otherwise. -->
+  </section>
+
+  <div class="group-label"><span class="g-part">Part 2</span><span class="g-name">변경 사항</span></div>
+
+  <!-- REPEAT: one card per theme, ordered by importance (sec3..secK) -->
+  <section class="card" id="sec3">
+    <div class="list-header"><span class="num">3</span><h2>{{THEME_TITLE}}</h2></div>
+    <p class="prose">{{WHAT_AND_WHY — behavior meaning, not line narration}}</p>
+    <div class="codeblock">
+      <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{HUNK_META}}</span></div>
+      <pre><span class="ln del">- {{REMOVED_LINE_VERBATIM}}</span><span class="ln add">+ {{ADDED_LINE_VERBATIM}}</span><span class="ln">  {{CONTEXT_LINE_VERBATIM}}</span></pre>
+    </div>
+    <div class="takeaway">
+      <div class="tk-label">핵심 정리</div>
+      <p class="tk-core">{{ONE_SENTENCE_TO_REMEMBER}}</p>
+      <ul>
+        <li>{{SUPPORTING_POINT}}</li>
+        <li>{{SUPPORTING_POINT}}</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="group-label"><span class="g-part">Part 3</span><span class="g-name">이해 점검</span></div>
+
+  <section class="card" id="risks">
+    <div class="list-header"><span class="num">{{K+1}}</span><h2>주의해서 볼 지점이에요</h2></div>
+    <!-- REPEAT: one row per risk. Use badge.watch or badge.crit.
+         Frame as attention pointers, never as confirmed bugs. -->
+    <div class="risk-row">
+      <div class="risk-body">
+        <b>{{RISK_TITLE}}</b>
+        {{RISK_BODY — the concrete scenario and what to check}}
+        <span class="hint">확정된 버그가 아니라 주의 포인터예요.</span>
+      </div>
+      <span class="badge watch">Watch</span>
+    </div>
+  </section>
+
+  <section class="card" id="quiz">
+    <div class="list-header"><span class="num">{{K+2}}</span><h2>얼마나 이해했는지 확인해 보세요</h2></div>
+    <p class="prose" style="margin-top:2px;">5문항이에요. 틀리면 정답 대신 <b>힌트</b>가 나오고, 해당 섹션을 다시 본 뒤 다시 풀 수 있어요. 전부 맞혀야 이해 완료예요.</p>
+
+    <!-- REPEAT: exactly 5 .q blocks by default.
+         data-hint: points to the relevant section, NEVER reveals the answer.
+         Exactly one option has data-ok="true". 3-4 options each. -->
+    <div class="q" data-hint="{{HINT_POINTING_TO_SECTION}}">
+      <p class="q-text"><span class="qn">Q1</span>{{QUESTION — behavior prediction / failure mode / rejected alternative / invariant / future-maintainer scenario}}</p>
+      <div class="opts">
+        <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
+        <button class="opt" data-ok="true">{{CORRECT}}</button>
+        <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
+        <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
+      </div>
+      <div class="q-retry"><div class="rt-label">아직이에요</div><p class="rt-hint"></p><button class="btn retry">다시 풀기</button></div>
+      <div class="q-explain">
+        <div class="ex-label">해설</div>
+        <p class="ex-core">{{CORE_FACT_ONE_LINE}}</p>
+        <ul>
+          <li>{{WHY_CORRECT}}</li>
+          <li>{{WHY_THE_TEMPTING_WRONG_ANSWER_IS_WRONG}}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="bottom-cta">
+  <div class="bottom-cta-inner">
+    <button class="cta" id="cta" disabled>
+      아직 확인 중이에요 <span class="sub" id="ctaSub"></span>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ── 퀴즈 + 이해 게이트 (범용: .q 개수와 data-hint에서 자동 구성) ── */
+  var qs = document.querySelectorAll("#quiz .q");
+  var TOTAL = qs.length, correct = 0;
+  var cta = document.getElementById("cta");
+  var ctaSub = document.getElementById("ctaSub");
+
+  function updateGate(){
+    if (correct === TOTAL){
+      cta.disabled = false;
+      cta.classList.add("armed");
+      cta.firstChild.textContent = "이 변경을 이해했어요 ";
+      ctaSub.textContent = TOTAL + "/" + TOTAL + " · 남에게 설명할 수 있는 수준이에요";
+    } else {
+      ctaSub.textContent = "맞힌 문항 " + correct + "/" + TOTAL + " · 전부 맞히면 이해 완료예요";
+    }
+  }
+
+  qs.forEach(function(q){
+    q.querySelector(".rt-hint").textContent = q.dataset.hint || "";
+
+    q.querySelectorAll(".opt").forEach(function(opt){
+      opt.addEventListener("click", function(){
+        if (q.classList.contains("correctstate")) return;
+        var ok = opt.dataset.ok === "true";
+        if (ok){
+          q.classList.remove("wrongstate");
+          q.classList.add("correctstate");
+          opt.classList.add("correct");
+          q.querySelectorAll(".opt").forEach(function(o){ o.disabled = true; });
+          correct++;
+          updateGate();
+        } else {
+          opt.classList.add("wrong");
+          q.classList.add("wrongstate");
+          q.querySelectorAll(".opt").forEach(function(o){ o.disabled = true; });
+        }
+      });
+    });
+
+    q.querySelector(".btn.retry").addEventListener("click", function(){
+      q.classList.remove("wrongstate");
+      q.querySelectorAll(".opt").forEach(function(o){
+        o.disabled = false;
+        o.classList.remove("wrong");
+      });
+    });
+  });
+  updateGate();
+
+  cta.addEventListener("click", function(){
+    if (cta.disabled) return;
+    cta.firstChild.textContent = "좋아요, 이제 이 diff를 자신 있게 다룰 수 있어요 ";
+    ctaSub.textContent = "문서를 닫고 리뷰나 다음 작업으로 돌아가세요";
+  });
+
+  /* FIGURE SLOT JS: if the optional interactive figure was included in Part 1,
+     inline its bespoke logic here. Keep it data-driven and outcome-changing. */
+})();
+</script>
+</body>
+</html>

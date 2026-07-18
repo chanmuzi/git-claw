@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.12.0 (2026-07-18)
 
 **Changed**
 - 전 스킬의 프로젝트 설정 조회를 AGENTS.md 우선 + CLAUDE.md fallback으로 전환 (#48) — Branch Strategy, 언어, 릴리스 프로세스, label 규칙 등 "project's CLAUDE.md"를 읽던 17개 지점 통일. adapter 체계(CLAUDE.md가 @AGENTS.md 한 줄) 프로젝트에서 @ import를 해석하지 않는 호스트(Codex CLI, Gemini CLI, Cursor 등)가 프로젝트 규칙을 읽지 못하던 문제 해소. AGENTS.md 스킬 간 공유 로직 테이블에도 등재

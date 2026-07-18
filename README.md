@@ -130,6 +130,8 @@ Creates a PR with a structured template. Automatically detects Individual or Rel
 /pr release      # Release PR (dev → main integration)
 ```
 
+After creating an individual PR, the skill offers a one-line opt-in to generate an `/explain-diff` explainer for the change (default No, never re-asked).
+
 ### `/issue` — Create a GitHub Issue
 
 Creates a structured issue with the appropriate template and auto-assigns type/priority labels.

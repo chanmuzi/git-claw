@@ -6,7 +6,7 @@
 - `/micro-world` 스킬 추가 — 특정 동작(상태 머신, 알고리즘, 데이터 변환, 프로토콜 흐름)을 직접 조작하며 체감하는 일회성 인터랙티브 HTML 시뮬레이션 생성. Papert의 micro-world 개념을 도입한 explain-diff의 형제 스킬로, 시각 언어(디자인 토큰)만 공유하고 구조는 동작별 bespoke. 적용성 게이트(시뮬 가치가 없는 변경은 정직하게 거절하고 /explain-diff 권장), fidelity 규칙(실제 코드 로직을 모델링하고 단순화 지점은 페이지에 명시), 인터랙션 원칙(입력이 결과를 바꿀 때만) 포함. 셸 template.html(토큰·프레임·상태 프리미티브) 동봉. 산출물은 저장소 루트에 micro-world-<slug>.html로 저장하고 절대경로만 안내
 
 **Docs**
-- 배포 절차에 오래된 plugin cache 정리 4단계 추가 (installPath 갱신 후 실행, stale cache로 인한 outdated 경고 방지)
+- 배포 절차에 오래된 plugin cache 정리 4단계 추가 (installPath 갱신 후 실행, stale cache로 인한 outdated 경고 방지) — PR #50으로 이미 병합된 변경으로, changelog 없이 머지되어 릴리스 노트 누락을 막기 위해 여기에 소급 기록
 
 ## v1.10.0 (2026-07-18)
 

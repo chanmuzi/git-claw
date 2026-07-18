@@ -232,7 +232,7 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 ### `/micro-world` — Inhabit a Behavior
 
-Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is visibly labeled on the page.
+Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is disclosed in a footnote. Each world runs one guided scenario — a mission bar with goal chips, exactly one recommended action enabled at a time — with full step playback: snapshot-based back/forward controls where pressing the forward key from a fresh page walks the entire story (arrow keys and R to restart).
 
 ```
 /micro-world                          # Simulate a behavior from the current change

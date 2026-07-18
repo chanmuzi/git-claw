@@ -323,7 +323,7 @@ This quote line is part of the format for issue comments — it does not apply t
 
 Replies MUST follow the exact structured format below. Do NOT use free-form prose or unstructured sentences.
 
-Write the reply body in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language. Examples below are in Korean:
+Write the reply body in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback). If no language is configured, follow the user's conversational language. Examples below are in Korean:
 
 **If applied:**
 ```

@@ -81,7 +81,7 @@ Read `template.html` from this skill's base directory — it carries the design 
 
 - Top: `micro-world` eyebrow + title naming the behavior + lede stating the mission and how to drive it (one line).
 - Close with a `핵심 정리` takeaway card: what the user should have felt after playing.
-- Korean output uses 해요체; content language follows the project's CLAUDE.md/AGENTS.md setting, else the user's conversational language.
+- Korean output uses 해요체; content language follows the project's AGENTS.md (or CLAUDE.md as fallback) setting, else the user's conversational language.
 
 ## Step 4: Output
 

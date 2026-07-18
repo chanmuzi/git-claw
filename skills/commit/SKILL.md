@@ -213,7 +213,7 @@ Add scope in parentheses when the change targets a specific module or component:
 
 ### Description Rules
 
-- Write the description in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language.
+- Write the description in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback). If no language is configured, follow the user's conversational language.
 - Keep the subject line concise (aim for under 50 characters).
 - Use natural, fluent phrasing. Do not force-translate well-known technical terms. For example, write `source_map` as-is rather than translating it.
 - Focus on WHAT changed and WHY, not HOW.

@@ -310,12 +310,15 @@
   function cursor(){
     if (cursorEl) cursorEl.remove();
     cursorEl = document.createElement("span");
-    cursorEl.className = "cursor";
+    cursorEl.className = "tl cmd";          /* 대기 프롬프트: ❯ + 깜빡이는 커서 */
+    var blink = document.createElement("span");
+    blink.className = "cursor";
+    cursorEl.appendChild(blink);
     termBody.appendChild(cursorEl);
     termBody.scrollTop = termBody.scrollHeight;
   }
   function tline(text, cls){
-    if (cursorEl) cursorEl.remove();
+    if (cursorEl){ cursorEl.remove(); cursorEl = null; }
     var el = document.createElement("span");
     el.className = "tl " + (cls || "out");
     el.textContent = text;
@@ -371,7 +374,11 @@
     var h = hist[hp];
     S = JSON.parse(JSON.stringify(h.S));
     termBody.innerHTML = h.term;
-    termBody.querySelectorAll(".cursor").forEach(function(c){ c.remove(); });
+    termBody.querySelectorAll(".cursor").forEach(function(c){
+      var p = c.parentElement;
+      c.remove();
+      if (p && p.classList && p.classList.contains("tl") && p.textContent === ""){ p.remove(); }
+    });
     cursorEl = null;
     cursor();
     document.getElementById("narr").className = h.narrCls;

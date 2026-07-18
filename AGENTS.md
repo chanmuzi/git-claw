@@ -1,1 +1,413 @@
-CLAUDE.md
+# AGENTS.md
+
+이 저장소에서 작업하는 코딩 에이전트(Codex CLI, Claude Code 등)를 위한 프로젝트 지침이다.
+
+## 프로젝트 문서 체계
+
+- 이 `AGENTS.md`가 유일한 프로젝트 문서 정본(SSoT)이다. 규칙 변경 시 이 파일만 수정한다.
+- 루트 `CLAUDE.md`는 `@AGENTS.md` 한 줄 adapter다. 공유 내용을 복제하지 않는다.
+- 에이전트 세션은 저장소 루트에서 시작한다.
+- 배경과 근거: docs/decisions/2026-07-project-doc-adapter.md
+
+## 프로젝트 개요
+
+Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff` 일곱 가지 slash command를 제공한다.
+Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
+
+## 아키텍처
+
+Claude Code skill 표준 구조(`anthropics/skills` 기준)를 따른다.
+
+```
+git-claw/
+├── .claude-plugin/marketplace.json   # marketplace 등록 메타데이터
+├── skills/
+│   ├── commit/
+│   │   ├── SKILL.md                  # /commit
+│   │   └── LICENSE.txt
+│   ├── pr/
+│   │   ├── SKILL.md                  # /pr, /pr release
+│   │   └── LICENSE.txt
+│   ├── issue/
+│   │   ├── SKILL.md                  # /issue [bug|feature|...]
+│   │   └── LICENSE.txt
+│   ├── review-reply/
+│   │   ├── SKILL.md                  # /review-reply
+│   │   └── LICENSE.txt
+│   ├── code-review/
+│   │   ├── SKILL.md                  # /code-review
+│   │   └── LICENSE.txt
+│   └── handoff/
+│       ├── SKILL.md                  # /handoff
+│       └── LICENSE.txt
+├── .gitignore
+├── README.md
+└── LICENSE
+```
+
+- 각 SKILL.md는 YAML frontmatter(`name`, `description`)로 시작
+- SKILL.md body에서 Claude가 직접 git/gh 명령을 실행하도록 지시
+- `$ARGUMENTS`로 사용자 인자를 참조
+
+## 배포
+
+두 가지 설치 방식을 지원한다:
+
+- **Skills CLI (크로스 플랫폼)**: `npx skills add chanmuzi/git-claw`
+- **Claude Code Plugin**: `/plugin marketplace add chanmuzi/git-claw`
+
+## 로컬 테스트
+
+```bash
+# 방법 1: Skills CLI
+npx skills add ./  # 로컬 경로에서 설치
+
+# 방법 2: Claude Code Plugin (초기 설치 전용, 브랜치 테스트는 아래 '브랜치 테스트' 섹션 참조)
+/plugin marketplace add /Users/chanmuzi/coding/workspace/git-claw
+/plugin install git-claw@git-claw
+
+# SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
+/reload-plugins
+
+# 각 command 테스트
+/commit             → diff 분석 후 conventional commit 메시지 제안 확인
+/commit             → 직전 커밋 파일 재수정 후 실행 시, 새 커밋 생성 확인 (auto-amend 없음)
+/commit --amend     → 직전 커밋에 현재 변경사항 합치기 (amend)
+/commit --amend     → (이미 push된 커밋에 대해) force push 경고 및 확인 절차
+/pr            → Individual PR 템플릿 생성 확인
+/pr release    → Release PR 템플릿 생성 확인
+/issue         → 이슈 템플릿 생성 및 label 자동 부여 확인
+/issue bug     → Bug Report 템플릿 확인
+/review-reply        → AI 리뷰 코멘트 수집/분석 확인
+/review-reply 42     → 특정 PR 번호로 리뷰 확인
+/code-review              → PR 자동 감지 → 변경사항 리뷰 → 현재 디렉토리 리뷰 (대화 맥락 반영)
+/code-review 42           → 특정 PR 코드 리뷰
+/code-review src/         → 특정 경로 코드 리뷰
+/code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제
+/code-review --quick         → Quick 모드: 단일 패스, 도메인 2개 cap, Critical/Warning 우선 (없으면 Info fallback)
+/code-review --full-scan     → PR 리뷰 시 diff 외부 pre-existing issue도 포함
+/code-review --no-codex      → Codex 통합 비활성화
+/code-review --codex         → Codex 강제 활성화 (adversarial only, default와 동일)
+/code-review --codex-general → Codex 일반 리뷰만 사용 (adversarial 없이)
+/code-review --codex-both    → Codex review + adversarial 동시 실행
+/handoff              → 세션 컨텍스트 분석 후 handoff 프롬프트 생성
+/handoff -y           → 확인 없이 즉시 출력
+/handoff auth 리팩토링 → 특정 주제 필터링된 handoff 생성
+```
+
+### 브랜치 테스트 (merge 전 스킬 검증)
+
+플러그인이 GitHub remote(`chanmuzi/git-claw`)에서 설치된 경우, `/reload-plugins`는 **main 브랜치**에서 가져온다.
+fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 방법을 사용한다.
+
+> **참고**: `/plugin marketplace add /local/path` → remote 복원 방식은 Claude Code 버그([#9537](https://github.com/anthropics/claude-code/issues/9537))로 `settings.json`에 `path` 잔여물이 남아 사용하지 않는다.
+
+플러그인 cache 디렉토리에 로컬 스킬 파일을 복사한 뒤 `/reload-plugins`로 반영한다.
+marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작한다.
+
+**중요**: `installed_plugins.json`의 `installPath`와 실제 로드되는 cache 경로가 다를 수 있다 (`/reload-plugins`가 새 hash를 생성하면서 `installed_plugins.json`을 갱신하지 않음). 가장 최근에 수정된 cache 디렉토리가 활성 경로이므로, `ls -td`로 탐색한다.
+
+**함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
+
+> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리한다:
+> `ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf`
+
+```bash
+# 1. 최신 cache 경로 탐색 + 로컬 스킬 복사
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+cp -r skills/ "$CACHE/skills/"
+
+# 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
+
+# 3. 검증 — reload가 새 cache를 만들지 않았는지 확인 (필수)
+#    로드된 스킬 본문에만 있는 고유 문자열로 확인한다
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKILL.md" \
+  && echo "신버전 로드됨" \
+  || { cp -r skills/ "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
+
+# 4. 수정한 스킬 테스트 수행
+/{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
+#    스킬 실행 시 출력되는 "Base directory"가 위 $CACHE와 같은지 확인할 것
+
+# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
+
+# 6. (이 세션에서 실행) /reload-plugins   ← 원본 복원
+```
+
+> **`/reload-plugins`는 반드시 이 Claude Code 세션에서 실행**해야 한다. 별도 터미널에서 실행하면 현재 세션의 메모리에 반영되지 않는다.
+
+### 테스트 안내 흐름
+
+로컬 테스트 안내 시 아래 구조를 따른다. Claude가 복사·실행·리포트·복원을 전담하고, 사용자는 `/reload-plugins`만 실행한다.
+
+1. **최신 cache 탐색 + 복사**: `ls -td` 로 최신 cache 경로 탐색 → 로컬 스킬 복사
+2. **reload 요청**: 사용자에게 이 세션에서 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드)
+3. **검증**: reload 후 활성 cache를 다시 탐색해 `diff -q`로 신버전 여부 확인. 새 cache가 생겨 구버전이 로드됐으면 재복사 후 reload를 한 번 더 요청한다. 스킬 실행 시 표시되는 `Base directory`가 활성 cache와 일치하는지도 함께 확인한다. **이 단계를 건너뛰고 테스트 결과를 보고하지 않는다** (구버전 실행 결과를 신버전 결과로 오인해 보고하게 됨)
+4. **테스트 실행 + 결과 리포트**: 스킬 실행 및 결과 보고
+5. **복원 + reload 안내**: marketplace에서 최신 cache로 복원 → 사용자에게 이 세션에서 `/reload-plugins` 실행 안내
+
+복원 절차를 테스트 전에 미리 보여주지 않는다. 시나리오 소개와 복원이 한 번에 나오면 정보 과부하.
+
+## Git Convention (이 프로젝트 자체에 적용)
+
+- Commit: `{type}: {한글 설명}` (소문자 prefix)
+- Type: feat, fix, refactor, style, docs, test, perf, chore, hotfix
+- 파일 staging 시 `git add -A` 금지, 개별 파일 지정
+- 커밋 승인은 세션의 tool permission 설정에 따름
+- PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
+- main push 후 Claude Code 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
+  1. `git -C ~/.claude/plugins/marketplaces/git-claw pull` — marketplace 최신화
+  2. 이 세션에서 `/reload-plugins` 실행 — 최신 cache 생성
+  3. `installed_plugins.json`(예: `~/.claude/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
+     - 새로 시작하는 다른 프로젝트 세션은 수정된 `installPath`를 자동으로 사용
+     - 이미 실행 중인 다른 프로젝트 세션은 자동 반영되지 않으므로 `/reload-plugins` 실행 또는 세션 재시작 필요
+  ```bash
+  # 새 cache 경로 확인
+  ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
+  # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
+  ```
+- main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
+  - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.
+  - 이 저장소의 Codex install은 **Codex 전용**(`~/.codex/skills`)이다. 이 형태를 유지하려면 marketplace에서 직접 복사하고 `.installed-ref`를 수동 기록한다.
+  - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 동기화 후 **세션 재시작** 필요.
+  ```bash
+  # 1. 동기화 상태 확인
+  #    Codex 전용 install(~/.codex/skills) + universal install(~/.agents/skills) 모두 탐색
+  #    .installed-ref가 있는 디렉터리만 골라내 stale/누락 폴더와 install scope를 함께 노출
+  for base in ~/.codex/skills ~/.agents/skills; do
+    [ -d "$base" ] || continue
+    scope=$([ "$base" = ~/.agents/skills ] && echo "universal" || echo "codex")
+    for d in "$base"/*/; do
+      [ -f "$d/.installed-ref" ] || continue
+      printf "%-15s %s [%s]\n" "$(basename "$d"):" "$(cat "$d/.installed-ref")" "$scope"
+    done
+  done
+
+  # 2. marketplace를 최신 main으로 pull 후 직접 복사 + .installed-ref 기록
+  git -C ~/.claude/plugins/marketplaces/git-claw pull
+  SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
+  for s in commit pr issue review-reply code-review handoff; do
+    rm -rf ~/.codex/skills/$s
+    cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
+    echo "$SHA" > ~/.codex/skills/$s/.installed-ref
+  done
+
+  # 3. 검증 — 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
+  diff -q ~/.claude/plugins/marketplaces/git-claw/skills/code-review/SKILL.md ~/.codex/skills/code-review/SKILL.md
+  ls ~/.claude/skills/   # git-claw skill이 보이면 universal install로 오염된 것
+  ```
+- 스킬 rename / 제거 시 stale 폴더 cleanup:
+  - `npx skills` CLI는 rename·제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
+  - rename/제거 PR의 CHANGELOG 항목에 반드시 다음 cleanup 안내를 포함한다 (install 형태를 바꾸지 않는 직접 삭제를 우선한다):
+    ```bash
+    rm -rf ~/.codex/skills/{old-name}        # 권장
+    npx skills remove {old-name} -g          # 대안. 단, 설치 scope과 일치해야 함
+    ```
+  - Claude Code plugin 쪽은 cache가 marketplace 트리를 그대로 미러링하므로 rename 시 자동 정리됨 (별도 cleanup 불필요).
+
+## Skills CLI 운영 가이드
+
+`npx skills`(upstream `vercel-labs/skills`) 운영 시 알려진 함정과 안전 규칙. 이 가이드는 실제 사고(2026-04-25, universal install로 의도치 않게 전환되어 Claude Code에서 plugin/skill 중복 노출 발생) 회고에서 도출됨.
+
+### 운영 원칙
+
+- **기존 install 형태(scope·target·copy/symlink)를 사용자 동의 없이 변경하지 않는다.** update/cleanup은 기존 설치 형태를 그대로 유지하는 방식으로만 진행한다.
+- update/remove/add 명령의 옵션 차이로 install 위치가 바뀔 수 있다. 옵션을 명시하지 않은 채 실행하지 말고, 변경되는 디렉터리/symlink target을 사전에 확인한다.
+- "guide"/"안내"/"정리"는 **설명 요청**이지 실행 요청이 아니다. 실행이 필요하면 사용자에게 명시적 승인을 받는다.
+
+### 알려진 함정
+
+- **`npx skills update`의 silent no-op**: copy-mode로 설치된 skill에 대해 update가 "Updated"로 표시되지만 실제 파일은 변경되지 않는 경우가 있다. timestamp(`ls -la`)와 `diff -q`로 실제 갱신 여부를 검증해야 한다.
+- **`npx skills add ... --all`의 universal store 부작용**: default가 `~/.agents/skills/`(universal store)에 source를 두고 모든 host agent(Claude Code, Codex, Cursor 등)에 symlink하는 형태. Claude Code에서 plugin install된 동일 skill이 있으면 `~/.claude/skills/{name}` symlink와 plugin install이 동시에 잡혀 중복 노출됨.
+- **빌트인 `/review`와 `git-claw:review-reply`의 트리거 충돌**: Claude Code 빌트인 `/review`(PR 리뷰)가 트리거를 가져갈 수 있어 `review-reply`가 의도된 시점에 호출되지 않을 수 있다. 명시적으로 `/git-claw:review-reply`처럼 plugin prefix를 사용하면 충돌을 피할 수 있다.
+
+### Install scope 비교
+
+| 명령 | source 위치 | 영향받는 agent |
+|------|------------|---------------|
+| `npx skills add chanmuzi/git-claw` (no `-g`) | 현재 프로젝트 내부 | 현재 프로젝트의 agents |
+| `npx skills add chanmuzi/git-claw -g --all` | `~/.agents/skills/{name}` (universal) | **모든 host agent**에 symlink (Claude Code 포함) |
+| 직접 복사 (아래 복원 레시피) | `~/.codex/skills/{name}` | Codex만 |
+
+> `--all`은 `--skill '*' --agent '*' -y` shorthand. `-a Codex`로 agent를 좁혀도 Skills CLI 버전에 따라 universal로 가는 경우가 있으므로, **Codex 전용 install이 필요하면 직접 복사 방식을 사용한다.**
+
+### 복원 레시피 (Codex 전용 install로 복구)
+
+universal install로 잘못 전환된 경우 또는 update가 동작하지 않는 경우:
+
+```bash
+# 1. git-claw 관련 스킬 제거 (universal source + 해당 agent symlink 정리)
+npx skills remove -g commit pr issue review-reply code-review handoff -y
+
+# 2. marketplace를 최신 main으로 pull
+git -C ~/.claude/plugins/marketplaces/git-claw pull
+
+# 3. marketplace → ~/.codex/skills/ 직접 복사 + .installed-ref 수동 기록
+SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
+for s in commit pr issue review-reply code-review handoff; do
+  rm -rf ~/.codex/skills/$s
+  cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
+  echo "$SHA" > ~/.codex/skills/$s/.installed-ref
+done
+
+# 4. 검증 — Claude Code 쪽 중복 없는지 확인
+ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
+
+# 5. (사용자 직접) Codex CLI 세션 재시작
+```
+
+## 스킬 공통 규칙
+
+모든 스킬(commit, pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
+
+- **Assignee / Label**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me`와 적용 가능한 `--label`을 포함. 권한 부족 등으로 `--assignee`/`--label` fallback이 발생하면, drop된 플래그가 무엇이고 왜 빠졌는지 사용자에게 명시적으로 고지한다 (silent drop 금지)
+- **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
+- **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
+- **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
+- **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
+- **Dash 금지**: git 메시지(커밋·PR 제목/본문)에 em-dash(—)·en-dash(–) 사용 금지. 콜론·괄호·쉼표로 대체 (코드/문서 산문은 대상 아님)
+- **Evidence 우선**(review-reply, code-review): finding을 제시할 때 근거가 되는 원문을 **파일에서 그대로 복사**하여 함께 보여준다. 사용자가 파일을 직접 열지 않고도 판단할 수 있어야 한다
+  - **블록 형태는 severity가 아니라 "수정안 존재 여부"로 결정한다** (두 축 분리). 수정안이 있으면 ` ```diff `(`-` 현재 / `+` 제안) — Info여도 마찬가지다. 대체할 게 없으면(방향성 제안, 변경 불필요) ` ```{lang} ` 인용 블록. 최대 12줄, 초과 시 `…`로 중략
+  - **Action line은 severity로 결정한다**: Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. `{reason}`은 "왜 그 판단인지"를 쓰는 자리이지 수정 방법을 밀어넣는 자리가 아니다 — 수정 방법은 diff 블록으로
+  - 인용문 재구성 금지 — 요약·의역·기억에 의한 복원 모두 금지. 인용할 수 없는 finding은 검증되지 않은 finding이므로 제시하지 않는다
+  - **부재(absent code)가 문제인 경우**: 인용할 원문이 없다고 finding을 버리지 않는다. anchor(추가될 자리의 인접 코드, 또는 이미 올바르게 된 sibling)를 인용하고 `+`만 있는 diff로 제안한다
+  - 충돌 주장(규칙·컨벤션·다른 파일과 모순)은 **양쪽 원문을 모두** 인용한다. 한쪽만으로는 불일치가 성립하지 않는다
+  - 변경 불필요 판정(Accept / Won't Fix / ❌ Ignore)일수록 근거 인용이 더 중요하다. 반박하는 코드를 보여주지 못하면 기각할 수 없다
+
+## 터미널 렌더링 가이드라인
+
+SKILL.md 출력 템플릿 작성 시, Claude Code 터미널에서의 실제 렌더링을 고려해야 한다.
+Markdown 원문과 터미널 표시가 다른 주요 케이스:
+
+### 항목 간 시각적 분리
+
+- **Numbered list 내 빈 줄은 무시된다.** Markdown에서 `1.` ... (빈 줄) ... `2.` 사이의 공백은 터미널에서 렌더링되지 않아 항목이 밀착 표시됨.
+- **해결책**: Bold paragraph 패턴(`**1. ...**`)으로 전환하여 list 컨텍스트를 벗어난다. List 밖에서는 빈 줄이 정상 렌더링됨.
+- **`---` 사용 원칙**: `---`는 카테고리 구분 및 항목 간 구분 모두 사용 가능. 위계가 필요하면 Unicode 구분자(`────────────────────`)와 조합하여 3단 위계를 구성한다.
+
+### Markdown 요소별 터미널 렌더링
+
+| Markdown | 터미널 표시 | 비고 |
+|----------|------------|------|
+| `**bold**` | 밝은/굵은(bright) 텍스트 | 실제 굵기가 아닌 색상 밝기로 구현됨 |
+| `` `inline code` `` | 배경 하이라이트 박스 | 주변 텍스트와 명확히 구분됨 |
+| `# Heading` | 크고 밝은 텍스트 | 레벨(h1~h3)에 따라 크기 차이 |
+| `> blockquote` | 왼쪽 테두리 + 들여쓰기 | Fix 제안 등에 적합 |
+| `---` | 짧은 세 대시 (`---`) | 대시 개수(`---`, `------` 등)와 무관하게 동일 렌더링. Markdown `<hr>`로 파싱됨 |
+| `─` (thin box drawing) | 리터럴 텍스트 | 길이 조절 가능. 항목 간 구분에 적합 |
+| `━` (heavy box drawing) | 리터럴 텍스트 | `─`보다 두꺼움. 섹션 간 구분에 적합 |
+| `<details>`, `<summary>` | **렌더링 안 됨** — raw HTML 표시 | 터미널 출력에서 절대 사용 금지 |
+| 빈 줄 (list 내) | **무시됨** | bold paragraph로 전환하여 list 컨텍스트 회피 |
+| ` ```diff ` 블록 | 코드 블록 (하이라이팅은 호스트별 상이) | `-`/`+` 문자 자체가 의미를 담으므로 색상 미지원 환경에서도 안전. before/after 표현의 기본형 |
+
+### 원칙
+
+- 터미널 출력 템플릿에서는 HTML 태그를 사용하지 않는다.
+- 항목 간 분리가 필요하면 numbered list 대신 bold paragraph(`**1. ...**`)를 사용한다. List 밖에서는 빈 줄이 정상 렌더링됨.
+- `---`는 카테고리 구분 및 항목 간 구분 모두 사용 가능. 위계가 필요하면 Unicode 구분자(`────────────────────`)와 조합하여 3단 위계를 구성한다.
+- GitHub에 게시하는 포맷과 터미널 포맷의 차이를 인식하고, 각 매체에 맞는 템플릿을 사용한다.
+- **크로스 에이전트 안전성**: 이 스킬은 Claude Code 전용이 아니다(Codex CLI, Gemini CLI, Cursor 등). 위 표는 Claude Code 기준이므로, 출력 템플릿은 렌더러 간 공통분모(heading, bold, fenced code block, list, blockquote)만 사용한다. 색상·하이라이팅에 **의미를 의존시키지 않는다** — 정보는 문자 자체로 전달되어야 한다. 표는 폭이 좁은 터미널에서 깨지므로 출력 템플릿에 쓰지 않는다 (문서용은 무방).
+
+### 3단 위계 가이드
+
+```
+강: ──────────────────── (thin ─ × 20) + ### heading  → 섹션/카테고리 전환
+중: ---                                               → 항목 간 구분
+약: 빈 줄                                              → 항목 내부
+```
+
+### Hint 패턴
+
+스킬이 자동 판단한 결과를 사용자에게 알릴 때 사용한다 (예: amend 자동 실행, 모드 전환 등).
+주변 텍스트와 시각적으로 분리되어야 하며, 한 줄로 간결하게 작성한다.
+
+**형식:**
+
+> **{icon} {action}** — {reason}
+
+| icon | 용도 |
+|------|------|
+| ⚡ | 자동 실행 (사용자 확인 없이 진행) |
+| 💡 | 정보 제공 (참고용) |
+| ⚠️ | 주의 (부작용 가능성 있음) |
+
+## 스킬 간 공유 로직
+
+일부 로직이 여러 SKILL.md에 동일하게 기술되어 있다. 각 스킬은 self-contained여야 하므로 중복은 의도된 설계이나, 한쪽 수정 시 반드시 cross-check해야 한다.
+
+| 공유 로직 | 관련 스킬 | 비고 |
+|----------|----------|------|
+| `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
+| Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
+| Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
+
+## 새 스킬 추가 체크리스트
+
+새 스킬 디렉토리(`skills/{name}/`) 생성 시 아래 파일을 반드시 함께 업데이트한다:
+
+1. `skills/{name}/SKILL.md` — 스킬 본문 (frontmatter 포함)
+2. `skills/{name}/LICENSE.txt` — 라이선스 파일
+3. `.claude-plugin/marketplace.json` — `skills` 배열에 경로 추가, `description` 반영
+4. `AGENTS.md` — 프로젝트 개요(slash command 목록), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙
+5. `README.md` — 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시, `skills-N` 배지 count 동기화
+6. `README.ko.md` — README.md와 동일 항목 한국어 반영 (`skills-N` 배지 포함)
+7. `CHANGELOG.md` — 변경 항목 추가
+
+위 목록 반영 후, 기존 스킬 이름(예: `review-reply`)으로 Grep하여 참조가 있는 파일을 추가 확인한다. 누락된 파일이 있으면 함께 업데이트한다.
+
+## 기존 스킬 변경 체크리스트
+
+기존 스킬의 기능 추가·수정·삭제 시 아래 파일을 확인하고 필요 시 업데이트한다:
+
+1. `README.md` — 해당 스킬의 플래그, 사용 예시, 설명 반영
+2. `README.ko.md` — README.md와 동일 항목 한국어 반영
+3. `CHANGELOG.md` — 변경 항목 추가
+4. `AGENTS.md` — 스킬 공통 규칙, 로컬 테스트, 스킬 간 공유 로직 테이블 등 해당 시 업데이트
+
+변경한 스킬 이름으로 Grep하여 참조가 있는 파일을 추가 확인한다.
+
+## 릴리스 프로세스
+
+### 릴리스 시점
+
+릴리스는 사용자가 수동으로 결정한다. Feature PR에는 version bump를 포함하지 않는다.
+릴리스하고 싶을 때 `chore: release vX.Y.Z` 커밋을 생성하고 태그를 단다.
+
+### Semver 기준
+
+마지막 태그 이후의 커밋을 분석하여 bump 타입을 결정한다:
+- 새 스킬 추가, 주요 기능 변경 (`feat`) → **minor** (예: 1.7.1 → 1.8.0)
+- 버그 수정 (`fix`) → **patch** (예: 1.7.1 → 1.7.2)
+- 하위호환 깨지는 변경 → **major** (예: 1.x → 2.0.0)
+- `docs`/`style`/`chore`만 있으면 → 릴리스 불필요
+
+### 릴리스 절차
+
+```bash
+# 1. version bump 커밋
+#    marketplace.json version + 변경된 SKILL.md version 동기화
+git commit -m "chore: release vX.Y.Z"
+
+# 2. 태그 생성 및 푸시
+git tag vX.Y.Z && git push origin main vX.Y.Z
+```
+
+### 릴리스에 포함되는 파일
+
+1. `.claude-plugin/marketplace.json` — `metadata.version` bump
+2. `skills/*/SKILL.md` — frontmatter `version` 동기화
+3. `CHANGELOG.md` — Change Log 항목 추가
+4. `README.md`, `README.ko.md` — 필요 시 업데이트 (새 기능/변경된 동작)
+
+## 언어
+
+문서, 주석, commit 메시지 등은 한글 중심으로 작성. 고유 기술 용어(plugin, frontmatter, slash command 등)는 영어 유지.
+SKILL.md 내용은 Claude가 읽는 지시문이므로 영어로 작성.
+
+## Change Log
+
+[CHANGELOG.md](./CHANGELOG.md) 참조.

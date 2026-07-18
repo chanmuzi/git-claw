@@ -411,7 +411,16 @@ git commit -m "chore: release vX.Y.Z"
 
 # 2. 태그 생성 및 푸시
 git tag vX.Y.Z && git push origin main vX.Y.Z
+
+# 3. GitHub Release 생성 — 여기까지 해야 릴리스가 끝난다
+#    CHANGELOG.md의 해당 버전 섹션 본문을 릴리스 노트 파일로 저장한 뒤 사용
+gh release create vX.Y.Z --title "vX.Y.Z" --notes-file <릴리스 노트 파일>
+gh release list --limit 5   # 방금 릴리스한 버전이 Latest로 표시되는지 확인
 ```
+
+**태그 푸시(2번)에서 멈추면 릴리스가 아니다.** GitHub Releases 페이지에 해당 버전이 나타나지 않아 사용자가 배포 여부를 확인할 수 없고, 이전 버전이 Latest로 남는다. 실제로 태그만 푸시된 채 Release가 누락된 사례가 반복됐다 (v1.8.0, v1.10.0~v1.12.0).
+
+릴리스 노트는 `--generate-notes`(커밋 목록 자동 생성) 대신 `CHANGELOG.md`의 해당 버전 섹션 본문을 사용한다. 이 저장소는 CHANGELOG를 상세히 관리하므로 커밋 목록보다 정보량이 많다.
 
 ### 릴리스에 포함되는 파일
 

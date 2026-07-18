@@ -14,7 +14,7 @@
 <p align="center">Agent Skills for consistent Git workflows</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/skills-7-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <img src="https://img.shields.io/badge/skills-8-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
   <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
@@ -43,6 +43,7 @@ git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PR
 | 🔍 | `/code-review` | Multi-agent severity-based code review |
 | 🤝 | `/handoff` | Session transfer prompt generation |
 | 📖 | `/explain-diff` | Interactive HTML explainer for understanding a diff |
+| 🧪 | `/micro-world` | Throwaway interactive simulation of a behavior |
 
 ## Installation
 
@@ -68,7 +69,7 @@ The interactive installer lets you select skills, target agents, scope (project/
 <summary>Install all skills at once without prompts</summary>
 
 ```bash
-npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff -g
+npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world -g
 ```
 
 </details>
@@ -229,6 +230,15 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 </details>
 
+### `/micro-world` — Inhabit a Behavior
+
+Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is visibly labeled on the page.
+
+```
+/micro-world                          # Simulate a behavior from the current change
+/micro-world "retry logic in api.ts"  # Simulate a described behavior
+```
+
 ## Language Behavior
 
 All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
@@ -253,7 +263,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world` commands for full workflows
 ```
 
 ## Label System

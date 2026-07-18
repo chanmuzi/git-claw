@@ -1,0 +1,209 @@
+<!doctype html>
+<!--
+  micro-world output shell.
+  The FRAME (tokens, top header, card, base components) is fixed by the design system
+  (git-claw docs/decisions/2026-07-explain-diff-design-system.md) — do not restyle it.
+  The BODY (sim UI + inline JS inside the cards) is bespoke per behavior: design it
+  from Step 2 of SKILL.md. The user's input must change the outcome.
+  Fill every {{PLACEHOLDER}}; write bespoke JS at the marked slot.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-world: {{TITLE_SHORT}}</title>
+<style>
+  :root{
+    --gray900:#191F28; --gray700:#333D4B; --gray600:#4E5968; --gray500:#6B7684;
+    --gray400:#8B95A1; --gray300:#B0B8C1; --gray200:#D1D6DB; --gray100:#E5E8EB;
+    --gray50:#F2F4F6;  --gray25:#F9FAFB;
+    --blue:#3182F6; --blue-dark:#1B64DA; --blue-soft:#E8F3FF;
+    --red:#F04452; --red-soft:#FDEDEE;
+    --green:#0CA678; --green-soft:#E6F6F0;
+    --amber:#B76E00; --amber-soft:#FFF4DE;
+    --bg:var(--gray50); --card:#ffffff;
+    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+    --r-card:20px; --r-el:14px;
+    --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:0 20px 80px; }
+
+  .top{ padding:48px 4px 8px; }
+  .top .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:var(--blue);
+    background:var(--blue-soft); border-radius:100px; padding:5px 13px; margin-bottom:16px;
+  }
+  .top h1{
+    font-size:clamp(24px,4vw,28px); font-weight:700; letter-spacing:-0.03em;
+    line-height:1.35; margin:0 0 10px; text-wrap:balance;
+  }
+  .top .lede{ font-size:16px; color:var(--sub); margin:0 0 22px; max-width:58ch; }
+  .metabar{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .meta-chip{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:12.5px; font-weight:600; color:var(--gray600);
+    background:var(--card); border-radius:100px; padding:7px 14px; box-shadow:var(--shadow);
+  }
+  .meta-chip .mono{ font-family:var(--mono); font-size:11.5px; font-weight:500; }
+  .meta-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--blue); }
+
+  .card{
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow);
+    padding:24px 26px; margin-top:22px;
+  }
+  .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .list-header h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; margin:0; }
+  .prose{ font-size:15px; color:var(--sub); max-width:62ch; margin:10px 0 18px; }
+  .prose b{ color:var(--ink); font-weight:700; }
+  .prose code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+
+  /* 버튼 (fill/weak) 및 세그먼트 컨트롤 */
+  .btn{
+    appearance:none; border:none; font:inherit; cursor:pointer;
+    font-size:13px; font-weight:600; letter-spacing:-0.01em;
+    padding:8px 14px; border-radius:10px;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .btn.fill{ background:var(--blue); color:#fff; }
+  .btn.fill:hover{ background:var(--blue-dark); }
+  .btn.weak{ background:#fff; color:var(--blue); box-shadow:0 1px 3px rgba(25,31,40,.08); }
+  .btn:disabled{ background:var(--gray200); color:var(--gray400); cursor:default; transform:none; }
+  .seg{ display:inline-flex; background:rgba(25,31,40,.055); border-radius:11px; padding:3px; }
+  .seg button{
+    appearance:none; border:none; font:inherit; cursor:pointer;
+    font-size:12.5px; font-weight:600; color:var(--gray600);
+    background:transparent; padding:6px 14px; border-radius:9px; transition:all .15s ease;
+  }
+  .seg button:not(.on):hover{ background:#fff; color:var(--blue); }
+  .seg button.on{ background:var(--blue); color:#fff; box-shadow:0 2px 6px color-mix(in srgb, var(--blue) 30%, transparent); }
+  .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* 시뮬 캔버스: blue-soft 그라데이션 컨테이너 + 흰 패널 */
+  .sim{
+    background:linear-gradient(180deg, var(--blue-soft), color-mix(in srgb, var(--blue-soft) 35%, #fff));
+    border-radius:var(--r-el); padding:20px; margin:4px 0 6px;
+  }
+  .sim-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin-bottom:14px; }
+  .sim-panel{ background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 1px 3px rgba(25,31,40,.06); }
+  .sim-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:560px){ .sim-grid{ grid-template-columns:1fr; } }
+
+  /* 상태 표현 프리미티브 */
+  .state-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:600; color:var(--gray600);
+    background:var(--gray25); border-radius:100px; padding:5px 12px;
+    transition:all .2s ease;
+  }
+  .state-chip.on{ background:var(--blue); color:#fff; }
+  .state-chip.ok{ background:var(--green-soft); color:var(--green); }
+  .state-chip.warn{ background:var(--amber-soft); color:var(--amber); }
+  .state-chip.err{ background:var(--red-soft); color:var(--red); }
+  .sim-log{
+    font-family:var(--mono); font-size:12px; line-height:1.9; color:var(--gray600);
+    background:var(--gray25); border-radius:10px; padding:10px 14px; margin-top:12px;
+    max-height:180px; overflow-y:auto;
+  }
+  .sim-log .ok{ color:var(--green); }
+  .sim-log .warn{ color:var(--amber); }
+  .sim-log .err{ color:var(--red); }
+  input[type="range"]{ accent-color:var(--blue); width:100%; }
+
+  /* 단순화 고지 (fidelity rule: 실제 구현과 다른 지점은 반드시 표시) */
+  .simplified{
+    display:flex; gap:8px; align-items:flex-start;
+    font-size:12.5px; color:var(--amber); background:var(--amber-soft);
+    border-radius:10px; padding:10px 14px; margin-top:12px; line-height:1.6;
+  }
+
+  /* 코드 인용 */
+  .codeblock{
+    background:var(--gray25); border:1px solid var(--gray50);
+    border-radius:var(--r-el); overflow-x:auto; margin:0 0 18px;
+  }
+  .cb-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 16px; border-bottom:1px solid var(--gray50);
+    font-family:var(--mono); font-size:11px; color:var(--faint);
+  }
+  .cb-head .file{ font-weight:600; color:var(--gray500); }
+  .codeblock pre{ margin:0; padding:12px 0; font-family:var(--mono); font-size:12.5px; line-height:1.8; }
+  .ln{ display:block; padding:0 18px; white-space:pre; color:var(--gray500); }
+
+  /* 핵심 정리 */
+  .takeaway{ background:var(--blue-soft); border-radius:12px; padding:14px 16px; margin:2px 0 4px; }
+  .takeaway .tk-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
+  .takeaway .tk-core{ font-size:14px; font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1.55; }
+  .takeaway ul{ margin:0; padding-left:18px; }
+  .takeaway li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
+  .takeaway li:last-child{ margin-bottom:0; }
+  .takeaway code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; transform:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">micro-world</span>
+    <h1>{{TITLE — the behavior this world lets you inhabit}}</h1>
+    <p class="lede">{{LEDE — what this simulates and what to try first, 1-2 sentences}}</p>
+    <div class="metabar">
+      <span class="meta-chip"><span class="dot"></span>{{SOURCE_LABEL — e.g. PR #42 · repo-name}}</span>
+      <span class="meta-chip"><span class="mono">{{DATE}}</span></span>
+    </div>
+  </header>
+
+  <!-- BESPOKE BODY starts here.
+       Compose from the primitives above (.sim / .sim-panel / .sim-grid / .state-chip /
+       .sim-log / .btn / .seg / input[type=range] / .codeblock) in whatever structure
+       fits the behavior: timeline scrub, step executor, before/after panes, knobs.
+       Rules: the user's input must change the outcome; model the ACTUAL code logic;
+       label every simplification with a .simplified note. -->
+
+  <section class="card">
+    <div class="list-header"><h2>{{SIM_TITLE}}</h2></div>
+    <p class="prose">{{WHAT_TO_MANIPULATE_AND_OBSERVE}}</p>
+
+    <div class="sim">
+      <div class="sim-label">{{SIM_LABEL — imperative, e.g. "직접 눌러보세요"}}</div>
+      <!-- bespoke sim UI -->
+    </div>
+
+    <!-- <div class="simplified">실제 구현과 다른 지점이 있으면 반드시 여기 명시해요: {{SIMPLIFICATION_NOTE}}</div> -->
+  </section>
+
+  <section class="card">
+    <div class="takeaway">
+      <div class="tk-label">핵심 정리</div>
+      <p class="tk-core">{{WHAT_THE_USER_SHOULD_HAVE_FELT}}</p>
+      <ul>
+        <li>{{SUPPORTING_POINT}}</li>
+        <li>{{SUPPORTING_POINT}}</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  /* BESPOKE SIM JS: port the real algorithm/state machine here.
+     Keep state explicit (one state object), render from state, and make every
+     user input flow through the same transition functions the code uses. */
+})();
+</script>
+</body>
+</html>

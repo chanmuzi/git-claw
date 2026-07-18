@@ -1,11 +1,16 @@
 <!doctype html>
 <!--
-  micro-world output shell.
-  The FRAME (tokens, top header, card, base components) is fixed by the design system
-  (git-claw docs/decisions/2026-07-explain-diff-design-system.md) — do not restyle it.
-  The BODY (sim UI + inline JS inside the cards) is bespoke per behavior: design it
-  from Step 2 of SKILL.md. The user's input must change the outcome.
-  Fill every {{PLACEHOLDER}}; write bespoke JS at the marked slot.
+  micro-world output shell (command-center frame).
+  FIXED by the design system (git-claw docs/decisions/2026-07-explain-diff-design-system.md):
+    tokens, mission bar, environment pane + action palette + step nav (‹ ›),
+    narration strip, world-state card, footnote, takeaway, and the generic
+    runtime JS (output helpers, snapshot/restore playback, keyboard ← → R).
+  BESPOKE per behavior (marked below): the state model, the actions and their
+  faithful outputs, computeNext() (the guided cycle), renderWorld(), and the
+  environment pane's interior when the embodiment is not a terminal.
+  Rules: guided single cycle (one recommended action enabled at a time);
+  environment shows only faithful output, meaning goes to the narration strip;
+  model the ACTUAL logic; disclose simplifications in the footnote.
 -->
 <html lang="ko">
 <head>
@@ -26,6 +31,7 @@
     --r-card:20px; --r-el:14px;
     --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --term-bg:#10151C; --term-ink:#C9D4E0; --term-dim:#6C7686; --term-blue:#5B96F7; --term-amber:#D9A93F;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
@@ -34,7 +40,7 @@
     background:var(--bg); color:var(--ink);
     -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
   }
-  .wrap{ max-width:760px; margin:0 auto; padding:0 20px 80px; }
+  .wrap{ max-width:860px; margin:0 auto; padding:0 20px 80px; }
 
   .top{ padding:48px 4px 8px; }
   .top .eyebrow{
@@ -46,102 +52,160 @@
     font-size:clamp(24px,4vw,28px); font-weight:700; letter-spacing:-0.03em;
     line-height:1.35; margin:0 0 10px; text-wrap:balance;
   }
-  .top .lede{ font-size:16px; color:var(--sub); margin:0 0 22px; max-width:58ch; }
-  .metabar{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-  .meta-chip{
-    display:inline-flex; align-items:center; gap:7px;
-    font-size:12.5px; font-weight:600; color:var(--gray600);
-    background:var(--card); border-radius:100px; padding:7px 14px; box-shadow:var(--shadow);
+  .top .lede{ font-size:16px; color:var(--sub); margin:0 0 8px; max-width:60ch; }
+  .top .lede code{ font-family:var(--mono); font-size:13px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+
+  /* 미션 바 */
+  .mission{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow);
+    padding:16px 22px; margin-top:22px;
   }
-  .meta-chip .mono{ font-family:var(--mono); font-size:11.5px; font-weight:500; }
-  .meta-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--blue); }
+  .mission .m-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); }
+  .m-goal{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13px; font-weight:600; color:var(--gray500);
+    background:var(--gray25); border-radius:100px; padding:6px 14px;
+    transition:all .25s ease;
+  }
+  .m-goal::before{ content:"○"; font-size:11px; }
+  .m-goal.done{ background:var(--green-soft); color:var(--green); }
+  .m-goal.done::before{ content:"●"; }
+  .mission.complete{ background:var(--green-soft); }
+  .mission.complete .m-label{ color:var(--green); }
+
+  /* 환경 페인 (기본: 터미널. 다른 embodiment면 .term-body 내부를 교체) */
+  .term{
+    background:var(--term-bg); border-radius:var(--r-el);
+    display:flex; flex-direction:column; overflow:hidden;
+    margin-top:14px;
+  }
+  .term-head{
+    display:flex; align-items:center; gap:8px;
+    padding:11px 16px; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .term-head .tdot{ width:10px; height:10px; border-radius:50%; background:#3A4453; }
+  .term-head .t-title{ margin-left:6px; font-family:var(--mono); font-size:11px; color:var(--term-dim); }
+  .term-nav{ margin-left:auto; display:inline-flex; gap:4px; }
+  .term-nav button{
+    appearance:none; border:1px solid rgba(255,255,255,.08); cursor:pointer;
+    background:rgba(255,255,255,.04); color:var(--term-dim);
+    font:inherit; font-family:var(--mono); font-size:12px; font-weight:600;
+    width:26px; height:22px; border-radius:7px; line-height:1;
+    display:grid; place-items:center; transition:all .15s ease;
+  }
+  .term-nav button:hover:not(:disabled){ background:rgba(255,255,255,.1); color:var(--term-ink); }
+  .term-nav button:disabled{ opacity:.25; cursor:default; }
+  .term-nav button:focus-visible{ outline:2px solid var(--term-blue); outline-offset:2px; }
+  .term-body{
+    padding:16px 18px; overflow-y:auto; height:300px;
+    font-family:var(--mono); font-size:13px; line-height:1.9; color:var(--term-ink);
+    white-space:pre-wrap; word-break:break-all;
+  }
+  .term-body .tl{ display:block; }
+  .term-body .cmd{ color:var(--term-ink); }
+  .term-body .cmd::before{ content:"❯ "; color:var(--term-blue); font-weight:700; }
+  .term-body .claude-cmd::before{ content:"✳ "; color:var(--term-amber); }
+  .term-body .out{ color:var(--term-dim); }
+  .term-body .cursor{
+    display:inline-block; width:7px; height:15px; background:var(--term-blue);
+    vertical-align:-2px; animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .palette{
+    padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.06);
+    display:grid; grid-template-columns:1fr 1fr; gap:7px;
+  }
+  @media (max-width:640px){ .palette{ grid-template-columns:1fr; } }
+  .p-label{ grid-column:1 / -1; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--term-dim); padding:2px 4px; }
+  .cmd-btn{
+    appearance:none; border:1px solid rgba(255,255,255,.08); cursor:pointer;
+    background:rgba(255,255,255,.03); border-radius:9px;
+    padding:8px 12px; text-align:left;
+    display:flex; flex-direction:column; gap:1px;
+    transition:all .15s ease;
+  }
+  .cmd-btn:hover:not(:disabled){ background:rgba(255,255,255,.08); }
+  .cmd-btn:disabled{ opacity:.28; cursor:default; }
+  .cmd-btn:focus-visible{ outline:2px solid var(--term-blue); outline-offset:2px; }
+  .cmd-btn .c{ font-family:var(--mono); font-size:12px; color:var(--term-ink); }
+  .cmd-btn .c::before{ content:"❯ "; color:var(--term-blue); }
+  .cmd-btn.claude .c::before{ content:"✳ "; color:var(--term-amber); }
+  .cmd-btn.meta .c::before{ content:"↻ "; color:var(--term-dim); }
+  .cmd-btn .d{ font-size:11px; color:var(--term-dim); }
+  .cmd-btn.next{ border-color:var(--term-blue); box-shadow:0 0 0 1px var(--term-blue) inset; }
+  .cmd-btn.next .d{ color:var(--term-blue); }
+
+  /* 해설 스트립: 환경 페인 바로 아래. 의미·판정은 전부 여기 */
+  .narr{
+    background:var(--blue-soft); border-radius:var(--r-el);
+    padding:14px 18px; margin-top:12px; transition:background .25s ease;
+  }
+  .narr h3{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+  .narr .n-core{ font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 6px; line-height:1.5; }
+  .narr ul{ margin:0; padding-left:18px; }
+  .narr li{ font-size:13px; color:var(--gray600); line-height:1.6; margin-bottom:3px; }
+  .narr li:last-child{ margin-bottom:0; }
+  .narr code{ font-family:var(--mono); font-size:12px; background:rgba(255,255,255,.7); border-radius:5px; padding:1px 5px; }
+  .narr.ok{ background:var(--green-soft); }
+  .narr.ok h3{ color:var(--green); }
+  .narr.warn{ background:var(--amber-soft); }
+  .narr.warn h3{ color:var(--amber); }
+  .narr.err{ background:var(--red-soft); }
+  .narr.err h3{ color:var(--red); }
+
+  /* 세계 상태: 한 카드 안에서 구획 분리 */
+  .world{
+    background:#fff; border-radius:var(--r-el); box-shadow:0 1px 3px rgba(25,31,40,.06);
+    margin-top:12px; overflow:hidden;
+  }
+  .world-head{
+    padding:11px 18px; border-bottom:1px solid var(--gray50);
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint);
+  }
+  .world-grid{ display:grid; grid-template-columns:1.15fr 1fr; }
+  @media (max-width:640px){ .world-grid{ grid-template-columns:1fr; } }
+  .world-col{ padding:14px 18px; }
+  .world-col + .world-col{ border-left:1px solid var(--gray50); }
+  @media (max-width:640px){ .world-col + .world-col{ border-left:none; border-top:1px solid var(--gray50); } }
+  .world-col h4{ font-size:11px; font-weight:700; color:var(--gray400); margin:0 0 10px; font-family:var(--mono); }
+
+  .fs{ font-family:var(--mono); font-size:11.5px; line-height:2.0; color:var(--gray600); }
+  .fs .fs-row{ display:flex; align-items:center; gap:6px; white-space:nowrap; overflow-x:auto; }
+  .fs .fs-row.enter{ animation:enter .35s ease; }
+  @keyframes enter{ from{ opacity:0; transform:translateY(-4px);} }
+  .fs b{ color:var(--ink); font-weight:600; }
+  .vtag{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    font-size:9.5px; font-weight:600; padding:0 7px; border-radius:100px; line-height:1.7; flex:none;
+  }
+  .vtag.main{ background:var(--gray100); color:var(--gray600); }
+  .vtag.local{ background:var(--green-soft); color:var(--green); }
+  .vtag.act{ background:var(--blue-soft); color:var(--blue); }
+  .vtag.ip{ background:var(--amber-soft); color:var(--amber); }
+  .vtag.dangling{ background:var(--red-soft); color:var(--red); }
+
+  .sess{ display:flex; flex-direction:column; gap:8px; }
+  .sess-chip{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:600; border-radius:10px; padding:9px 13px;
+    background:var(--gray25); color:var(--gray600); transition:all .25s ease;
+  }
+  .sess-chip .sdot{ width:8px; height:8px; border-radius:50%; background:var(--gray300); flex:none; }
+  .sess-chip.ok{ background:var(--green-soft); color:var(--green); }
+  .sess-chip.ok .sdot{ background:var(--green); }
+  .sess-chip.warn{ background:var(--amber-soft); color:var(--amber); }
+  .sess-chip.warn .sdot{ background:var(--amber); }
+  .sess-chip.pulse{ animation:pulse .5s ease; }
+  @keyframes pulse{ 0%{ transform:scale(1);} 40%{ transform:scale(1.03);} 100%{ transform:scale(1);} }
+
+  .footnote{ font-size:12px; color:var(--faint); margin-top:14px; line-height:1.6; }
 
   .card{
     background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow);
     padding:24px 26px; margin-top:22px;
   }
-  .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
-  .list-header h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; margin:0; }
-  .prose{ font-size:15px; color:var(--sub); max-width:62ch; margin:10px 0 18px; }
-  .prose b{ color:var(--ink); font-weight:700; }
-  .prose code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
-
-  /* 버튼 (fill/weak) 및 세그먼트 컨트롤 */
-  .btn{
-    appearance:none; border:none; font:inherit; cursor:pointer;
-    font-size:13px; font-weight:600; letter-spacing:-0.01em;
-    padding:8px 14px; border-radius:10px;
-    transition:transform .12s ease, background .12s ease;
-  }
-  .btn:active{ transform:scale(.97); }
-  .btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
-  .btn.fill{ background:var(--blue); color:#fff; }
-  .btn.fill:hover{ background:var(--blue-dark); }
-  .btn.weak{ background:#fff; color:var(--blue); box-shadow:0 1px 3px rgba(25,31,40,.08); }
-  .btn:disabled{ background:var(--gray200); color:var(--gray400); cursor:default; transform:none; }
-  .seg{ display:inline-flex; background:rgba(25,31,40,.055); border-radius:11px; padding:3px; }
-  .seg button{
-    appearance:none; border:none; font:inherit; cursor:pointer;
-    font-size:12.5px; font-weight:600; color:var(--gray600);
-    background:transparent; padding:6px 14px; border-radius:9px; transition:all .15s ease;
-  }
-  .seg button:not(.on):hover{ background:#fff; color:var(--blue); }
-  .seg button.on{ background:var(--blue); color:#fff; box-shadow:0 2px 6px color-mix(in srgb, var(--blue) 30%, transparent); }
-  .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
-
-  /* 시뮬 캔버스: blue-soft 그라데이션 컨테이너 + 흰 패널 */
-  .sim{
-    background:linear-gradient(180deg, var(--blue-soft), color-mix(in srgb, var(--blue-soft) 35%, #fff));
-    border-radius:var(--r-el); padding:20px; margin:4px 0 6px;
-  }
-  .sim-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin-bottom:14px; }
-  .sim-panel{ background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 1px 3px rgba(25,31,40,.06); }
-  .sim-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  @media (max-width:560px){ .sim-grid{ grid-template-columns:1fr; } }
-
-  /* 상태 표현 프리미티브 */
-  .state-chip{
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:600; color:var(--gray600);
-    background:var(--gray25); border-radius:100px; padding:5px 12px;
-    transition:all .2s ease;
-  }
-  .state-chip.on{ background:var(--blue); color:#fff; }
-  .state-chip.ok{ background:var(--green-soft); color:var(--green); }
-  .state-chip.warn{ background:var(--amber-soft); color:var(--amber); }
-  .state-chip.err{ background:var(--red-soft); color:var(--red); }
-  .sim-log{
-    font-family:var(--mono); font-size:12px; line-height:1.9; color:var(--gray600);
-    background:var(--gray25); border-radius:10px; padding:10px 14px; margin-top:12px;
-    max-height:180px; overflow-y:auto;
-  }
-  .sim-log .ok{ color:var(--green); }
-  .sim-log .warn{ color:var(--amber); }
-  .sim-log .err{ color:var(--red); }
-  input[type="range"]{ accent-color:var(--blue); width:100%; }
-
-  /* 단순화 고지 (fidelity rule: 실제 구현과 다른 지점은 반드시 표시) */
-  .simplified{
-    display:flex; gap:8px; align-items:flex-start;
-    font-size:12.5px; color:var(--amber); background:var(--amber-soft);
-    border-radius:10px; padding:10px 14px; margin-top:12px; line-height:1.6;
-  }
-
-  /* 코드 인용 */
-  .codeblock{
-    background:var(--gray25); border:1px solid var(--gray50);
-    border-radius:var(--r-el); overflow-x:auto; margin:0 0 18px;
-  }
-  .cb-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:9px 16px; border-bottom:1px solid var(--gray50);
-    font-family:var(--mono); font-size:11px; color:var(--faint);
-  }
-  .cb-head .file{ font-weight:600; color:var(--gray500); }
-  .codeblock pre{ margin:0; padding:12px 0; font-family:var(--mono); font-size:12.5px; line-height:1.8; }
-  .ln{ display:block; padding:0 18px; white-space:pre; color:var(--gray500); }
-
-  /* 핵심 정리 */
   .takeaway{ background:var(--blue-soft); border-radius:12px; padding:14px 16px; margin:2px 0 4px; }
   .takeaway .tk-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
   .takeaway .tk-core{ font-size:14px; font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1.55; }
@@ -150,7 +214,7 @@
   .takeaway li:last-child{ margin-bottom:0; }
   .takeaway code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
 
-  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; transform:none !important; } }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
@@ -159,31 +223,62 @@
   <header class="top">
     <span class="eyebrow">micro-world</span>
     <h1>{{TITLE — the behavior this world lets you inhabit}}</h1>
-    <p class="lede">{{LEDE — what this simulates and what to try first, 1-2 sentences}}</p>
-    <div class="metabar">
-      <span class="meta-chip"><span class="dot"></span>{{SOURCE_LABEL — e.g. PR #42 · repo-name}}</span>
-      <span class="meta-chip"><span class="mono">{{DATE}}</span></span>
-    </div>
+    <p class="lede">{{LEDE — the mission and how to drive it, e.g. "파랗게 빛나는 다음 명령을 순서대로 실행하면 돼요."}}</p>
   </header>
 
-  <!-- BESPOKE BODY starts here.
-       Compose from the primitives above (.sim / .sim-panel / .sim-grid / .state-chip /
-       .sim-log / .btn / .seg / input[type=range] / .codeblock) in whatever structure
-       fits the behavior: timeline scrub, step executor, before/after panes, knobs.
-       Rules: the user's input must change the outcome; model the ACTUAL code logic;
-       label every simplification with a .simplified note. -->
+  <div class="mission" id="mission">
+    <span class="m-label">Mission</span>
+    <!-- BESPOKE: 2-3 goal chips; give each an id and tick it from renderWorld() -->
+    <span class="m-goal" id="g1">{{GOAL_1}}</span>
+    <span class="m-goal" id="g2">{{GOAL_2}}</span>
+  </div>
 
-  <section class="card">
-    <div class="list-header"><h2>{{SIM_TITLE}}</h2></div>
-    <p class="prose">{{WHAT_TO_MANIPULATE_AND_OBSERVE}}</p>
-
-    <div class="sim">
-      <div class="sim-label">{{SIM_LABEL — imperative, e.g. "직접 눌러보세요"}}</div>
-      <!-- bespoke sim UI -->
+  <div class="term">
+    <div class="term-head">
+      <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+      <span class="t-title">{{ENV_TITLE — e.g. user@host: ~/repo}}</span>
+      <div class="term-nav">
+        <button id="navBack" title="이전 스텝으로 (←)">‹</button>
+        <button id="navFwd" title="다음 스텝 실행/이동 (→)">›</button>
+      </div>
     </div>
+    <!-- BESPOKE embodiment: default is a terminal transcript. For other embodiments
+         (timeline scrub, drag-and-drop structure views, knobs) replace the interior
+         of .term-body while keeping the frame, nav, and palette. -->
+    <div class="term-body" id="termBody"></div>
+    <div class="palette">
+      <div class="p-label">실행할 명령 (❯ 셸 · ✳ Claude 세션) &nbsp;·&nbsp; 키보드: → 다음 스텝 실행 · ← 이전 스텝 · R 재시작</div>
+      <!-- BESPOKE: one button per action. Real command text in .c, Korean label in .d.
+           Wire each to runtime run() in the script. Keep the meta restart button last. -->
+      <button class="cmd-btn" id="a1"><span class="c">{{COMMAND}}</span><span class="d">{{WHAT_IT_DOES}}</span></button>
+      <button class="cmd-btn claude" id="a2"><span class="c">{{AGENT_COMMAND}}</span><span class="d">{{WHAT_IT_DOES}}</span></button>
+      <button class="cmd-btn meta" id="aReset" style="grid-column:1 / -1;"><span class="c">시나리오 처음부터</span><span class="d">상태를 초기화하고 사이클을 다시 돌아요</span></button>
+    </div>
+  </div>
 
-    <!-- <div class="simplified">실제 구현과 다른 지점이 있으면 반드시 여기 명시해요: {{SIMPLIFICATION_NOTE}}</div> -->
-  </section>
+  <div class="narr" id="narr">
+    <h3>지금 무슨 일이</h3>
+    <p class="n-core" id="narrCore"></p>
+    <ul id="narrList"></ul>
+  </div>
+
+  <div class="world">
+    <div class="world-head">세계 상태 · 명령이 실행될 때마다 여기가 변해요</div>
+    <div class="world-grid">
+      <!-- BESPOKE: divided sub-panels of observable state (never scattered cards).
+           Use .fs (tree rows + .vtag chips) and .sess (.sess-chip) primitives. -->
+      <div class="world-col">
+        <h4>{{STATE_PANEL_1_TITLE}}</h4>
+        <div class="fs" id="statePanel1"></div>
+      </div>
+      <div class="world-col">
+        <h4>{{STATE_PANEL_2_TITLE}}</h4>
+        <div class="sess" id="statePanel2"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="footnote">{{SIMPLIFICATION_FOOTNOTE — plain faint text: what was simplified vs the real system, and which transition rules are faithful. Never an alarm-colored callout.}}</p>
 
   <section class="card">
     <div class="takeaway">
@@ -200,9 +295,165 @@
 
 <script>
 (function(){
-  /* BESPOKE SIM JS: port the real algorithm/state machine here.
-     Keep state explicit (one state object), render from state, and make every
-     user input flow through the same transition functions the code uses. */
+  /* ═══ GENERIC RUNTIME (fixed) ═══
+     Output helpers, snapshot/restore playback, keyboard. Do not restyle/remove.
+     Contract for the bespoke part below:
+       - keep all state in one object S, with S.busy and S.done flags
+       - reset() rebuilds S + intro output + narrate() + renderWorld() + snapshot()
+       - every action handler calls run(cmdText, isAgentCmd, [factualOutputLines], afterFn)
+       - computeNext() returns the id of the ONE recommended enabled action (null when done)
+       - renderWorld() re-renders state panels + mission chips from S, then renderPalette() */
+  var S, termBody = document.getElementById("termBody");
+  var hist = [], hp = -1;
+
+  var cursorEl = null;
+  function cursor(){
+    if (cursorEl) cursorEl.remove();
+    cursorEl = document.createElement("span");
+    cursorEl.className = "cursor";
+    termBody.appendChild(cursorEl);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+  function tline(text, cls){
+    if (cursorEl) cursorEl.remove();
+    var el = document.createElement("span");
+    el.className = "tl " + (cls || "out");
+    el.textContent = text;
+    termBody.appendChild(el);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+  function narrate(cls, core, bullets){
+    var p = document.getElementById("narr");
+    p.className = "narr" + (cls ? " " + cls : "");
+    document.getElementById("narrCore").innerHTML = core;
+    var ul = document.getElementById("narrList");
+    ul.innerHTML = "";
+    (bullets || []).forEach(function(b){
+      var li = document.createElement("li");
+      li.innerHTML = b;
+      ul.appendChild(li);
+    });
+  }
+  function run(cmdText, isAgentCmd, outputs, after){
+    if (S.busy) return;
+    S.busy = true; renderPalette();
+    tline(cmdText, isAgentCmd ? "cmd claude-cmd" : "cmd");
+    var i = 0;
+    (function step(){
+      if (i < outputs.length){
+        tline(outputs[i], "out");
+        i++;
+        setTimeout(step, 220);
+      } else {
+        cursor();
+        S.busy = false;
+        if (after) after();
+        renderWorld();
+        snapshot();
+      }
+    })();
+  }
+  function snapshot(){
+    hist = hist.slice(0, hp + 1);
+    hist.push({
+      S: JSON.parse(JSON.stringify(S)),
+      term: termBody.innerHTML,
+      narrCls: document.getElementById("narr").className,
+      narrCore: document.getElementById("narrCore").innerHTML,
+      narrList: document.getElementById("narrList").innerHTML
+    });
+    hp = hist.length - 1;
+    syncNav();
+  }
+  function restore(i){
+    if (S.busy || i < 0 || i >= hist.length) return;
+    hp = i;
+    var h = hist[hp];
+    S = JSON.parse(JSON.stringify(h.S));
+    termBody.innerHTML = h.term;
+    termBody.querySelectorAll(".cursor").forEach(function(c){ c.remove(); });
+    cursorEl = null;
+    cursor();
+    document.getElementById("narr").className = h.narrCls;
+    document.getElementById("narrCore").innerHTML = h.narrCore;
+    document.getElementById("narrList").innerHTML = h.narrList;
+    renderWorld();
+  }
+  function stepForward(){
+    if (S.busy) return;
+    if (hp < hist.length - 1){
+      restore(hp + 1);
+    } else {
+      var n = computeNext();
+      if (n) document.getElementById(n).click();
+    }
+  }
+  function syncNav(){
+    document.getElementById("navBack").disabled = S.busy || hp <= 0;
+    document.getElementById("navFwd").disabled = S.busy || (hp >= hist.length - 1 && !computeNext());
+  }
+  function renderPalette(){
+    var next = computeNext();
+    ACTION_IDS.forEach(function(id){
+      var b = document.getElementById(id);
+      b.classList.toggle("next", !S.busy && id === next);
+      b.disabled = S.busy || id !== next;   /* 가이드 단일 사이클 */
+    });
+    var r = document.getElementById("aReset");
+    r.disabled = S.busy;
+    r.classList.toggle("next", !S.busy && S.done);
+    syncNav();
+  }
+  document.getElementById("navBack").addEventListener("click", function(){ restore(hp - 1); });
+  document.getElementById("navFwd").addEventListener("click", stepForward);
+  document.addEventListener("keydown", function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "ArrowLeft"){ e.preventDefault(); restore(hp - 1); }
+    else if (e.key === "ArrowRight"){ e.preventDefault(); stepForward(); }
+    else if (e.key === "r" || e.key === "R" || e.key === "ㄱ"){
+      e.preventDefault();
+      if (!S.busy) reset();
+    }
+  });
+  document.getElementById("aReset").addEventListener("click", function(){ reset(); });
+
+  /* ═══ BESPOKE (fill per behavior) ═══ */
+  var ACTION_IDS = ["a1", "a2"];   // palette action buttons, excluding aReset
+
+  function reset(){
+    hist = []; hp = -1;
+    S = { busy:false, done:false /* …state variables of the world… */ };
+    termBody.innerHTML = "";
+    // intro: faithful output that sets the scene, e.g. tline("git status", "cmd");
+    cursor();
+    narrate("", "{{INTRO_CORE}}", ["{{INTRO_BULLET}}"]);
+    renderWorld();
+    snapshot();
+  }
+
+  function computeNext(){
+    if (S.done) return null;
+    // return the id of the single recommended action for the current state
+    return "a1";
+  }
+
+  function renderWorld(){
+    // re-render state panels (#statePanel1/#statePanel2) and mission chips from S.
+    // tick goals: document.getElementById("g1").className = "m-goal" + (cond ? " done" : "");
+    // when all goals met: mission.classList.add("complete"); if (!S.done){ S.done = true; narrate("ok", …); }
+    // else: S.done = false; mission.classList.remove("complete");
+    renderPalette();
+  }
+
+  /* action handlers: each ends by mutating S in `after`, then narrate() the meaning.
+     document.getElementById("a1").addEventListener("click", function(){
+       run("{{COMMAND}}", false, ["{{FAITHFUL_OUTPUT_LINE}}"], function(){
+         // mutate S…
+         narrate("warn", "{{CORE_ONE_LINER}}", ["{{BULLET}}"]);
+       });
+     }); */
+
+  reset();
 })();
 </script>
 </body>

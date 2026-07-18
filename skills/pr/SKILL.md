@@ -271,7 +271,7 @@ flowchart LR
 4. Push the branch if not already pushed: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry the push. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 5. Ensure the type label exists: `gh label create "{type_label}" --color "{hex}" 2>/dev/null || true`
 6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags **and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed**. Follow the session's tool permission settings for approval.
-7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "CLAUDE.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
+7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "AGENTS.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
 8. Offer an understanding explainer (opt-in, never blocking): after the URL, ask exactly one line — "이 PR의 이해용 설명 문서를 만들까요? (/explain-diff, 기본 No)". If the user declines or does not answer, do nothing and never re-ask in this session. If they accept, invoke the explain-diff skill with this PR's number. Skip the offer entirely when the explain-diff skill is not available in this host, or when an explainer for this same diff was already generated in this session.
 
 ### If Release PR:

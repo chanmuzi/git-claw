@@ -177,6 +177,10 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
   # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
+  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다 (최신 1개만 남김):
+  ```bash
+  ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf
+  ```
 - main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
   - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.
   - 이 저장소의 Codex install은 **Codex 전용**(`~/.codex/skills`)이다. 이 형태를 유지하려면 marketplace에서 직접 복사하고 `.installed-ref`를 수동 기록한다.

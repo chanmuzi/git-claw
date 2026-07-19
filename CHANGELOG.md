@@ -10,7 +10,9 @@
 - `/code-review` `out-of-scope` finding은 인라인 코멘트로 게시하지 않음 — 라인 매핑이 되더라도 본문 전용. 인라인 코멘트는 이 PR에서의 변경 요청인데, 작성자가 건드리지 않은 선행 이슈에 다는 것은 잘못된 요청
 
 **New**
-- `/code-review` `-a` / `--all` 플래그 — Reporting Bar를 건너뛰고 Confirmed finding 전체를 전문 보고 (`drop` 포함). 변경 리뷰가 아니라 감사 목적일 때 사용. `--full-scan`은 범위를 넓히고(`out-of-scope` 승격), `--all`은 기준을 낮춘다는 점에서 서로 다름
+- `/code-review` `-a` / `--all` 플래그 — Reporting Bar를 건너뛰고 Confirmed finding 전체를 전문 보고 (`drop` 포함). 변경 리뷰가 아니라 감사 목적일 때 사용. 도메인 에이전트의 수집 제약(`[bar-only]` 표시된 3건 상한, 비용 명시 요구)도 함께 해제되어, 에이전트가 애초에 반환하지 않은 finding 때문에 감사 결과가 비는 일이 없도록 함. `--full-scan`은 범위를 넓히고(`out-of-scope` 승격), `--all`은 기준을 낮춘다는 점에서 서로 다름
+- `--full-scan` 지정 시 `out-of-scope` finding은 일반 게시 경로(인라인 또는 General Findings)를 타고 `밖으로 미룸` 섹션은 생략. 기본 모드의 인라인 제외 규칙은 그대로 유지
+- `밖으로 미룸` 템플릿에 no-line 분기 적용 — `location_marker`를 가진 finding은 `{file} ({marker})` 형식으로 표기하여 `:null` 출력 방지 (스킬 전역 no-line 계약과 일치)
 
 ## v1.12.0 (2026-07-18)
 

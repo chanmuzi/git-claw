@@ -1,5 +1,17 @@
 # Change Log
 
+## Unreleased
+
+**Changed**
+- `/code-review` Reporting Bar(Step 4.5) 신설 — "참인 finding"과 "보고할 finding"을 분리. Cross-Validation을 통과한 모든 finding에 severity와 독립된 disposition 축(`ship-blocker` / `in-scope-gap` / `out-of-scope` / `drop`)을 부여하고, 앞의 둘만 전문 보고, `out-of-scope`는 요약의 `밖으로 미룸`에 한 줄, `drop`은 건수만 집계한다. 기존에는 severity 축 하나뿐이라 "이 변경이 만든 문제인가"를 판단할 자리가 없었고, 참인 것을 전부 출력해 실제 조치가 필요한 1~2건이 나머지에 묻혔다. 인과관계 판정 자체는 기존 Out-of-Diff Filter가 diff 외부 finding에만 적용하던 것을 diff 내부까지 확장한 것
+- `/code-review` 기각 건수를 산출물로 명시 — `기각 {n}건 — 취향 {a} · 선행 이슈 {b} · 오늘 발현 안 함 {c}` 한 줄을 터미널·GitHub 요약에 표시. 개별 전개는 금지. 잘라낸 것이 누락이 아니라 판단임을 드러내되, 그 판단을 다시 읽게 만들지 않기 위함
+- `/code-review` 도메인 에이전트 finding 상한 3건 — 프롬프트에 "3건을 넘으면 우선순위를 매기지 않은 것"을 명시하고, 각 finding에 "머지 시 발생하는 비용"을 한 문장으로 요구. 비용을 적을 수 없으면 finding이 아니다. 기존에는 빈 리스트를 허용만 할 뿐 적게 내라는 압력이 전혀 없어 에이전트마다 관측을 채워 넣었다
+- `/code-review` Info의 `Won't Fix` recommendation 라벨 제거 — 조치할 가치가 없다는 판단은 Step 4.5의 `drop`이므로 출력에 도달하지 않는다. 라벨로 남기면 이미 내린 결론을 독자에게 다시 읽히는 셈. `Accept` / `Monitor` 두 개만 유지
+- `/code-review` `out-of-scope` finding은 인라인 코멘트로 게시하지 않음 — 라인 매핑이 되더라도 본문 전용. 인라인 코멘트는 이 PR에서의 변경 요청인데, 작성자가 건드리지 않은 선행 이슈에 다는 것은 잘못된 요청
+
+**New**
+- `/code-review` `-a` / `--all` 플래그 — Reporting Bar를 건너뛰고 Confirmed finding 전체를 전문 보고 (`drop` 포함). 변경 리뷰가 아니라 감사 목적일 때 사용. `--full-scan`은 범위를 넓히고(`out-of-scope` 승격), `--all`은 기준을 낮춘다는 점에서 서로 다름
+
 ## v1.12.0 (2026-07-18)
 
 **Changed**

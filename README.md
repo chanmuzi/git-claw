@@ -153,7 +153,7 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 
 ### `/code-review` — Context-Aware Code Review
 
-Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens — catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. Produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). Every finding quotes the offending code verbatim and shows the fix as a diff, so a report is readable on its own — no jumping to the file to work out what was wrong. When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens — catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. A **Reporting Bar** then separates "true" from "worth reporting": every surviving finding gets a disposition independent of its severity — `ship-blocker` and `in-scope-gap` are reported in full, pre-existing issues get one line under `밖으로 미룸` and never an inline comment, and style preferences are counted rather than written up. The cut appears as a single `기각 {n}건` line, so a short review reads as a judgment rather than a gap. Produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). Every finding quotes the offending code verbatim and shows the fix as a diff, so a report is readable on its own — no jumping to the file to work out what was wrong. When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
 
 ```
 /code-review           # Auto-detect PR, review changes, or review cwd (context-aware)
@@ -172,6 +172,7 @@ In PR mode, findings are published as inline review comments on specific diff li
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
 - `-q` / `--quick` — Quick mode: single-pass, max 2 domains, Critical/Warning first
 - `--full-scan` — Include pre-existing out-of-diff issues in General Findings (PR mode only)
+- `-a` / `--all` — Bypass the Reporting Bar and report every confirmed finding, dropped ones included (audit mode)
 - `--no-codex` — Disable Codex integration
 - `--codex-both` — Run both Codex general review and adversarial review
 

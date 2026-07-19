@@ -95,6 +95,9 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제
 /code-review --quick         → Quick 모드: 단일 패스, 도메인 2개 cap, Critical/Warning 우선 (없으면 Info fallback)
 /code-review --full-scan     → PR 리뷰 시 diff 외부 pre-existing issue도 포함
+/code-review -a|--all        → Reporting Bar 우회, confirmed finding 전체 보고 (기각분 포함)
+/code-review                 → Reporting Bar 동작 확인: 취향 수준 관측이 개별 항목이 아닌 `기각 n건` 집계로만 나오는지,
+                               선행 이슈가 `밖으로 미룸`에 한 줄로만 나오고 인라인 코멘트로 달리지 않는지
 /code-review --no-codex      → Codex 통합 비활성화
 /code-review --codex         → Codex 강제 활성화 (adversarial only, default와 동일)
 /code-review --codex-general → Codex 일반 리뷰만 사용 (adversarial 없이)

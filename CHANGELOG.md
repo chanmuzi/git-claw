@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.13.0 (2026-07-20)
 
 **Changed**
 - `/code-review` Reporting Bar(Step 4.5) 신설 — "참인 finding"과 "보고할 finding"을 분리. Cross-Validation을 통과한 모든 finding에 severity와 독립된 disposition 축(`ship-blocker` / `in-scope-gap` / `out-of-scope` / `drop`)을 부여하고, 앞의 둘만 전문 보고, `out-of-scope`는 요약의 `밖으로 미룸`에 한 줄, `drop`은 건수만 집계한다. 기존에는 severity 축 하나뿐이라 "이 변경이 만든 문제인가"를 판단할 자리가 없었고, 참인 것을 전부 출력해 실제 조치가 필요한 1~2건이 나머지에 묻혔다. 인과관계 판정 자체는 기존 Out-of-Diff Filter가 diff 외부 finding에만 적용하던 것을 diff 내부까지 확장한 것

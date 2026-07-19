@@ -3,7 +3,7 @@
   "owner": { "name": "chanmuzi" },
   "metadata": {
     "description": "Git commit, PR, review conventions for consistent workflows",
-    "version": "1.12.0"
+    "version": "1.13.0"
   },
   "plugins": [
     {

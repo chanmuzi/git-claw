@@ -89,6 +89,7 @@ Mechanics (already implemented by the template JS — supply only content):
 
 - Exactly one option per question has `data-ok="true"`.
 - `data-hint` points to the section to re-read and **never reveals the answer**.
+- `data-hint-href` is that section's own id (`#sec2`, `#risks`, …) and `data-hint-label` its title — together they turn the hint into a one-click jump, so the reader never scrolls back by hand. The id must exist in the document; the template drops the link if it does not resolve. Omit both only when no single section covers the question.
 - Wrong answer → hint + retry (that question only); correct → explanation + lock.
 - Explanation card: one bold core fact + bullets, including why the tempting wrong answer is wrong.
 - The bottom gate opens only at 5/5. Its wording states understanding — never a fake action the page cannot perform (no "PR 보내기" buttons).

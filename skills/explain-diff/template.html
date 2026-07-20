@@ -29,7 +29,9 @@
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
+  /* 목차 점프는 즉시 이동시킨다. 문서가 길어 native smooth scroll을 켜면
+     브라우저가 거의 고정 duration으로 중간 구간을 훑고 지나가 어지럽다.
+     위치 인지는 이동 연출 대신 착지 하이라이트(.card:target)로 준다. */
   html,body{ margin:0; padding:0; }
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
@@ -62,13 +64,19 @@
   .card{
     background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow);
     padding:24px 26px; margin-top:22px;
-    scroll-margin-top:16px;
+    scroll-margin-top:24px;
+  }
+  /* 착지 하이라이트: 점프로 도착한 섹션을 잠깐 링으로 밝힌다 */
+  .card:target{ animation:landed 1s ease-out; }
+  @keyframes landed{
+    0%, 55%{ box-shadow:var(--shadow), 0 0 0 2px var(--blue); }
+    100%{ box-shadow:var(--shadow), 0 0 0 2px transparent; }
   }
 
   /* 그룹 계층: 카드 묶음 사이의 파트 라벨 */
   .group-label{
     display:flex; align-items:center; gap:12px;
-    margin:44px 4px 0; scroll-margin-top:16px;
+    margin:44px 4px 0; scroll-margin-top:24px;
   }
   .group-label .g-part{
     font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue);
@@ -227,11 +235,18 @@
   .opt.wrong{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
   .opt code{ font-family:var(--mono); font-size:12px; }
 
-  /* 오답: 힌트 + 다시 풀기 (정답 비공개) */
-  .q-retry{ display:none; margin-top:12px; background:var(--amber-soft); border-radius:12px; padding:12px 16px; }
+  /* 오답: 힌트 + 다시 풀기 (정답 비공개)
+     오답 신호는 .opt.wrong(빨강)이 이미 준다. 이 박스는 경고가 아니라 "아직 진행 중"
+     상태이므로 중립 회색을 쓴다. 해결된 상태(.q-explain)만 blue-soft를 갖는다.
+     amber는 칩/배지처럼 작은 요소에만 쓰고 큰 면에는 쓰지 않는다 (채도가 튄다). */
+  .q-retry{
+    display:none; margin-top:12px; background:var(--gray25);
+    border:1px solid var(--gray100); border-radius:12px; padding:14px 16px;
+  }
   .q.wrongstate .q-retry{ display:block; }
-  .q-retry .rt-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+  .q-retry .rt-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--gray500); margin-bottom:6px; }
   .q-retry p{ margin:0 0 10px; font-size:13.5px; color:var(--gray700); line-height:1.6; }
+  .rt-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .btn{
     appearance:none; border:none; font:inherit; cursor:pointer;
     font-size:13px; font-weight:600; letter-spacing:-0.01em;
@@ -240,7 +255,11 @@
   }
   .btn:active{ transform:scale(.97); }
   .btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
-  .btn.retry{ background:#fff; color:var(--amber); }
+  .btn.retry{ background:#fff; border:1px solid var(--gray200); color:var(--gray600); }
+  .btn.retry:hover{ background:var(--gray50); }
+  /* 힌트가 가리키는 섹션으로 보내는 링크. 오답 시 주 동작이므로 solid */
+  .btn.jump{ background:var(--blue); color:#fff; text-decoration:none; display:inline-block; }
+  .btn.jump:hover{ background:var(--blue-dark); }
   .btn.fill{ background:var(--blue); color:#fff; }
   .btn.fill:hover{ background:var(--blue-dark); }
   .btn.weak{ background:#fff; color:var(--blue); }
@@ -260,8 +279,21 @@
     position:fixed; left:0; right:0; bottom:0; z-index:40;
     background:linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 80%, transparent) 30%, var(--bg) 70%);
     padding:28px 20px 22px; pointer-events:none;
+    /* fixed + gradient + color-mix는 스크롤 내내 재합성된다. 레이어를 분리해
+       페이지 본문 스크롤이 이 바를 다시 그리지 않게 한다 */
+    will-change:transform; contain:paint;
   }
   .bottom-cta-inner{ max-width:760px; margin:0 auto; pointer-events:auto; }
+
+  /* 힌트 링크로 퀴즈를 떠났을 때만 나타나는 복귀 칩 */
+  .backquiz{
+    display:block; width:fit-content; margin:0 auto 10px;
+    font-size:13px; font-weight:600; color:var(--blue); text-decoration:none;
+    background:var(--card); border-radius:100px; padding:9px 18px; box-shadow:var(--shadow);
+  }
+  .backquiz:hover{ background:var(--blue-soft); }
+  .backquiz:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .backquiz[hidden]{ display:none; }
   .cta{
     width:100%; appearance:none; border:none; font:inherit; cursor:pointer;
     font-size:15px; font-weight:700; letter-spacing:-0.01em;
@@ -273,7 +305,7 @@
   .cta.armed{ background:var(--green); color:#fff; box-shadow:0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
   .cta:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
 
-  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; transform:none !important; scroll-behavior:auto !important; } }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; transform:none !important; scroll-behavior:auto !important; } }
 </style>
 </head>
 <body>
@@ -383,8 +415,13 @@
 
     <!-- REPEAT: exactly 5 .q blocks by default.
          data-hint: points to the relevant section, NEVER reveals the answer.
+         data-hint-href: id of that same section (#sec2, #risks, ...) so the hint is clickable.
+         data-hint-label: that section's title, used as the link text.
+         Omit both -href/-label only if no single section covers the question — the
+         link is then dropped and the hint stays text-only.
          Exactly one option has data-ok="true". 3-4 options each. -->
-    <div class="q" data-hint="{{HINT_POINTING_TO_SECTION}}">
+    <div class="q" data-hint="{{HINT_POINTING_TO_SECTION}}"
+         data-hint-href="#sec{{N}}" data-hint-label="{{THAT_SECTION_TITLE}}">
       <p class="q-text"><span class="qn">Q1</span>{{QUESTION — behavior prediction / failure mode / rejected alternative / invariant / future-maintainer scenario}}</p>
       <div class="opts">
         <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
@@ -392,7 +429,14 @@
         <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
         <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
       </div>
-      <div class="q-retry"><div class="rt-label">아직이에요</div><p class="rt-hint"></p><button class="btn retry">다시 풀기</button></div>
+      <div class="q-retry">
+        <div class="rt-label">아직이에요</div>
+        <p class="rt-hint"></p>
+        <div class="rt-actions">
+          <a class="btn jump" href="#">해당 섹션 →</a>
+          <button class="btn retry">다시 풀기</button>
+        </div>
+      </div>
       <div class="q-explain">
         <div class="ex-label">해설</div>
         <p class="ex-core">{{CORE_FACT_ONE_LINE}}</p>
@@ -408,6 +452,7 @@
 
 <div class="bottom-cta">
   <div class="bottom-cta-inner">
+    <a class="backquiz" id="backQuiz" href="#quiz" hidden>퀴즈로 돌아가기 ↓</a>
     <button class="cta" id="cta" disabled>
       아직 확인 중이에요 <span class="sub" id="ctaSub"></span>
     </button>
@@ -433,8 +478,47 @@
     }
   }
 
+  /* 복귀 칩: 힌트 링크로 퀴즈를 떠났고, 퀴즈가 화면 밖일 때만 띄운다 */
+  var backQuiz = document.getElementById("backQuiz");
+  var quizSection = document.getElementById("quiz");
+  var leftQuiz = false;
+
+  /* 가시성은 매번 직접 잰다. IntersectionObserver의 캐시된 상태에 의존하면,
+     이미 화면 밖인 퀴즈에서 힌트 링크를 눌렀을 때 교차 상태가 바뀌지 않아
+     콜백이 발화하지 않고 칩이 영영 숨겨진 채로 남는다. */
+  function syncBackQuiz(){
+    if (!backQuiz || !quizSection) return;
+    var r = quizSection.getBoundingClientRect();
+    var visible = r.bottom > 0 && r.top < (window.innerHeight || 0);
+    if (visible) leftQuiz = false;
+    backQuiz.hidden = visible || !leftQuiz;
+  }
+
+  if (window.IntersectionObserver && quizSection){
+    new IntersectionObserver(syncBackQuiz).observe(quizSection);
+  }
+
   qs.forEach(function(q){
     q.querySelector(".rt-hint").textContent = q.dataset.hint || "";
+
+    /* 힌트가 가리키는 섹션이 지정된 경우에만 링크를 남긴다.
+       querySelector가 아니라 getElementById로 찾는다 — 플레이스홀더가 채워지지
+       않은 채 남으면("#sec{{N}}") 셀렉터 파싱이 예외를 던져 퀴즈 전체가 죽는다. */
+    var jump = q.querySelector(".btn.jump");
+    var href = q.dataset.hintHref;
+    if (href && href.charAt(0) === "#" && document.getElementById(href.slice(1))){
+      jump.setAttribute("href", href);
+      /* 제목 뒤에 동사를 붙이면 "구조 한눈에 보기 다시 보기"처럼 겹칠 수 있다.
+         목적지 이름 + 화살표만으로 이동을 표현한다 */
+      jump.textContent = (q.dataset.hintLabel ? q.dataset.hintLabel + " 섹션" : "해당 섹션") + " →";
+      jump.addEventListener("click", function(){
+        leftQuiz = true;
+        /* 해시 이동 후 스크롤이 자리잡은 다음 판정한다 */
+        requestAnimationFrame(function(){ requestAnimationFrame(syncBackQuiz); });
+      });
+    } else {
+      jump.remove();
+    }
 
     q.querySelectorAll(".opt").forEach(function(opt){
       opt.addEventListener("click", function(){

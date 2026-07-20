@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.14.0 (2026-07-20)
 
 **New**
 - `/explain-diff` 퀴즈 힌트를 클릭 가능한 섹션 링크로 전환 — `.q`에 `data-hint-href`(섹션 id)와 `data-hint-label`(섹션 제목)을 추가하면 힌트 박스에 해당 섹션으로 보내는 solid 링크가 생긴다. 기존에는 "3번 섹션을 다시 보세요" 같은 텍스트뿐이라 사용자가 직접 스크롤해 되짚어야 했다. id가 문서에 없거나 지정하지 않으면 링크를 제거하고 텍스트 힌트만 남겨 깨진 링크를 만들지 않는다. 조회는 `querySelector`가 아니라 `getElementById`로 한다 — 생성기가 플레이스홀더를 채우지 못해 `#sec{{N}}`이 남으면 셀렉터 파싱이 SyntaxError를 던져 퀴즈 JS 전체가 죽기 때문

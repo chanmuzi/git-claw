@@ -12,7 +12,7 @@
 - `/explain-diff` 테마 제목을 12자 이내 명사구로 제한 — 제목은 목차와 퀴즈 힌트 버튼(`{제목} 섹션 →`)에 그대로 재사용되므로, 문장형 제목이면 버튼이 한 줄을 다 먹는다
 - `/explain-diff` 산출물 위생 규칙 추가 — 템플릿 최상단 작성 지침 주석 삭제, `<title>` 채우기, `REPEAT`/`FIGURE SLOT` 주석 정리, 쓰기 전 `{{` grep. 실제로 지침 주석과 `{{DOC_TITLE_SHORT}}`가 산출물에 새어나간 사례를 반영
 - `/explain-diff` 오답 힌트 박스를 amber에서 중립 회색(gray25 + gray100 보더)으로 변경 — amber-soft(`#FFF4DE`)는 채널 편차가 33으로 다른 soft 틴트(blue 23, green·red 16)의 약 2배라 큰 채색 면으로 쓰면 쿨그레이 기반 팔레트에서 혼자 튀었다. 오답 신호는 이미 `.opt.wrong`(빨강)이 주므로 경고색을 겹칠 이유도 없다. blue-soft는 해결된 상태(해설 카드) 전용으로 남겨 회색=진행 중 / 파랑=해결됨의 위계를 만든다. amber 토큰 자체는 칩·배지·점에서 계속 쓰이므로 유지
-- `/explain-diff` `다시 풀기` 버튼을 amber 텍스트에서 회색 아웃라인으로 변경 — 문서에서 유일하게 색 위에 올라간 흰색 버튼이라 나머지 버튼 계열과 어긋났다. 힌트 박스 padding도 해설 박스와 동일하게 14px로 정렬
+- `/explain-diff` `다시 풀기` 버튼을 amber 텍스트에서 회색 아웃라인으로 변경 — 문서에서 유일하게 색 위에 올라간 흰색 버튼이라 나머지 버튼 계열과 어긋났다. 힌트 박스 padding도 해설 박스와 동일하게 14px로 정렬. 아울러 `.btn`에 `line-height: 1.45`를 명시하고 padding을 `8px 14px`에서 `6px 12px`로 줄여 버튼 높이를 약 37px에서 31px로 낮췄다 (body의 `line-height: 1.65`가 상속돼 패딩보다 행간이 두께를 더 키우고 있었다)
 - `/explain-diff` 하단 고정 바에 `contain: paint` 적용 — `position: fixed` + gradient + `color-mix` 조합이 스크롤 내내 재합성되던 것을 레이어 분리로 차단. `prefers-reduced-motion`에서 `animation`도 함께 비활성화
 
 ## v1.13.0 (2026-07-20)

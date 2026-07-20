@@ -55,6 +55,29 @@ Do NOT start writing the document from the diff alone.
 
 Read `template.html` from this skill's base directory. It carries the full design system (tokens, components, generic quiz/gate JS) — **fill it, never restyle it**. No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images). The output must stay a single self-contained HTML file.
 
+**Before writing anything else, clear the template's own scaffolding:**
+
+- Delete the authoring comment at the top of the file (`explain-diff output template. Fill every {{PLACEHOLDER}}…`). It is instructions for you, not content for the reader.
+- Fill `<title>` — it names the browser tab. `explain-diff: {한 줄 요약} ({대상})`.
+- Delete every `REPEAT` / `FIGURE SLOT` comment once its block is filled or dropped.
+- Before writing the file, grep your output for `{{` — a surviving placeholder means an unfilled slot.
+
+### Writing style
+
+The reader skims first and reads second. Prose that runs on defeats both.
+
+- **One idea per sentence.** Split any sentence carrying two clauses joined by "그런데", "때문에", "면서" into two.
+- **Three to four sentences per paragraph, max.** Break on the turn in the argument, not at an arbitrary length. A `<p class="prose">` that fills more than ~5 lines on screen needs splitting.
+- **Lede is 2-3 sentences, not one long one.** State the problem, then the fix. Do not chain the whole causal story into a single sentence.
+- Bold the load-bearing phrase in a paragraph (`<b>`), not whole clauses. If three things are bold, nothing is.
+- Prefer a concrete subject over a nominalization: "호스트가 규칙을 못 읽어요" beats "규칙 조회가 실패해요".
+
+### Section titles
+
+Theme titles must be **short noun phrases** — match the built-in ones (`배경`, `구조 한눈에 보기`, `주의해서 볼 지점`). Aim for 12 Korean characters or fewer.
+
+A title is not just a heading: it is reused verbatim inside the TOC and inside the quiz hint button (`{title} 섹션 →`). A sentence-shaped title like `한 번의 sweep으로 끝나지 않았어요` makes that button eat an entire line. Write `sweep이 놓친 3곳` instead.
+
 Structure is fixed at three parts:
 
 **Top + TOC.** Title states the change as an action ("~를 ~로 바꿨어요"), lede gives 2-3 sentences of what/why. Metabar: target, commit range, file count, +/- totals, date. Each TOC row's description is that section's **one-line takeaway** — reading only the TOC must summarize the whole change. Keep the Part group headers.

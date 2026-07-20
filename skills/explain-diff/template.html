@@ -29,9 +29,10 @@
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{ box-sizing:border-box; }
-  /* 목차 점프는 즉시 이동시킨다. 문서가 길어 native smooth scroll을 켜면
-     브라우저가 거의 고정 duration으로 중간 구간을 훑고 지나가 어지럽다.
-     위치 인지는 이동 연출 대신 착지 하이라이트(.card:target)로 준다. */
+  /* scroll-behavior:smooth를 쓰지 않는다. native smooth는 거리와 거의 무관하게
+     고정 duration이라 먼 거리를 점프하면 중간을 폭주하듯 훑고 지나간다.
+     대신 아래 JS가 거리에 비례한 duration + easing으로 직접 움직인다.
+     (즉시 이동은 반대로 "휙" 하는 단절감을 주므로 그것도 답이 아니다.) */
   html,body{ margin:0; padding:0; }
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
@@ -66,7 +67,9 @@
     padding:24px 26px; margin-top:22px;
     scroll-margin-top:24px;
   }
-  /* 착지 하이라이트: 점프로 도착한 섹션을 잠깐 링으로 밝힌다 */
+  /* 착지 하이라이트: 점프로 도착한 섹션을 잠깐 링으로 밝힌다.
+     .landed는 JS 이동이 끝날 때 붙이고, :target은 해시가 담긴 URL로 바로 열었을 때를 받는다 */
+  .card.landed,
   .card:target{ animation:landed 1s ease-out; }
   @keyframes landed{
     0%, 55%{ box-shadow:var(--shadow), 0 0 0 2px var(--blue); }
@@ -478,6 +481,68 @@
     }
   }
 
+  /* ── 섹션 이동: 거리에 비례한 duration + easing ──
+     native smooth scroll은 거리와 거의 무관하게 duration이 고정이라, 먼 거리를
+     점프하면 중간 구간의 속도가 폭주해 어지럽다. 즉시 이동은 반대로 단절감을 준다.
+     여기서는 duration을 sqrt(거리)에 비례시켜, 먼 거리일수록 더 긴 시간을 쓰되
+     증가폭은 완만하게 둔다. 상·하한을 걸어 짧은 이동은 굼뜨지 않고 긴 이동도
+     늘어지지 않는다. */
+  var LAND_OFFSET = 24; /* .card의 scroll-margin-top과 같은 값 */
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var animating = false; /* 프로그램 이동이 비행 중인지 — 아래 복귀 칩 판정이 이 값을 본다 */
+
+  function easeInOutCubic(t){
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function scrollToEl(el, done){
+    var start = window.pageYOffset;
+    var maxTop = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    var target = Math.min(maxTop, Math.max(0, start + el.getBoundingClientRect().top - LAND_OFFSET));
+    var dist = Math.abs(target - start);
+
+    if (reduceMotion || dist < 8){
+      window.scrollTo(0, target);
+      if (done) done();
+      return;
+    }
+
+    var dur = Math.min(900, Math.max(350, 12 * Math.sqrt(dist)));
+    var t0 = null;
+    animating = true;
+    requestAnimationFrame(function step(ts){
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      window.scrollTo(0, start + (target - start) * easeInOutCubic(p));
+      if (p < 1) requestAnimationFrame(step);
+      else { animating = false; if (done) done(); }
+    });
+  }
+
+  function land(el){
+    if (!el.classList.contains("card")) return;
+    el.classList.remove("landed");
+    void el.offsetWidth; /* reflow를 강제해야 같은 섹션으로 다시 와도 애니메이션이 재생된다 */
+    el.classList.add("landed");
+  }
+
+  /* 목차 행, 힌트 링크, 복귀 칩을 한 곳에서 처리한다 */
+  document.addEventListener("click", function(e){
+    var a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute("href").slice(1);
+    var el = id && document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    scrollToEl(el, function(){
+      /* 해시는 이동이 끝난 뒤 기록한다. location.hash를 직접 쓰면 브라우저가
+         한 번 더 순간이동시켜 방금 만든 애니메이션을 덮어쓴다. */
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+      land(el);
+      syncBackQuiz();
+    });
+  });
+
   /* 복귀 칩: 힌트 링크로 퀴즈를 떠났고, 퀴즈가 화면 밖일 때만 띄운다 */
   var backQuiz = document.getElementById("backQuiz");
   var quizSection = document.getElementById("quiz");
@@ -490,7 +555,9 @@
     if (!backQuiz || !quizSection) return;
     var r = quizSection.getBoundingClientRect();
     var visible = r.bottom > 0 && r.top < (window.innerHeight || 0);
-    if (visible) leftQuiz = false;
+    /* "돌아왔다" 판정은 이동이 끝난 뒤에만 한다. 비행 중간 프레임에서는 퀴즈를 떠나는
+       중인데도 아직 화면에 걸쳐 있을 수 있고, 그때 플래그를 끄면 착지 후 칩이 영영 안 뜬다. */
+    if (visible && !animating) leftQuiz = false;
     backQuiz.hidden = visible || !leftQuiz;
   }
 
@@ -511,11 +578,8 @@
       /* 제목 뒤에 동사를 붙이면 "구조 한눈에 보기 다시 보기"처럼 겹칠 수 있다.
          목적지 이름 + 화살표만으로 이동을 표현한다 */
       jump.textContent = (q.dataset.hintLabel ? q.dataset.hintLabel + " 섹션" : "해당 섹션") + " →";
-      jump.addEventListener("click", function(){
-        leftQuiz = true;
-        /* 해시 이동 후 스크롤이 자리잡은 다음 판정한다 */
-        requestAnimationFrame(function(){ requestAnimationFrame(syncBackQuiz); });
-      });
+      /* 이동과 칩 판정은 위 위임 핸들러가 처리한다. 여기서는 "떠났다"만 기록한다 */
+      jump.addEventListener("click", function(){ leftQuiz = true; });
     } else {
       jump.remove();
     }

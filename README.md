@@ -212,7 +212,7 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 
 ### `/explain-diff` — Understand a Diff
 
-Generates a self-contained interactive HTML explainer for a diff, commit, branch, or PR — so you genuinely understand the change before sharing or merging it. Inspired by Geoffrey Litt's explain-diff: understanding, not correctness, is the bottleneck of agent-written code. The document walks through the change as a literate diff (prose + verbatim code excerpts), shows an annotated directory tree of everything touched, and ends with a 5-question quiz. Wrong answers get a hint pointing back to the relevant section — never the answer — and the completion gate opens only at 5/5.
+Generates a self-contained interactive HTML explainer for a diff, commit, branch, or PR — so you genuinely understand the change before sharing or merging it. Inspired by Geoffrey Litt's explain-diff: understanding, not correctness, is the bottleneck of agent-written code. The document walks through the change as a literate diff (prose + verbatim code excerpts), shows an annotated directory tree of everything touched, and ends with a 5-question quiz. Wrong answers get a hint pointing back to the relevant section — never the answer — and the hint is a one-click jump to that section, with a "back to quiz" chip to return. The completion gate opens only at 5/5.
 
 ```
 /explain-diff          # Explain the working diff

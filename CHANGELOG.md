@@ -1,5 +1,20 @@
 # Change Log
 
+## Unreleased
+
+**New**
+- `/explain-diff` 퀴즈 힌트를 클릭 가능한 섹션 링크로 전환 — `.q`에 `data-hint-href`(섹션 id)와 `data-hint-label`(섹션 제목)을 추가하면 힌트 박스에 해당 섹션으로 보내는 solid 링크가 생긴다. 기존에는 "3번 섹션을 다시 보세요" 같은 텍스트뿐이라 사용자가 직접 스크롤해 되짚어야 했다. id가 문서에 없거나 지정하지 않으면 링크를 제거하고 텍스트 힌트만 남겨 깨진 링크를 만들지 않는다. 조회는 `querySelector`가 아니라 `getElementById`로 한다 — 생성기가 플레이스홀더를 채우지 못해 `#sec{{N}}`이 남으면 셀렉터 파싱이 SyntaxError를 던져 퀴즈 JS 전체가 죽기 때문
+- 힌트 링크로 퀴즈를 떠났을 때만 나타나는 `퀴즈로 돌아가기` 칩 — 왕복의 나머지 절반. 단순 스크롤로 퀴즈를 벗어난 경우는 이탈이 아니므로 띄우지 않는다
+
+**Changed**
+- `/explain-diff` 섹션 이동을 거리 비례 JS 애니메이션으로 교체 — native `scroll-behavior: smooth`는 거리와 거의 무관하게 duration이 고정이라 긴 문서에서 중간 구간 속도가 폭주했고, 그렇다고 즉시 이동으로 두면 "휙" 하는 단절감이 생겼다. `clamp(12 * sqrt(거리), 350ms, 900ms)` + `easeInOutCubic`으로 직접 움직인다 (실측: 가까운 이동 약 440ms, 최장 이동 약 880ms). 해시는 이동이 끝난 뒤 `history.replaceState`로 기록해 브라우저의 추가 점프가 애니메이션을 덮어쓰지 않게 하고, 착지 하이라이트는 `.card.landed` 클래스가 담당한다 (`:target`은 해시 URL 직접 진입용으로 유지). 섹션 착지 여백은 `scroll-margin-top` 16px에서 24px로 조정
+- `/explain-diff` 산출물 문장 규칙 신설 — 한 문장 한 생각, 한 문단 3~4문장, lede 2~3문장 분리, 문단당 볼드 1곳. 생성 문서가 인과를 한 문장에 몰아넣어 눈에 안 들어온다는 피드백 반영
+- `/explain-diff` 테마 제목을 12자 이내 명사구로 제한 — 제목은 목차와 퀴즈 힌트 버튼(`{제목} 섹션 →`)에 그대로 재사용되므로, 문장형 제목이면 버튼이 한 줄을 다 먹는다
+- `/explain-diff` 산출물 위생 규칙 추가 — 템플릿 최상단 작성 지침 주석 삭제, `<title>` 채우기, `REPEAT`/`FIGURE SLOT` 주석 정리, 쓰기 전 `{{` grep. 실제로 지침 주석과 `{{DOC_TITLE_SHORT}}`가 산출물에 새어나간 사례를 반영
+- `/explain-diff` 오답 힌트 박스를 amber에서 중립 회색(gray25 + gray100 보더)으로 변경 — amber-soft(`#FFF4DE`)는 채널 편차가 33으로 다른 soft 틴트(blue 23, green·red 16)의 약 2배라 큰 채색 면으로 쓰면 쿨그레이 기반 팔레트에서 혼자 튀었다. 오답 신호는 이미 `.opt.wrong`(빨강)이 주므로 경고색을 겹칠 이유도 없다. blue-soft는 해결된 상태(해설 카드) 전용으로 남겨 회색=진행 중 / 파랑=해결됨의 위계를 만든다. amber 토큰 자체는 칩·배지·점에서 계속 쓰이므로 유지
+- `/explain-diff` `다시 풀기` 버튼을 amber 텍스트에서 회색 아웃라인으로 변경 — 문서에서 유일하게 색 위에 올라간 흰색 버튼이라 나머지 버튼 계열과 어긋났다. 힌트 박스 padding도 해설 박스와 동일하게 14px로 정렬. 아울러 `.btn`에 `line-height: 1.45`를 명시하고 padding을 `8px 14px`에서 `6px 12px`로 줄여 버튼 높이를 약 37px에서 31px로 낮췄다 (body의 `line-height: 1.65`가 상속돼 패딩보다 행간이 두께를 더 키우고 있었다)
+- `/explain-diff` 하단 고정 바에 `contain: paint` 적용 — `position: fixed` + gradient + `color-mix` 조합이 스크롤 내내 재합성되던 것을 레이어 분리로 차단. `prefers-reduced-motion`에서 `animation`도 함께 비활성화
+
 ## v1.13.0 (2026-07-20)
 
 **Changed**

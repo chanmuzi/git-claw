@@ -229,6 +229,8 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 **Honest by design:** Suspicions are framed as attention pointers, never verdicts; quoted code is verbatim only; the completion button states understanding — it never pretends to perform an action.
 
+**Reads naturally in Korean:** Titles are short noun phrases, not sentences (with `word-break: keep-all` so Korean wraps at word boundaries, never mid-word), and the output avoids em-dashes and stiff translation-ese that mark machine writing.
+
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `explain-diff-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
 
 </details>

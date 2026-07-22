@@ -42,6 +42,13 @@
   }
   .wrap{ max-width:860px; margin:0 auto; padding:0 20px 80px; }
 
+  /* 한글 줄바꿈: keep-all이 없으면 브라우저가 어절을 무시하고 글자 단위로 끊어
+     제목·설명이 "접/두"처럼 부자연스럽게 갈라진다. 셸 고정 표면에 어절 단위
+     개행을 건다. 터미널(.term-body)은 char 단위 break-all이 필요하므로 대상 아님. */
+  .top h1, .top .lede, .mission, .footnote{
+    word-break:keep-all; overflow-wrap:anywhere;
+  }
+
   .top{ padding:48px 4px 8px; }
   .top .eyebrow{
     display:inline-flex; align-items:center; gap:6px;

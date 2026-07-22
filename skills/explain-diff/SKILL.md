@@ -72,15 +72,24 @@ The reader skims first and reads second. Prose that runs on defeats both.
 - Bold the load-bearing phrase in a paragraph (`<b>`), not whole clauses. If three things are bold, nothing is.
 - Prefer a concrete subject over a nominalization: "호스트가 규칙을 못 읽어요" beats "규칙 조회가 실패해요".
 
+### Natural Korean (do not read like machine translation)
+
+The document must read as if a Korean engineer wrote it, not as if English or a raw code term were transliterated. Translation-ese and coined 한자어 are the loudest "AI wrote this" tell — remove them.
+
+- **No em-dash or en-dash (`—`, `–`) anywhere in the output** — not in titles, TOC descriptions, prose, hints, or quiz text. They are a machine-writing marker. Use a colon, parentheses, a comma, or split into two sentences. Write `옵션 1만 vs 옵션 1+2: 권장안과 근거`, never `옵션 1만 vs 옵션 1+2 — 권장안과 근거`.
+- **Do not coin stiff 한자어 that Koreans do not actually say.** If a natural word or the plain English term reads better, use it. `접두` → `앞에 붙는 upstage/` 또는 그냥 `prefix`; `회귀 커밋` → `되돌린 커밋`; `귀속` → `~때문에`. When unsure, say it the way you would out loud.
+- **Keep a code/identifier term verbatim rather than force-translating it.** `providerId`, `llmProxyUse`, `prefix` stay as-is; wrapping them in an awkward Korean coinage only adds noise.
+- Read each title and takeaway aloud once. If it sounds like a translated caption, rewrite it plainer.
+
 ### Section titles
 
-Theme titles must be **short noun phrases** — match the built-in ones (`배경`, `구조 한눈에 보기`, `주의해서 볼 지점`). Aim for 12 Korean characters or fewer.
+All titles — the hero title included — are **short noun phrases (개조식/명사형), not sentences.** Match the built-in ones (`배경`, `구조 한눈에 보기`, `주의해서 볼 지점`). Aim for 12 Korean characters or fewer per theme title.
 
-A title is not just a heading: it is reused verbatim inside the TOC and inside the quiz hint button (`{title} 섹션 →`). A sentence-shaped title like `한 번의 sweep으로 끝나지 않았어요` makes that button eat an entire line. Write `sweep이 놓친 3곳` instead.
+A title is not just a heading: it is reused verbatim inside the TOC and inside the quiz hint button (`{title} 섹션 →`). A sentence-shaped title like `한 번의 sweep으로 끝나지 않았어요` makes that button eat an entire line, and a long title wraps mid-word in the hero. Write `sweep이 놓친 3곳` instead.
 
 Structure is fixed at three parts:
 
-**Top + TOC.** Title states the change as an action ("~를 ~로 바꿨어요"), lede gives 2-3 sentences of what/why. Metabar: target, commit range, file count, +/- totals, date. Each TOC row's description is that section's **one-line takeaway** — reading only the TOC must summarize the whole change. Keep the Part group headers.
+**Top + TOC.** The hero title is a **noun phrase naming the change topic**, not an action sentence: write `모델명 prefix 버그와 수정 방향`, not `모델명에 upstage/ 접두가 붙어 채팅이 막혔어요`. Keep it to ~20 Korean characters so it holds one line; the lede (2-3 sentences) carries the what/why, so the title does not need to. Metabar: target, commit range, file count, +/- totals, date. Each TOC row's description is that section's **one-line takeaway** so reading only the TOC summarizes the whole change; keep it a short phrase, no dash. Keep the Part group headers.
 
 **Part 1 — 개요.**
 - `배경`: the before-state and its cost, then what the change achieves. Behavior level, not file level.

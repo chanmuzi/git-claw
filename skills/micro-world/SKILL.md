@@ -83,6 +83,13 @@ Read `template.html` from this skill's base directory — it carries the design 
 - Close with a `핵심 정리` takeaway card: what the user should have felt after playing.
 - Korean output uses 해요체; content language follows the project's AGENTS.md (or CLAUDE.md as fallback) setting, else the user's conversational language.
 
+### Design rules (shared across micro-world, explain-diff, visual-doc)
+
+- **Title never wraps mid-word.** `word-break: keep-all` stays on the title and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Keep the title a short noun phrase.
+- **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.
+- **No em-dash or en-dash (`—`, `–`) anywhere in the output.** They are a machine-writing tell. Use a colon, parentheses, a comma, or split into two sentences.
+- **Natural Korean, not machine translation.** Do not coin stiff 한자어 Koreans do not say; keep a code/identifier term verbatim rather than force-translate it.
+
 ## Step 4: Output
 
 1. Write the file to the **repository root**: `micro-world-<slug>.html` (slug from the behavior, kebab-case).

@@ -4,7 +4,7 @@ description: >-
   Build a throwaway interactive HTML simulation (a "micro-world") of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so the developer can inhabit and feel how the code works instead of reading about it.
   TRIGGER when: user asks to simulate, play with, or interactively explore a behavior (e.g., "micro-world 만들어줘", "이거 시뮬로 보여줘", "만져볼 수 있게 만들어줘", "동작을 인터랙티브로 이해하고 싶어").
   DO NOT TRIGGER when: user wants a document explaining a diff (use explain-diff), a code review (use code-review), or the change is config/rename/dependency-bump material with no behavior to inhabit.
-version: "1.0.0"
+version: "1.0.1"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 

@@ -37,7 +37,7 @@
       --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
       --gray50:#222831; --gray25:#1E242C;
       --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
-      --red:#F4636F; --red-soft:#33222530; --red-soft:#3A2226;
+      --red:#F4636F; --red-soft:#3A2226;
       --green:#2BB88A; --green-soft:#173029;
       --amber:#E0A44A; --amber-soft:#33291A;
       --violet:#9A79FF; --violet-soft:#241E3A;
@@ -120,7 +120,7 @@
   .bar-row{ display:grid; grid-template-columns:120px 1fr 48px; align-items:center; gap:12px; }
   .bar-row .bl{ font-size:13px; font-weight:600; color:var(--gray600); text-align:right; }
   .bar-track{ background:var(--chipbg); border-radius:100px; height:12px; overflow:hidden; }
-  /* display:block 필수 — .bar-track(block)의 자식 span은 기본 inline이라 width가 무시돼 폭 0이 된다 */
+  /* display:block 필수: .bar-track(block)의 자식 span은 기본 inline이라 width가 무시돼 폭 0이 된다 */
   .bar-fill{ display:block; height:100%; border-radius:100px; background:var(--blue); }
   .bar-fill.g{ background:var(--green); } .bar-fill.v{ background:var(--violet); } .bar-fill.a{ background:var(--amber); }
   .bar-row .bv{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--faint); }

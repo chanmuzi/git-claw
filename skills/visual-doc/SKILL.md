@@ -77,7 +77,7 @@ Combine them when it helps. If you cap or truncate anything (top-N items, a samp
 
 Read `components.html` from this skill's base directory. Copy the `:root` tokens, the base primitives, and only the component CSS you actually use into a single self-contained HTML file. **Fill and compose; never restyle the tokens.** No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images, remote scripts). The output must stay one self-contained HTML file.
 
-Delete the authoring comment at the top of `components.html` and the git-claw sample copy. Fill `<title>` — it names the browser tab: `{문서 한 줄 요약}`. Before writing, grep your output for `{{` to catch any placeholder you left behind.
+Delete the authoring comment at the top of `components.html` and the git-claw sample copy. Fill `<title>` — it names the browser tab: `{문서 한 줄 요약}`. Before writing, grep your output for `{문서` (the unfilled title token) and any leftover git-claw sample strings.
 
 ### Design rules (shared across visual-doc, explain-diff, micro-world)
 

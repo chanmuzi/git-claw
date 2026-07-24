@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+**Changed**
+- `/explain-diff` 퀴즈 오답 시 나오는 액션 버튼(`해당 섹션 →`, `다시 풀기`)을 좌측 정렬에서 우측 정렬로 변경 — `.rt-actions`에 `justify-content:flex-end` 추가. 오답 박스 우측 하단에 버튼이 모이도록 조정
+
 ## v1.15.0 (2026-07-24)
 
 **New**

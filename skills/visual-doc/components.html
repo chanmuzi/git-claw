@@ -120,7 +120,8 @@
   .bar-row{ display:grid; grid-template-columns:120px 1fr 48px; align-items:center; gap:12px; }
   .bar-row .bl{ font-size:13px; font-weight:600; color:var(--gray600); text-align:right; }
   .bar-track{ background:var(--chipbg); border-radius:100px; height:12px; overflow:hidden; }
-  .bar-fill{ height:100%; border-radius:100px; background:var(--blue); }
+  /* display:block 필수 — .bar-track(block)의 자식 span은 기본 inline이라 width가 무시돼 폭 0이 된다 */
+  .bar-fill{ display:block; height:100%; border-radius:100px; background:var(--blue); }
   .bar-fill.g{ background:var(--green); } .bar-fill.v{ background:var(--violet); } .bar-fill.a{ background:var(--amber); }
   .bar-row .bv{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--faint); }
 

@@ -176,9 +176,10 @@
   .tr-chip.del{ background:var(--red-soft); color:var(--red); }
   .tr-chip.core{ background:var(--green-soft); color:var(--green); }
 
-  /* 선택적 인터랙티브 피규어 (blue-soft 그라데이션 컨테이너 + 세그먼트 토글) */
+  /* 선택적 인터랙티브 피규어 (blue-soft 컨테이너 + 세그먼트 토글).
+     장식용 그라데이션은 쓰지 않는다 (디자인 시스템 공통 규칙) — solid blue-soft. */
   .sim{
-    background:linear-gradient(180deg, var(--blue-soft), color-mix(in srgb, var(--blue-soft) 35%, #fff));
+    background:var(--blue-soft);
     border-radius:var(--r-el); padding:20px; margin:4px 0 6px;
   }
   .sim-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin-bottom:14px; }

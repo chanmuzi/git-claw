@@ -14,7 +14,7 @@
 <p align="center">Agent Skills for consistent Git workflows</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/skills-8-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <img src="https://img.shields.io/badge/skills-9-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
   <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
@@ -44,6 +44,7 @@ git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PR
 | 🤝 | `/handoff` | Session transfer prompt generation |
 | 📖 | `/explain-diff` | Interactive HTML explainer for understanding a diff |
 | 🧪 | `/micro-world` | Throwaway interactive simulation of a behavior |
+| 📄 | `/visual-doc` | On-brand interactive document from researched/analyzed content |
 
 ## Installation
 
@@ -69,7 +70,7 @@ The interactive installer lets you select skills, target agents, scope (project/
 <summary>Install all skills at once without prompts</summary>
 
 ```bash
-npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world -g
+npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world --skill visual-doc -g
 ```
 
 </details>
@@ -244,6 +245,18 @@ Builds a throwaway interactive HTML simulation of a specific behavior — a stat
 /micro-world "retry logic in api.ts"  # Simulate a described behavior
 ```
 
+### `/visual-doc` — Turn Content into an On-Brand Document
+
+Generates a self-contained interactive HTML document from researched or analyzed content: a research brief, repo/code analysis, concept explainer, comparison, or design writeup. Sibling of `/explain-diff` and `/micro-world` (they share design tokens, never structure). Unlike `/explain-diff` it carries no quiz and no comprehension gate: it communicates, it doesn't test. Built in two layers: a locked layer (tokens, primitives, tone) keeps every document recognizably one family, while the composed layer builds a bespoke skeleton from a component palette (`components.html`) chosen by the content's kind and scale. When the content needs a block the palette lacks, a new one is authored from the same tokens (the palette is a cookbook of exemplars, not an exhaustive list). Long documents pick a navigation strategy by scale: top progress bar with a floating TOC, a slim chapter pager, or collapsible sections. Light and dark both supported.
+
+```
+/visual-doc              # Document the current conversation's content
+/visual-doc src/         # Analyze and document a path
+/visual-doc 42           # Analyze and document PR #42
+```
+
+**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `visual-doc-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
+
 ## Language Behavior
 
 All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `AGENTS.md` (or `CLAUDE.md` as fallback). If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
@@ -268,7 +281,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc` commands for full workflows
 ```
 
 ## Label System

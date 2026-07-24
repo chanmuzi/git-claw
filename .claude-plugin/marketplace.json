@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "git-claw",
-      "description": "Enforce consistent commit messages, PR templates, issue tracking, code review (with optional Codex plugin integration), review triage & reply, session handoff, interactive diff explainers, and micro-world simulations",
+      "description": "Enforce consistent commit messages, PR templates, issue tracking, code review (with optional Codex plugin integration), review triage & reply, session handoff, interactive diff explainers, micro-world simulations, and on-brand document generation",
       "source": "./",
       "skills": [
         "./skills/commit",
@@ -18,7 +18,8 @@
         "./skills/code-review",
         "./skills/handoff",
         "./skills/explain-diff",
-        "./skills/micro-world"
+        "./skills/micro-world",
+        "./skills/visual-doc"
       ]
     }
   ]

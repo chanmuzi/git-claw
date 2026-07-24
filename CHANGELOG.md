@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased
+
+**New**
+- `/visual-doc` 스킬 신설 — 조사·분석 내용을 온-브랜드 인터랙티브 HTML 문서로 만든다 (리서치 보고서, 레포·코드 분석, 개념 설명, 비교/평가 등). `explain-diff`의 sibling이되 **퀴즈·이해 게이트·diff 전용 장치가 없다**. 두 층 구조를 채택: 잠금층(토큰·primitive·말투)은 미감을 고정하고, 생성층(문서 골격)은 콘텐츠 유형·규모·논리에 맞게 매번 조립한다. 배포물은 빈칸 템플릿이 아니라 `components.html`(토큰 + 프리스타일 블록 팔레트)이며, **팔레트에 없는 블록은 같은 토큰으로 새로 만든다**(예시집이지 완결 목록이 아님). 긴 문서는 진행바+플로팅 TOC / 슬림 챕터 페이저 / 접이식 섹션을 분량에 맞게 고른다. 컴포넌트: TL;DR·stat·CSS 막대차트·비교표·타임라인·카드형 인용·주석 코드·Q&A(접이식)·pros/cons·스펙표·콜아웃 4종·기둥카드·선그래프(SVG)·도넛(SVG)·인터랙티브 노브. 라이트/다크 모두 지원. 배경과 근거: docs/decisions/2026-07-visual-doc.md
+
+**Changed**
+- 공유 디자인 규칙 5개를 `visual-doc`·`explain-diff`·`micro-world` 공통으로 명문화 — (1) 제목 `word-break: keep-all`(조사 고아 방지), (2) 장식 그라데이션 금지(기능적 스크림만 허용), (3) em-dash·en-dash 산출물 금지, (4) 배경 대비 색상(범례·차트 track·상태 점이 표면과 구분되게), (5) 자연스러운 한국어. explain-diff는 (1)(3)(5)를 v1.14.1에 이미 반영했고, 이번에 `.sim` 피규어의 장식 그라데이션을 solid `blue-soft`로 교체. micro-world는 dash 금지·자연스러운 한국어 규칙을 SKILL.md에 추가
+- 신규 스킬 반영으로 저장소 스킬 수 8 → 9 (slash command 9 → 10). `marketplace.json`, `README.md`, `README.ko.md`, `AGENTS.md` 동기화
+
 ## v1.14.1 (2026-07-22)
 
 **Changed**

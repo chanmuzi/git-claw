@@ -107,13 +107,27 @@
   .tldr .tl-core{ font-size:17px; font-weight:700; color:var(--ink); line-height:1.5; margin:0 0 12px; letter-spacing:-0.02em; word-break:keep-all; }
   .tldr ul{ margin:0; padding-left:20px; } .tldr li{ font-size:14px; color:var(--gray700); line-height:1.7; margin-bottom:5px; }
 
-  /* ── COMPONENT: stat row ── */
+  /* ── COMPONENT: stat row ──
+     라벨 선행: 무엇의 수인지(.k) 먼저, 숫자(.n)는 아래 크게, 괄호 보충은 .d 부연 줄로.
+     단위는 자연스러운 것(개·곳·종)만. 억지 단위 명사("갈래" 등)와 번역투 압축 명사구 금지.
+     항목은 최대 4개. 더 많으면 .statchips로 전환한다. */
   .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   @media (max-width:640px){ .stats{ grid-template-columns:repeat(2,1fr); } }
   .stat{ background:var(--card); border-radius:var(--r-el); box-shadow:var(--shadow); padding:18px 16px; }
-  .stat .n{ font-size:26px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); line-height:1; }
+  .stat .k{ font-size:12.5px; font-weight:600; color:var(--faint); margin-bottom:10px; line-height:1.45; word-break:keep-all; }
+  .stat .n{ font-size:27px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums; }
   .stat .n .u{ font-size:14px; font-weight:700; color:var(--gray400); margin-left:3px; }
-  .stat .k{ font-size:12.5px; font-weight:600; color:var(--faint); margin-top:8px; }
+  /* 부연(.d)은 짧게 쓴다(쉼표 나열 3~4개 이내). 안전장치로 2줄 초과분은 말줄임 처리 */
+  .stat .d{ font-size:12px; color:var(--faint); margin-top:8px; word-break:keep-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+
+  /* ── COMPONENT: stat chips (지표가 5개 이상일 때 stat row 대신) ──
+     칩 하나가 "라벨 + 숫자" 한 호흡. 보충 정보는 .foot 각주 한 줄로 뺀다. */
+  .statchips{ display:flex; flex-wrap:wrap; gap:10px; }
+  .statchips .chip{ display:inline-flex; align-items:baseline; gap:8px; background:var(--card); border-radius:100px; box-shadow:var(--shadow); padding:9px 18px 9px 20px; }
+  .statchips .chip .k{ font-size:13px; font-weight:600; color:var(--gray600); word-break:keep-all; }
+  .statchips .chip .n{ font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--blue-dark); font-variant-numeric:tabular-nums; }
+  .statchips .chip .n .u{ font-size:12px; font-weight:700; color:var(--sub); margin-left:1px; }
+  .statchips .foot{ flex-basis:100%; font-size:12px; color:var(--faint); margin:4px 4px 0; word-break:keep-all; }
 
   /* ── COMPONENT: bar chart (순수 CSS) ── */
   .chart{ display:flex; flex-direction:column; gap:10px; }
@@ -227,15 +241,31 @@
   .spec dd{ font-size:13.5px; color:var(--gray700); margin:0; padding:8px 0; border-bottom:1px solid var(--line); word-break:keep-all; }
   .spec dt:last-of-type, .spec dd:last-of-type{ border-bottom:none; }
 
-  /* ── COMPONENT: callout 변형 ── */
-  .callout{ display:flex; gap:12px; border-radius:var(--r-el); padding:14px 18px; margin-top:0; }
-  .callout .co-mark{ font-weight:800; flex:none; }
-  .callout .co-b{ font-size:13.5px; line-height:1.65; word-break:keep-all; }
+  /* ── COMPONENT: callout 변형 ──
+     라벨 행(.co-head) = SVG 아이콘 + 범주 이름(참고/확인됨/주의/함정). 텍스트 글리프(i, ×)를
+     아이콘으로 쓰지 않는다: 폰트에 따라 얇은 막대·작은 점으로 렌더링된다. SVG는 아래 데모에서 복사.
+     항목 구조 = 제목 줄(.ci-t) + 본문(.co-b). 본문이 한 줄에 들어가면 흐르는 한 줄 그대로 둔다
+     (짧은 본문을 억지로 두 줄로 쪼개지 않는다). 한 줄을 넘길 때만 문장마다 .sent로 감싸
+     문장 경계에서 줄이 바뀌게 하고, 각 문장은 한 줄 길이로 짧게 쓴다(안 되면 흐르는 조판).
+     같은 범주 콜아웃이 3개 이상 연속이면 블록을 반복하지 말고 .group 하나로 합친다:
+     라벨 행은 한 번, 항목(.co-item)은 옅은 구분선으로 나눈다. */
+  .callout{ border-radius:var(--r-el); padding:14px 18px 15px; }
+  .callout .co-head{ display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; }
+  .callout .co-icon{ width:15px; height:15px; flex:none; display:block; }
+  .callout .ci-t{ font-size:13.5px; font-weight:700; color:var(--ink); word-break:keep-all; margin:0 0 3px; }
+  .callout .co-b{ font-size:13.5px; line-height:1.65; word-break:keep-all; color:var(--gray700); }
   .callout .co-b b{ color:var(--ink); }
-  .callout.info{ background:var(--blue-soft); } .callout.info .co-mark{ color:var(--blue); } .callout.info .co-b{ color:var(--gray700); }
-  .callout.warn{ background:var(--amber-soft); } .callout.warn .co-mark{ color:var(--amber); } .callout.warn .co-b{ color:var(--gray700); }
-  .callout.ok{ background:var(--green-soft); } .callout.ok .co-mark{ color:var(--green); } .callout.ok .co-b{ color:var(--gray700); }
-  .callout.err{ background:var(--red-soft); } .callout.err .co-mark{ color:var(--red); } .callout.err .co-b{ color:var(--gray700); }
+  .callout .sent{ display:block; }
+  .callout.info{ background:var(--blue-soft); } .callout.info .co-head{ color:var(--blue); }
+  .callout.warn{ background:var(--amber-soft); } .callout.warn .co-head{ color:var(--amber); }
+  .callout.ok{ background:var(--green-soft); } .callout.ok .co-head{ color:var(--green); }
+  .callout.err{ background:var(--red-soft); } .callout.err .co-head{ color:var(--red); }
+  .callout.group .co-item{ padding:12px 0; border-bottom:1px solid; }
+  .callout.group .co-item:last-child{ padding-bottom:4px; border-bottom:none; }
+  .callout.info .co-item{ border-color:color-mix(in srgb, var(--blue) 16%, transparent); }
+  .callout.warn .co-item{ border-color:color-mix(in srgb, var(--amber) 18%, transparent); }
+  .callout.ok .co-item{ border-color:color-mix(in srgb, var(--green) 16%, transparent); }
+  .callout.err .co-item{ border-color:color-mix(in srgb, var(--red) 16%, transparent); }
 
   /* ── COMPONENT: pillar cards ── */
   .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
@@ -261,7 +291,9 @@
   .takeaway .tk-core{ font-size:16px; font-weight:700; color:var(--ink); margin:0 0 10px; line-height:1.5; word-break:keep-all; }
   .takeaway ul{ margin:0; padding-left:20px; } .takeaway li{ font-size:13.5px; color:var(--gray600); line-height:1.7; margin-bottom:5px; }
 
-  .stack > * + *{ margin-top:14px; }
+  /* 블록 기본 간격 24px. 연속 콜아웃은 16px로 좁혀 관련 묶음으로 읽히게 한다. */
+  .stack > * + *{ margin-top:24px; }
+  .stack .callout + .callout{ margin-top:16px; }
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 </style>
 </head>
@@ -302,12 +334,22 @@
       <ul><li>색·간격·라운드·그림자가 전부 CSS 변수라 미감이 잠겨요.</li><li>순서·개수·선택은 내용이 정해요.</li></ul>
     </div>
 
-    <div class="demo-label">지표 행 (stat row)</div>
+    <div class="demo-label">지표 행 (stat row · 최대 4개, 라벨 먼저)</div>
     <div class="stats">
-      <div class="stat"><div class="n">18<span class="u">종</span></div><div class="k">컴포넌트</div></div>
-      <div class="stat"><div class="n">2<span class="u">모드</span></div><div class="k">라이트·다크</div></div>
-      <div class="stat"><div class="n">0<span class="u">개</span></div><div class="k">외부 리소스</div></div>
-      <div class="stat"><div class="n">1<span class="u">파일</span></div><div class="k">self-contained</div></div>
+      <div class="stat"><div class="k">컴포넌트</div><div class="n">18<span class="u">종</span></div><div class="d">팔레트 기준</div></div>
+      <div class="stat"><div class="k">컬러 모드</div><div class="n">2<span class="u">개</span></div><div class="d">라이트, 다크</div></div>
+      <div class="stat"><div class="k">외부 리소스</div><div class="n">0<span class="u">개</span></div><div class="d">CDN·웹폰트 없음</div></div>
+      <div class="stat"><div class="k">출력 파일</div><div class="n">1<span class="u">개</span></div><div class="d">self-contained</div></div>
+    </div>
+
+    <div class="demo-label">지표 칩 (statchips · 5개 이상일 때)</div>
+    <div class="statchips">
+      <span class="chip"><span class="k">컴포넌트</span><span class="n">18<span class="u">종</span></span></span>
+      <span class="chip"><span class="k">콜아웃 변형</span><span class="n">4<span class="u">종</span></span></span>
+      <span class="chip"><span class="k">컬러 모드</span><span class="n">2<span class="u">개</span></span></span>
+      <span class="chip"><span class="k">외부 리소스</span><span class="n">0<span class="u">개</span></span></span>
+      <span class="chip"><span class="k">출력 파일</span><span class="n">1<span class="u">개</span></span></span>
+      <span class="foot">컴포넌트 수는 팔레트 기준 · 출력은 self-contained HTML 1개</span>
     </div>
 
     <div class="group-label" id="s-data"><span class="g-part">Part C</span><span class="g-name">데이터 & 비교 블록</span></div>
@@ -355,12 +397,33 @@
       <pre><span class="ln">## Step 2: Design the skeleton</span><span class="ln hl">Pick components by content type.  <span class="note">← 여기서 구조가 갈림</span></span><span class="ln">Verify with a screenshot before output.</span></pre>
     </div>
 
-    <div class="demo-label">콜아웃 4종</div>
+    <div class="demo-label">콜아웃 4종 (라벨 행 + SVG 아이콘, 이 SVG를 그대로 복사)</div>
     <div class="stack">
-      <div class="callout info"><span class="co-mark">i</span><div class="co-b"><b>정보.</b> 참고용 보조 설명이에요.</div></div>
-      <div class="callout ok"><span class="co-mark">✓</span><div class="co-b"><b>확인됨.</b> 검증을 통과한 사실이에요.</div></div>
-      <div class="callout warn"><span class="co-mark">!</span><div class="co-b"><b>주의.</b> 부작용 가능성이 있어요.</div></div>
-      <div class="callout err"><span class="co-mark">×</span><div class="co-b"><b>함정.</b> 이렇게 하면 깨져요.</div></div>
+      <div class="callout info">
+        <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8" cy="8" r="6.3"/><line x1="8" y1="7.2" x2="8" y2="11"/><circle cx="8" cy="4.9" r="0.4" fill="currentColor" stroke="none"/></svg>참고</div>
+        <div class="co-b">보조 맥락이에요. 몰라도 흐름은 이어져요.</div>
+      </div>
+      <div class="callout ok">
+        <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.3" stroke-width="1.7"/><polyline points="5.2,8.2 7.2,10.2 10.9,6.2"/></svg>확인됨</div>
+        <div class="co-b">코드나 문서로 검증을 통과한 사실이에요.</div>
+      </div>
+      <div class="callout warn">
+        <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 14.6 13.4H1.4Z"/><line x1="8" y1="6.6" x2="8" y2="9.6"/><circle cx="8" cy="11.7" r="0.4" fill="currentColor" stroke="none"/></svg>주의</div>
+        <div class="co-b">부작용이나 전제 조건이 있어요.</div>
+      </div>
+      <div class="callout err">
+        <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8" cy="8" r="6.3"/><line x1="5.8" y1="5.8" x2="10.2" y2="10.2"/><line x1="10.2" y1="5.8" x2="5.8" y2="10.2"/></svg>함정</div>
+        <div class="co-b">이렇게 하면 실제로 깨져요.</div>
+      </div>
+    </div>
+
+    <div class="demo-label">그룹 콜아웃 (같은 범주 3개 이상 연속: 제목 줄 + 문장별 줄바꿈)</div>
+    <div class="callout warn group">
+      <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 14.6 13.4H1.4Z"/><line x1="8" y1="6.6" x2="8" y2="9.6"/><circle cx="8" cy="11.7" r="0.4" fill="currentColor" stroke="none"/></svg>주의</div>
+      <!-- 본문이 한 줄에 들어가면 흐르는 한 줄(위 두 항목), 넘기면 .sent로 문장별 줄바꿈(마지막 항목) -->
+      <div class="co-item"><p class="ci-t">토큰 재정의 금지</p><div class="co-b">색·간격을 바꾸면 통일성이 깨져요. 새 블록이 필요하면 같은 토큰으로 조립해요.</div></div>
+      <div class="co-item"><p class="ci-t">외부 리소스 금지</p><div class="co-b">CDN·웹폰트를 넣으면 오프라인에서 깨져요. 출력은 self-contained 한 파일이어야 해요.</div></div>
+      <div class="co-item"><p class="ci-t">샘플 카피 잔존</p><div class="co-b"><span class="sent">git-claw 예시 문구가 산출물에 남으면 실제 분석 내용처럼 읽혀서 문서 신뢰를 해쳐요.</span><span class="sent">출력 직전에 grep으로 남은 샘플 문자열을 찾아 있으면 지우고 다시 확인해요.</span></div></div>
     </div>
 
     <div class="group-label" id="s-struct"><span class="g-part">Part E</span><span class="g-name">구조 & 참조 블록</span></div>

@@ -55,12 +55,12 @@ Do not open `components.html` and fill it top to bottom. Design the skeleton fir
 **Choose a component for each section by what it must show** (the palette in `components.html`):
 
 - Summary / thesis → `.tldr` highlight, `.takeaway`
-- Scale / metrics → `.stats` row, `.chart` (CSS bars), `.linechart` / `.donut` (SVG)
+- Scale / metrics → `.stats` row (4 items max; use `.statchips` for 5+), `.chart` (CSS bars), `.linechart` / `.donut` (SVG)
 - Structure / layout → `.tree`, `.pillars`
 - Comparison → `.ctable`, `.proscons`
 - Sequence / process → `.timeline`, `.flow`
 - Evidence → `.quote2` (card quote, never a left-band), annotated `.codeblock`, `.spec` key-value
-- Q&A / reference → `.qa` (collapsible), callout variants (`info` / `ok` / `warn` / `err`)
+- Q&A / reference → `.qa` (collapsible), callout variants (`info` / `ok` / `warn` / `err`; merge 3+ consecutive same-type callouts into one `.group`)
 - Illustrative interaction → `.knob` and similar, **only when the reader's input changes the outcome** (a value they drag, a scenario they toggle). This is a reading aid, not a playable simulation of behavior — that boundary belongs to `micro-world`. Never build a step-through that reveals already-visible content in order.
 
 **When no palette block fits, build one from the tokens.** Same variables, same radii, same shadow, same spacing rhythm. A net-new chart, diagram, or layout is expected; an off-token block is not.
@@ -75,7 +75,14 @@ Combine them when it helps. If you cap or truncate anything (top-N items, a samp
 
 ## Step 3: Build from the Palette
 
-Read `components.html` from this skill's base directory. Copy the `:root` tokens, the base primitives, and only the component CSS you actually use into a single self-contained HTML file. **Fill and compose; never restyle the tokens.** No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images, remote scripts). The output must stay one self-contained HTML file.
+Read `components.html` from this skill's base directory. Copy the `:root` tokens, the base primitives, and only the component CSS you actually use into a single self-contained HTML file. **Fill and compose; never restyle the tokens.** No emoji, no ad-hoc SVG icons (the callout icons shipped in the palette are the one sanctioned set; copy them verbatim), no external resources (CDN, webfonts, remote images, remote scripts). The output must stay one self-contained HTML file.
+
+### Component rules (visual-doc)
+
+- **Callout anatomy.** Every callout opens with a label row: the palette SVG icon plus the category word (참고 / 확인됨 / 주의 / 함정). Never use a bare text glyph (`i`, `!`, `×`) as an icon; fonts render them as thin bars or small dots. Items are structured as a bold title line plus a body; do not fuse the title into the body's first sentence.
+- **Sentence-per-line in callouts.** Applies only when the body is long enough to need it: if the whole body fits in roughly one line, leave it as one flowing line; do not force two short stubs. When the body does exceed a line, wrap each sentence in `.sent` so lines break at sentence boundaries instead of mid-sentence, and keep each sentence short enough to hold one line (split or fall back to flowing text when it cannot).
+- **Stacking rule.** 3 or more consecutive callouts of the same category are a list, not separate alarms: merge them into one `.group` callout (label row once, items divided by faint rules). One or two stay individual blocks.
+- **Stat copy.** Label first (what is being counted), number below, supplements on the `.d` line. Use only natural counters (개, 곳, 종); never coin a forced unit noun ("갈래") or compress the label into a translated noun pile. Keep the `.d` supplement to 3-4 comma-separated tokens at most (CSS clamps it at 2 lines with ellipsis; write short enough that the clamp never fires). Cap `.stats` at 4 items; 5 or more become `.statchips`.
 
 Delete the authoring comment at the top of `components.html` and the git-claw sample copy. Fill `<title>` — it names the browser tab: `{문서 한 줄 요약}`. Before writing, grep your output for `{문서` (the unfilled title token) and any leftover git-claw sample strings.
 

@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained, on-brand interactive HTML document from researched or analyzed content (a research brief, repo/code analysis, concept explainer, comparison, design writeup) by composing a bespoke structure from a fixed design-system component palette.
   TRIGGER when: user asks to turn content into a document/report/writeup in this visual style, visualize findings, or make a shareable page from analysis (e.g., "이 스타일로 문서 만들어줘", "리서치 보고서로 정리해줘", "레포 분석 문서 만들어줘", "이거 문서화해줘", "make a document out of this").
   DO NOT TRIGGER when: user wants a diff/PR/commit explainer with a comprehension quiz (use explain-diff), an interactive simulation to inhabit a behavior (use micro-world), a code review verdict (use code-review), or a short text answer serves better.
-version: "1.0.0"
+version: "1.1.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 

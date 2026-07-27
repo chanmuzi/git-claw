@@ -125,7 +125,7 @@
   .statchips{ display:flex; flex-wrap:wrap; gap:10px; }
   .statchips .chip{ display:inline-flex; align-items:baseline; gap:8px; background:var(--card); border-radius:100px; box-shadow:var(--shadow); padding:9px 18px 9px 20px; }
   .statchips .chip .k{ font-size:13px; font-weight:600; color:var(--gray600); word-break:keep-all; }
-  .statchips .chip .n{ font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--blue-dark); font-variant-numeric:tabular-nums; }
+  .statchips .chip .n{ font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--ink); font-variant-numeric:tabular-nums; }
   .statchips .chip .n .u{ font-size:12px; font-weight:700; color:var(--sub); margin-left:1px; }
   .statchips .foot{ flex-basis:100%; font-size:12px; color:var(--faint); margin:4px 4px 0; word-break:keep-all; }
 
@@ -244,22 +244,24 @@
   /* ── COMPONENT: callout 변형 ──
      라벨 행(.co-head) = SVG 아이콘 + 범주 이름(참고/확인됨/주의/함정). 텍스트 글리프(i, ×)를
      아이콘으로 쓰지 않는다: 폰트에 따라 얇은 막대·작은 점으로 렌더링된다. SVG는 아래 데모에서 복사.
-     항목 구조 = 제목 줄(.ci-t) + 본문(.co-b). 본문이 한 줄에 들어가면 흐르는 한 줄 그대로 둔다
+     .group 항목 구조 = 제목 줄(.ci-t) + 본문(.co-b); 단일 콜아웃은 라벨 행이 제목 역할이라
+     본문만 둔다. 본문이 한 줄에 들어가면 흐르는 한 줄 그대로 둔다
      (짧은 본문을 억지로 두 줄로 쪼개지 않는다). 한 줄을 넘길 때만 문장마다 .sent로 감싸
      문장 경계에서 줄이 바뀌게 하고, 각 문장은 한 줄 길이로 짧게 쓴다(안 되면 흐르는 조판).
      같은 범주 콜아웃이 3개 이상 연속이면 블록을 반복하지 말고 .group 하나로 합친다:
      라벨 행은 한 번, 항목(.co-item)은 옅은 구분선으로 나눈다. */
   .callout{ border-radius:var(--r-el); padding:14px 18px 15px; }
-  .callout .co-head{ display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; }
+  .callout .co-head{ display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; color:var(--ink); }
   .callout .co-icon{ width:15px; height:15px; flex:none; display:block; }
   .callout .ci-t{ font-size:13.5px; font-weight:700; color:var(--ink); word-break:keep-all; margin:0 0 3px; }
   .callout .co-b{ font-size:13.5px; line-height:1.65; word-break:keep-all; color:var(--gray700); }
   .callout .co-b b{ color:var(--ink); }
   .callout .sent{ display:block; }
-  .callout.info{ background:var(--blue-soft); } .callout.info .co-head{ color:var(--blue); }
-  .callout.warn{ background:var(--amber-soft); } .callout.warn .co-head{ color:var(--amber); }
-  .callout.ok{ background:var(--green-soft); } .callout.ok .co-head{ color:var(--green); }
-  .callout.err{ background:var(--red-soft); } .callout.err .co-head{ color:var(--red); }
+  /* 라벨 텍스트는 --ink 고정(라이트 모드 soft 배경에서 변형 색 11px 텍스트는 AA 미달), 변형 색은 아이콘에만 */
+  .callout.info{ background:var(--blue-soft); } .callout.info .co-icon{ color:var(--blue); }
+  .callout.warn{ background:var(--amber-soft); } .callout.warn .co-icon{ color:var(--amber); }
+  .callout.ok{ background:var(--green-soft); } .callout.ok .co-icon{ color:var(--green); }
+  .callout.err{ background:var(--red-soft); } .callout.err .co-icon{ color:var(--red); }
   .callout.group .co-item{ padding:12px 0; border-bottom:1px solid; }
   .callout.group .co-item:last-child{ padding-bottom:4px; border-bottom:none; }
   .callout.info .co-item{ border-color:color-mix(in srgb, var(--blue) 16%, transparent); }

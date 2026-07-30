@@ -20,6 +20,7 @@
     --gray400:#8B95A1; --gray300:#B0B8C1; --gray200:#D1D6DB; --gray100:#E5E8EB;
     --gray50:#F2F4F6;  --gray25:#F9FAFB;
     --blue:#3182F6; --blue-dark:#1B64DA; --blue-soft:#E8F3FF;
+    --chip-ink:#1659C9; /* 인라인 코드 칩 글자색. blue-soft+틴트 표면에서도 AA(5.1:1) 확보 */
     --red:#F04452; --red-soft:#FDEDEE;
     --green:#0CA678; --green-soft:#E6F6F0;
     --amber:#B76E00; --amber-soft:#FFF4DE;
@@ -37,6 +38,7 @@
       --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
       --gray50:#222831; --gray25:#1E242C;
       --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
+      --chip-ink:#7FB4FF; /* 다크에서 --blue-dark는 --blue보다 어두워 대비 미달. 밝은 블루로 6.3:1 확보 */
       --red:#F4636F; --red-soft:#3A2226;
       --green:#2BB88A; --green-soft:#173029;
       --amber:#E0A44A; --amber-soft:#33291A;
@@ -60,10 +62,9 @@
 
   .shell{ max-width:800px; margin:0 auto; padding:0 24px 140px; }
   @media (max-width:1279px){ .toc-rail{ display:none; } }
-  .wrap{ min-width:0; }
 
   /* ── 긴 문서 네비 B: 플로팅 TOC 레일 ── */
-  .toc-rail{ position:fixed; top:96px; right:28px; width:196px; }
+  .toc-rail{ position:fixed; top:96px; right:28px; width:196px; max-height:calc(100vh - 132px); overflow-y:auto; }
   .toc-rail .tr-label{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin:0 0 12px 12px; }
   .toc-rail a{
     display:block; font-size:13px; font-weight:600; color:var(--gray500);
@@ -99,7 +100,7 @@
   h2{ font-size:19px; font-weight:700; letter-spacing:-0.02em; margin:0; }
   .prose{ font-size:15px; color:var(--sub); margin:12px 0 4px; }
   .prose b{ color:var(--ink); font-weight:700; }
-  .prose code, code.ic{ font-family:var(--mono); font-size:12.5px; background:color-mix(in srgb, var(--blue) 9%, transparent); color:var(--blue-dark); font-weight:500; border-radius:6px; padding:1px 6px; }
+  .prose code, code.ic{ font-family:var(--mono); font-size:12.5px; background:color-mix(in srgb, var(--blue) 9%, transparent); color:var(--chip-ink); font-weight:500; border-radius:6px; padding:1px 6px; }
 
   /* ── COMPONENT: TL;DR ── */
   .tldr{ background:var(--blue-soft); border-radius:var(--r-card); padding:22px 24px; }
@@ -311,7 +312,7 @@
     </header>
 
     <div class="group-label" id="s-nav"><span class="g-part">Part A</span><span class="g-name">긴 문서 네비게이션 전략</span></div>
-    <p class="prose">문서가 길어지면 AI가 세 가지 중 하나(또는 조합)를 골라요. 분량과 성격을 보고 판단해요.</p>
+    <p class="prose">문서가 길어지면 AI가 세 가지 중 하나(또는 조합)를 골라요. <code>.progress</code> 진행바나 <code class="ic">.toc-rail</code>처럼 분량과 성격을 보고 판단해요.</p>
 
     <div class="demo-label">전략 비교</div>
     <div class="card">

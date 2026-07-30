@@ -58,12 +58,12 @@
   /* ── 긴 문서 네비 A: 상단 진행바 ── */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
 
-  .shell{ display:grid; grid-template-columns:1fr 220px; gap:32px; max-width:1080px; margin:0 auto; padding:0 24px 140px; }
-  @media (max-width:900px){ .shell{ grid-template-columns:1fr; } .toc-rail{ display:none; } }
+  .shell{ max-width:800px; margin:0 auto; padding:0 24px 140px; }
+  @media (max-width:1279px){ .toc-rail{ display:none; } }
   .wrap{ min-width:0; }
 
   /* ── 긴 문서 네비 B: 플로팅 TOC 레일 ── */
-  .toc-rail{ position:sticky; top:24px; align-self:start; height:max-content; padding-top:64px; }
+  .toc-rail{ position:fixed; top:96px; right:28px; width:196px; }
   .toc-rail .tr-label{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin:0 0 12px 12px; }
   .toc-rail a{
     display:block; font-size:13px; font-weight:600; color:var(--gray500);
@@ -84,7 +84,7 @@
     line-height:1.3; margin:0 0 12px; text-wrap:balance;
     word-break:keep-all; overflow-wrap:anywhere;
   }
-  .lede{ font-size:16.5px; color:var(--sub); margin:0 0 8px; max-width:64ch; word-break:keep-all; }
+  .lede{ font-size:16.5px; color:var(--sub); margin:0 0 8px; }
 
   .group-label{ display:flex; align-items:center; gap:12px; margin:52px 4px 0; scroll-margin-top:20px; }
   .group-label .g-part{ font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue); letter-spacing:.06em; }
@@ -97,9 +97,9 @@
   .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
   .list-header .num{ width:22px; height:22px; border-radius:7px; flex:none; display:grid; place-items:center; background:var(--blue-soft); color:var(--blue); font-size:11.5px; font-weight:700; }
   h2{ font-size:19px; font-weight:700; letter-spacing:-0.02em; margin:0; }
-  .prose{ font-size:15px; color:var(--sub); max-width:64ch; margin:12px 0 4px; word-break:keep-all; }
+  .prose{ font-size:15px; color:var(--sub); margin:12px 0 4px; }
   .prose b{ color:var(--ink); font-weight:700; }
-  .prose code, code.ic{ font-family:var(--mono); font-size:12.5px; background:var(--chipbg); border-radius:6px; padding:1px 6px; }
+  .prose code, code.ic{ font-family:var(--mono); font-size:12.5px; background:var(--gray50); border:1px solid var(--gray200); color:var(--gray700); border-radius:6px; padding:1px 6px; }
 
   /* ── COMPONENT: TL;DR ── */
   .tldr{ background:var(--blue-soft); border-radius:var(--r-card); padding:22px 24px; }
@@ -114,20 +114,20 @@
   .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   @media (max-width:640px){ .stats{ grid-template-columns:repeat(2,1fr); } }
   .stat{ background:var(--card); border-radius:var(--r-el); box-shadow:var(--shadow); padding:18px 16px; }
-  .stat .k{ font-size:12.5px; font-weight:600; color:var(--faint); margin-bottom:10px; line-height:1.45; word-break:keep-all; }
+  .stat .k{ font-size:12.5px; font-weight:600; color:var(--faint); margin-bottom:10px; line-height:1.45; }
   .stat .n{ font-size:27px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums; }
   .stat .n .u{ font-size:14px; font-weight:700; color:var(--gray400); margin-left:3px; }
   /* 부연(.d)은 짧게 쓴다(쉼표 나열 3~4개 이내). 안전장치로 2줄 초과분은 말줄임 처리 */
-  .stat .d{ font-size:12px; color:var(--faint); margin-top:8px; word-break:keep-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+  .stat .d{ font-size:12px; color:var(--faint); margin-top:8px; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
 
   /* ── COMPONENT: stat chips (지표가 5개 이상일 때 stat row 대신) ──
      칩 하나가 "라벨 + 숫자" 한 호흡. 보충 정보는 .foot 각주 한 줄로 뺀다. */
   .statchips{ display:flex; flex-wrap:wrap; gap:10px; }
   .statchips .chip{ display:inline-flex; align-items:baseline; gap:8px; background:var(--card); border-radius:100px; box-shadow:var(--shadow); padding:9px 18px 9px 20px; }
-  .statchips .chip .k{ font-size:13px; font-weight:600; color:var(--gray600); word-break:keep-all; }
+  .statchips .chip .k{ font-size:13px; font-weight:600; color:var(--gray600); }
   .statchips .chip .n{ font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--ink); font-variant-numeric:tabular-nums; }
   .statchips .chip .n .u{ font-size:12px; font-weight:700; color:var(--sub); margin-left:1px; }
-  .statchips .foot{ flex-basis:100%; font-size:12px; color:var(--faint); margin:4px 4px 0; word-break:keep-all; }
+  .statchips .foot{ flex-basis:100%; font-size:12px; color:var(--faint); margin:4px 4px 0; }
 
   /* ── COMPONENT: bar chart (순수 CSS) ── */
   .chart{ display:flex; flex-direction:column; gap:10px; }
@@ -155,7 +155,7 @@
   .tl-item::before{ content:""; position:absolute; left:-25px; top:11px; width:10px; height:10px; border-radius:50%; background:var(--blue); box-shadow:0 0 0 3px var(--card); }
   .tl-item .tl-when{ font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue); }
   .tl-item .tl-what{ font-size:14.5px; font-weight:700; color:var(--ink); margin:2px 0 3px; }
-  .tl-item .tl-desc{ font-size:13px; color:var(--gray600); line-height:1.6; word-break:keep-all; }
+  .tl-item .tl-desc{ font-size:13px; color:var(--gray600); line-height:1.6; }
 
   /* ── COMPONENT: annotated code ── */
   .codeblock{ background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow-x:auto; }
@@ -174,7 +174,7 @@
   .qa summary::-webkit-details-marker{ display:none; }
   .qa summary::before{ content:"+"; font-family:var(--mono); color:var(--blue); font-weight:700; flex:none; }
   .qa details[open] summary::before{ content:"−"; }
-  .qa .qa-body{ padding:0 18px 16px 40px; font-size:13.5px; color:var(--gray600); line-height:1.7; word-break:keep-all; }
+  .qa .qa-body{ padding:0 18px 16px 40px; font-size:13.5px; color:var(--gray600); line-height:1.7; }
 
   /* ── COMPONENT: pros / cons ── */
   .proscons{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -188,7 +188,7 @@
   /* ── COMPONENT: quote / citation (카드형, 왼쪽 띠 없음) ── */
   .quote2{ position:relative; background:var(--chipbg); border-radius:var(--r-el); padding:22px 24px 18px; margin:0; }
   .quote2::before{ content:"\201C"; position:absolute; top:2px; left:16px; font-family:Georgia,serif; font-size:52px; line-height:1; color:var(--blue); opacity:.28; }
-  .quote2 p{ position:relative; font-size:16px; font-weight:600; color:var(--ink); line-height:1.65; margin:6px 0 14px; word-break:keep-all; letter-spacing:-0.01em; }
+  .quote2 p{ position:relative; font-size:16px; font-weight:600; color:var(--ink); line-height:1.65; margin:6px 0 14px; letter-spacing:-0.01em; }
   .quote2 .cite{ display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--faint); font-weight:600; }
   .quote2 .cite .av{ width:22px; height:22px; border-radius:50%; background:var(--blue-soft); color:var(--blue); font-size:11px; font-weight:800; display:grid; place-items:center; flex:none; }
   .quote2 .cite b{ color:var(--gray600); }
@@ -232,13 +232,13 @@
   .knob .k-foot{ display:flex; justify-content:space-between; font-size:11px; color:var(--faint); font-family:var(--mono); margin-top:0; }
   .knob .k-bar{ margin-top:14px; background:var(--chipbg); border-radius:100px; height:10px; overflow:hidden; }
   .knob .k-fill{ height:100%; background:var(--blue); border-radius:100px; transition:width .08s linear; }
-  .knob .k-note{ font-size:12.5px; color:var(--gray600); margin-top:12px; line-height:1.6; word-break:keep-all; }
+  .knob .k-note{ font-size:12.5px; color:var(--gray600); margin-top:12px; line-height:1.6; }
   .knob .k-note b{ color:var(--ink); }
 
   /* ── COMPONENT: spec / key-value ── */
   .spec{ display:grid; grid-template-columns:auto 1fr; gap:0 20px; }
   .spec dt{ font-size:13px; font-weight:700; color:var(--faint); padding:8px 0; border-bottom:1px solid var(--line); }
-  .spec dd{ font-size:13.5px; color:var(--gray700); margin:0; padding:8px 0; border-bottom:1px solid var(--line); word-break:keep-all; }
+  .spec dd{ font-size:13.5px; color:var(--gray700); margin:0; padding:8px 0; border-bottom:1px solid var(--line); }
   .spec dt:last-of-type, .spec dd:last-of-type{ border-bottom:none; }
 
   /* ── COMPONENT: callout 변형 ──
@@ -254,7 +254,7 @@
   .callout .co-head{ display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800; letter-spacing:.08em; margin-bottom:4px; color:var(--ink); }
   .callout .co-icon{ width:15px; height:15px; flex:none; display:block; }
   .callout .ci-t{ font-size:13.5px; font-weight:700; color:var(--ink); word-break:keep-all; margin:0 0 3px; }
-  .callout .co-b{ font-size:13.5px; line-height:1.65; word-break:keep-all; color:var(--gray700); }
+  .callout .co-b{ font-size:13.5px; line-height:1.65; color:var(--gray700); }
   .callout .co-b b{ color:var(--ink); }
   .callout .sent{ display:block; }
   /* 라벨 텍스트는 --ink 고정(라이트 모드 soft 배경에서 변형 색 11px 텍스트는 AA 미달), 변형 색은 아이콘에만 */
@@ -275,7 +275,7 @@
   .pillar{ background:var(--chipbg); border:1px solid var(--line); border-radius:var(--r-el); padding:18px; }
   .pillar .p-n{ font-family:var(--mono); font-size:11px; font-weight:700; color:var(--blue); }
   .pillar .p-h{ font-size:15px; font-weight:700; color:var(--ink); margin:8px 0 6px; }
-  .pillar .p-b{ font-size:13px; color:var(--gray600); line-height:1.65; word-break:keep-all; }
+  .pillar .p-b{ font-size:13px; color:var(--gray600); line-height:1.65; }
 
   /* ── COMPONENT: 챕터 페이저 (긴 문서 네비 C) ──
      박스형 페이저는 좌/우 정렬 텍스트 사이 여백이 커서 뚱뚱해 보인다.

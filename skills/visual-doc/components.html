@@ -297,6 +297,41 @@
   /* 블록 기본 간격 24px. 연속 콜아웃은 16px로 좁혀 관련 묶음으로 읽히게 한다. */
   .stack > * + *{ margin-top:24px; }
   .stack .callout + .callout{ margin-top:16px; }
+
+  /* ── COMPONENT: diagram (mermaid) full-bleed + 라이트박스 ──
+     mermaid는 SVG를 컨테이너 폭에 맞춰 통째로 축소하므로, 요소가 많은 다이어그램은
+     본문 컬럼(800px) 안에서 글자가 작아진다. 두 층으로 대응한다:
+     (1) .bleed: 다이어그램 카드만 본문 컬럼을 깨고 뷰포트 폭으로 확장
+     (2) .zoomable + .lightbox: 클릭하면 전체 화면에서 휠 줌·드래그 팬
+     mermaid 소스가 하나라도 있으면 .lightbox 오버레이 마크업과 하단 라이트박스
+     스크립트를 함께 복사한다 (Artifacts는 pre.mermaid를 네이티브 렌더링). */
+  .bleed{ width:min(96vw, 1200px); margin-left:calc((100% - min(96vw, 1200px))/2); }
+  @media (min-width:1280px){
+    /* TOC rail(우측 고정)과 겹치지 않게 좌우 240px씩 비워둔다 */
+    .bleed{ width:min(calc(100vw - 480px), 1200px); margin-left:calc((100% - min(calc(100vw - 480px), 1200px))/2); }
+  }
+  .zoomable{ cursor:zoom-in; }
+  .lightbox{
+    position:fixed; inset:0; z-index:100; display:none;
+    background:color-mix(in srgb, var(--ink) 12%, var(--bg) 62%);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  }
+  .lightbox.open{ display:block; }
+  .lightbox .lb-stage{ position:absolute; inset:0; overflow:hidden; cursor:grab; touch-action:none; }
+  .lightbox .lb-stage.dragging{ cursor:grabbing; }
+  .lightbox .lb-inner{
+    position:absolute; left:50%; top:50%; transform-origin:0 0;
+    background:var(--card); border-radius:var(--r-el); box-shadow:var(--shadow); padding:24px 28px;
+  }
+  .lightbox .lb-inner svg{ display:block; max-width:none !important; }
+  .lightbox .lb-bar{ position:absolute; top:16px; right:16px; z-index:2; display:flex; gap:8px; align-items:center; }
+  .lightbox .lb-bar button{
+    font-family:inherit; font-size:13px; font-weight:700; color:var(--gray600);
+    background:var(--card); border:1px solid var(--line); border-radius:100px;
+    padding:7px 14px; cursor:pointer; box-shadow:var(--shadow);
+  }
+  .lightbox .lb-bar button:hover{ color:var(--blue); border-color:var(--blue); }
+  .lightbox .lb-bar button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 </style>
 </head>
@@ -484,6 +519,16 @@
       <div class="k-note" id="knobNote">동시성 캡은 <b>min(16, 코어−2)</b>예요. 값을 올리면 대기 큐가 줄지만 컨텍스트 비용이 늘어요.</div>
     </div>
 
+    <div class="demo-label">다이어그램 (mermaid, full-bleed + 클릭 확대)</div>
+    <p class="prose">다이어그램 카드는 본문 컬럼을 깨고 넓게 렌더되고(<code>.bleed</code>), 클릭하면 라이트박스에서 휠 줌·드래그 팬이 돼요(<code>.zoomable</code>). Artifacts 환경은 <code>pre.mermaid</code>를 네이티브 렌더링해요 (이 파일을 로컬 브라우저로 열면 소스 텍스트로 보여요).</p>
+    <div class="bleed"><div class="card zoomable" role="button" tabindex="0" aria-label="다이어그램 확대">
+      <pre class="mermaid">sequenceDiagram
+    participant A as 클라이언트
+    participant B as 서버
+    A->>B: 요청
+    B-->>A: 응답</pre>
+    </div></div>
+
     <div class="group-label" id="s-close"><span class="g-part">Part G</span><span class="g-name">마무리 & 이동</span></div>
 
     <div class="demo-label">핵심 정리 (takeaway)</div>
@@ -511,6 +556,20 @@
     <a href="#s-close">G · 마무리 & 이동</a>
   </aside>
 
+</div>
+
+<!-- 라이트박스 오버레이: mermaid 다이어그램이 하나라도 있으면 아래 마크업과
+     마지막 <script>(라이트박스)를 함께 복사한다. 없으면 둘 다 생략. -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lb-stage" id="lb-stage">
+    <div class="lb-inner" id="lb-inner"></div>
+  </div>
+  <div class="lb-bar">
+    <button type="button" id="lb-zoom-out" aria-label="축소">−</button>
+    <button type="button" id="lb-zoom-in" aria-label="확대">＋</button>
+    <button type="button" id="lb-reset">원래대로</button>
+    <button type="button" id="lb-close">닫기 ✕</button>
+  </div>
 </div>
 
 <script>
@@ -553,6 +612,87 @@
       note.innerHTML = "동시 실행 <b>" + v + "개</b>. " + msg;
     });
   }
+})();
+</script>
+
+<script>
+/* 라이트박스: mermaid 다이어그램이 있을 때만 오버레이 마크업과 함께 복사한다.
+   휠 줌은 스크롤 양 비례 지수 배율(트랙패드·마우스 공통), 드래그 후 발생하는
+   click은 이동량(moved)으로 걸러 "바깥 클릭 닫기"가 오작동하지 않게 한다. */
+(function(){
+  var lightbox = document.getElementById("lightbox");
+  if (!lightbox) return;
+  var stage = document.getElementById("lb-stage");
+  var inner = document.getElementById("lb-inner");
+  var targets = document.querySelectorAll(".zoomable");
+  var scale = 1, tx = 0, ty = 0, baseW = 0, baseH = 0;
+  var dragging = false, sx = 0, sy = 0, moved = 0, dx0 = 0, dy0 = 0;
+
+  function apply(){
+    inner.style.transform = "translate(" + (tx - baseW/2*scale) + "px," + (ty - baseH/2*scale) + "px) scale(" + scale + ")";
+  }
+  function reset(){
+    var svg = inner.querySelector("svg");
+    if (!svg) return;
+    baseW = inner.offsetWidth; baseH = inner.offsetHeight;
+    var fit = Math.min((window.innerWidth - 80) / baseW, (window.innerHeight - 120) / baseH, 3);
+    scale = Math.max(fit, 0.4); tx = 0; ty = 0;
+    apply();
+  }
+  function open(target){
+    var svg = target.querySelector("svg");
+    if (!svg) return; /* mermaid 렌더 전이면 무시 */
+    inner.innerHTML = "";
+    var clone = svg.cloneNode(true);
+    clone.removeAttribute("width");
+    clone.style.width = Math.max(svg.getBoundingClientRect().width * 1.5, 900) + "px";
+    clone.style.height = "auto";
+    inner.appendChild(clone);
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(reset);
+  }
+  function close(){
+    lightbox.classList.remove("open");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+  targets.forEach(function(target){
+    target.addEventListener("click", function(){ open(target); });
+    target.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(target); } });
+  });
+  document.getElementById("lb-close").addEventListener("click", close);
+  document.getElementById("lb-reset").addEventListener("click", reset);
+  document.getElementById("lb-zoom-in").addEventListener("click", function(){ scale = Math.min(scale * 1.3, 8); apply(); });
+  document.getElementById("lb-zoom-out").addEventListener("click", function(){ scale = Math.max(scale / 1.3, 0.3); apply(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && lightbox.classList.contains("open")) close(); });
+  stage.addEventListener("click", function(e){ if (e.target === stage && moved < 6) close(); });
+  stage.addEventListener("dblclick", function(e){ if (e.target !== stage) reset(); });
+
+  stage.addEventListener("wheel", function(e){
+    e.preventDefault();
+    var factor = Math.exp(-e.deltaY * 0.0012);
+    var ns = Math.min(Math.max(scale * factor, 0.3), 8);
+    var cx = e.clientX - window.innerWidth/2, cy = e.clientY - window.innerHeight/2;
+    tx = cx - (cx - tx) * (ns/scale);
+    ty = cy - (cy - ty) * (ns/scale);
+    scale = ns; apply();
+  }, { passive:false });
+
+  stage.addEventListener("pointerdown", function(e){
+    if (e.target.closest(".lb-bar")) return;
+    dragging = true; moved = 0; dx0 = e.clientX; dy0 = e.clientY;
+    sx = e.clientX - tx; sy = e.clientY - ty;
+    stage.classList.add("dragging"); stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", function(e){
+    if (!dragging) return;
+    moved = Math.max(moved, Math.abs(e.clientX - dx0) + Math.abs(e.clientY - dy0));
+    tx = e.clientX - sx; ty = e.clientY - sy; apply();
+  });
+  stage.addEventListener("pointerup", function(){ dragging = false; stage.classList.remove("dragging"); });
+  stage.addEventListener("pointercancel", function(){ dragging = false; stage.classList.remove("dragging"); });
 })();
 </script>
 </body>

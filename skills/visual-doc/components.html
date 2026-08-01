@@ -294,9 +294,16 @@
   .takeaway .tk-core{ font-size:16px; font-weight:700; color:var(--ink); margin:0 0 10px; line-height:1.5; word-break:keep-all; }
   .takeaway ul{ margin:0; padding-left:20px; } .takeaway li{ font-size:13.5px; color:var(--gray600); line-height:1.7; margin-bottom:5px; }
 
-  /* 블록 기본 간격 24px. 연속 콜아웃은 16px로 좁혀 관련 묶음으로 읽히게 한다. */
-  .stack > * + *{ margin-top:24px; }
-  .stack .callout + .callout{ margin-top:16px; }
+  /* 블록 기본 간격 20px. .stack 내부와 .wrap 직속(최상위) 블록에 같은 리듬을 적용한다
+     — 간격 규칙이 .stack 안에만 있으면 섹션에 바로 놓인 블록끼리 간격 0으로 붙는다.
+     연속 콜아웃은 12px로 좁혀 관련 묶음으로 읽히게 하고,
+     .demo-label 바로 다음 블록은 라벨과 밀착(라벨 자체 margin-bottom 10px)시킨다. */
+  .wrap > .card, .wrap > .codeblock, .wrap > .callout, .wrap > .qa, .wrap > .pillars,
+  .wrap > .proscons, .wrap > .stats, .wrap > .statchips, .wrap > .stack, .wrap > .tldr,
+  .wrap > .takeaway, .wrap > .bleed{ margin-top:20px; }
+  .stack > * + *{ margin-top:20px; }
+  .callout + .callout{ margin-top:12px; }
+  .wrap > .demo-label + *{ margin-top:0; }
 
   /* ── COMPONENT: diagram (mermaid) full-bleed + 라이트박스 ──
      mermaid는 SVG를 컨테이너 폭에 맞춰 통째로 축소하므로, 요소가 많은 다이어그램은

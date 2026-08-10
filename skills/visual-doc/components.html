@@ -56,6 +56,8 @@
     background:var(--bg); color:var(--ink);
     -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
   }
+  a{ color:var(--chip-ink); text-decoration:none; border-bottom:1px solid color-mix(in srgb, var(--chip-ink) 35%, transparent); }
+  a:hover{ border-bottom-color:var(--chip-ink); }
 
   /* ── 긴 문서 네비 A: 상단 진행바 ── */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
@@ -68,7 +70,7 @@
   .toc-rail .tr-label{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin:0 0 12px 12px; }
   .toc-rail a{
     display:block; font-size:13px; font-weight:600; color:var(--gray500);
-    text-decoration:none; padding:6px 12px; border-left:2px solid var(--line); line-height:1.5;
+    text-decoration:none; border-bottom:none; padding:6px 12px; border-left:2px solid var(--line); line-height:1.5;
     transition:color .15s ease, border-color .15s ease;
   }
   .toc-rail a:hover{ color:var(--blue); }
@@ -87,10 +89,10 @@
   }
   .lede{ font-size:16.5px; color:var(--sub); margin:0 0 8px; }
 
-  .group-label{ display:flex; align-items:center; gap:12px; margin:52px 4px 0; scroll-margin-top:20px; }
-  .group-label .g-part{ font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue); letter-spacing:.06em; }
-  .group-label .g-name{ font-size:13.5px; font-weight:700; color:var(--ink); }
-  .group-label::after{ content:""; flex:1; height:1px; background:var(--line); }
+  .group-label{ display:flex; align-items:center; gap:12px; margin:60px 4px 0; scroll-margin-top:20px; }
+  .group-label .g-part{ font-family:var(--mono); font-size:13px; font-weight:700; color:var(--blue); letter-spacing:.06em; }
+  .group-label .g-name{ font-size:19.5px; font-weight:800; letter-spacing:-0.025em; color:var(--ink); word-break:keep-all; }
+  .group-label::after{ content:""; flex:1; height:1px; background:var(--gray200); }
 
   .demo-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); margin:26px 4px 10px; }
 
@@ -282,7 +284,7 @@
      박스형 페이저는 좌/우 정렬 텍스트 사이 여백이 커서 뚱뚱해 보인다.
      상단 구분선 + 텍스트형 링크(방향 라벨 + 제목)로 슬림하게 둔다. */
   .pager{ display:flex; justify-content:space-between; gap:20px; margin-top:26px; padding-top:22px; border-top:1px solid var(--line); }
-  .pg-btn{ display:flex; flex-direction:column; gap:4px; text-decoration:none; max-width:47%; }
+  .pg-btn{ display:flex; flex-direction:column; gap:4px; text-decoration:none; border-bottom:none; max-width:47%; }
   .pg-btn.next{ text-align:right; margin-left:auto; }
   .pg-btn .pg-dir{ font-size:12px; font-weight:600; color:var(--faint); }
   .pg-btn .pg-title{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-0.01em; transition:color .15s ease; word-break:keep-all; }
@@ -300,7 +302,7 @@
      .demo-label 바로 다음 블록은 라벨과 밀착(라벨 자체 margin-bottom 10px)시킨다. */
   .wrap > .card, .wrap > .codeblock, .wrap > .callout, .wrap > .qa, .wrap > .pillars,
   .wrap > .proscons, .wrap > .stats, .wrap > .statchips, .wrap > .stack, .wrap > .tldr,
-  .wrap > .takeaway, .wrap > .bleed{ margin-top:20px; }
+  .wrap > .takeaway, .wrap > .bleed, .wrap > .wide{ margin-top:20px; }
   .stack > * + *{ margin-top:20px; }
   .callout + .callout{ margin-top:12px; }
   .wrap > .demo-label + *{ margin-top:0; }
@@ -318,6 +320,25 @@
     .bleed{ width:min(calc(100vw - 480px), 1200px); margin-left:calc((100% - min(calc(100vw - 480px), 1200px))/2); }
   }
   .zoomable{ cursor:zoom-in; }
+
+  /* ── COMPONENT: wide (오른쪽 단방향 확장) ──
+     셀이 억지로 두 줄로 꺾이는 표, 4열 stat처럼 옆으로 긴 블록만 감싼다.
+     왼쪽 축은 본문 컬럼과 공유하고 오른쪽으로만 확장한다 — 양쪽 대칭 확장(.bleed 방식)을
+     본문 흐름 속 표에 쓰면 챕터 제목·산문과 왼쪽 축이 어긋나 어색해진다 (다이어그램은
+     "그림"으로 읽혀 예외). 블록에 소제목이 딸려 있으면 래퍼 안에 함께 넣어 같은 축에
+     정렬한다. 산문·콜아웃·TL;DR은 기본 폭을 유지한다. */
+  .wide{ width:min(1000px, calc(50vw + 352px), calc(100vw - 48px)); }
+  @media (min-width:1280px){
+    /* TOC rail(우측 고정) 직전까지만 확장 */
+    .wide{ width:min(1000px, calc(50vw + 136px)); }
+  }
+  .wide > :first-child{ margin-top:0; }
+  .wide > * + *{ margin-top:12px; }
+  @media (min-width:800px){
+    /* 좁은 뷰포트에서는 nowrap을 풀어 표가 카드 밖으로 넘치지 않게 한다 */
+    .wide .ctable th:first-child, .wide .ctable td:first-child,
+    .wide .ctable th:last-child, .wide .ctable td:last-child{ white-space:nowrap; }
+  }
   .lightbox{
     position:fixed; inset:0; z-index:100; display:none;
     background:color-mix(in srgb, var(--ink) 26%, var(--bg) 54%); /* 합 80%: 잔여 20%가 알파로 곱해져 반투명 스크림이 된다 (의도) */
@@ -414,6 +435,20 @@
       <dt>검증</dt><dd>Playwright 스크린샷으로 렌더 확인</dd>
       <dt>언어</dt><dd>AGENTS.md 설정 우선, 해요체</dd>
     </dl></div>
+
+    <div class="demo-label">폭이 필요한 표 (.wide · 오른쪽 단방향 확장, 첫 열·링크 열 nowrap) — 소제목은 래퍼 안에</div>
+    <div class="wide">
+    <h2>.wide 설계 결정</h2>
+    <div class="card">
+      <table class="ctable">
+        <thead><tr><th>결정</th><th>무엇을 정했나</th><th>문서</th></tr></thead>
+        <tbody>
+          <tr><td><b>확장 방향</b></td><td>왼쪽 축은 본문 컬럼에 고정하고 오른쪽으로만 확장해요. 축이 두 개가 되면 챕터 제목과 어긋나 보여요</td><td><a href="#s-data">.wide 규칙</a></td></tr>
+          <tr><td><b>적용 대상</b></td><td>셀이 억지로 두 줄이 되는 표, 옆으로 긴 grid만. 산문·콜아웃은 기본 폭 유지</td><td><a href="#s-data">SKILL.md</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
 
     <div class="demo-label">pros / cons</div>
     <div class="proscons">

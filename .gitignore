@@ -1,4 +1,5 @@
 IMPLEMENTATION_GUIDE.md
 .DS_Store
+.playwright-cli/
 __pycache__/
 *.pyc

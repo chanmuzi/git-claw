@@ -333,8 +333,12 @@
     .wide{ width:min(1000px, calc(50vw + 136px)); }
   }
   .wide > :first-child{ margin-top:0; }
-  .wide .ctable th:first-child, .wide .ctable td:first-child,
-  .wide .ctable th:last-child, .wide .ctable td:last-child{ white-space:nowrap; }
+  .wide > * + *{ margin-top:12px; }
+  @media (min-width:800px){
+    /* 좁은 뷰포트에서는 nowrap을 풀어 표가 카드 밖으로 넘치지 않게 한다 */
+    .wide .ctable th:first-child, .wide .ctable td:first-child,
+    .wide .ctable th:last-child, .wide .ctable td:last-child{ white-space:nowrap; }
+  }
   .lightbox{
     position:fixed; inset:0; z-index:100; display:none;
     background:color-mix(in srgb, var(--ink) 26%, var(--bg) 54%); /* 합 80%: 잔여 20%가 알파로 곱해져 반투명 스크림이 된다 (의도) */
@@ -432,8 +436,9 @@
       <dt>언어</dt><dd>AGENTS.md 설정 우선, 해요체</dd>
     </dl></div>
 
-    <div class="demo-label">폭이 필요한 표 (.wide · 오른쪽 단방향 확장, 첫 열·링크 열 nowrap)</div>
+    <div class="demo-label">폭이 필요한 표 (.wide · 오른쪽 단방향 확장, 첫 열·링크 열 nowrap) — 소제목은 래퍼 안에</div>
     <div class="wide">
+    <h2>.wide 설계 결정</h2>
     <div class="card">
       <table class="ctable">
         <thead><tr><th>결정</th><th>무엇을 정했나</th><th>문서</th></tr></thead>

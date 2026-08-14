@@ -12,7 +12,7 @@ allowed-tools: Bash(git *), Read, Glob, Grep
 
 **Write only what the next session cannot recover by reading the repo.**
 
-The next session is a capable agent with full access to the code, the docs, the git history, and the GitHub API. It will explore on its own. Anything it can find by reading a file is noise in the handoff — it costs tokens, and worse, a stale restatement of a file competes with the file itself.
+The next session is a capable agent with full access to the code, the docs, the git history, and the GitHub API. It will explore on its own. Assume the user opens it in the right working directory for the follow-up work — where to run is already settled before the handoff is pasted. Anything it can find by reading a file is noise in the handoff — it costs tokens, and worse, a stale restatement of a file competes with the file itself.
 
 What it *cannot* recover by reading:
 
@@ -104,7 +104,7 @@ feat/auth-refactor 브랜치에서 세션 만료 처리 이어서 해줘.
 
 Read that as the user's own message: it tells the agent to start, in the voice the user actually uses. The 맥락 bullets carry things no file states — a rejected approach with the reason it failed, and a scope boundary. The 참고 lines are paths, not summaries.
 
-Notice what is absent: no file list, no commit log, no recap of what this session accomplished, no skill names, and no "상황을 파악하라"-style preamble that would leave the agent idling instead of working.
+Notice what is absent: no file list, no commit log, no recap of what this session accomplished, no skill names, and no directive-free summary that leaves the agent waiting for instructions. Whether the agent explores the repo before acting is its own call — the handoff neither scripts nor forbids that step.
 
 ## Output
 

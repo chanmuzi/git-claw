@@ -3,8 +3,8 @@ name: micro-world
 description: >-
   Build a throwaway interactive HTML simulation (a "micro-world") of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so the developer can inhabit and feel how the code works instead of reading about it.
   TRIGGER when: user asks to simulate, play with, or interactively explore a behavior (e.g., "micro-world 만들어줘", "이거 시뮬로 보여줘", "만져볼 수 있게 만들어줘", "동작을 인터랙티브로 이해하고 싶어").
-  DO NOT TRIGGER when: user wants a document explaining a diff (use explain-diff), a code review (use code-review), or the change is config/rename/dependency-bump material with no behavior to inhabit.
-version: "1.0.1"
+  DO NOT TRIGGER when: user wants a document explaining a diff (use explain-diff), a picture explainer for someone outside the domain (use eli5), a code review (use code-review), or the change is config/rename/dependency-bump material with no behavior to inhabit.
+version: "1.0.2"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -83,7 +83,7 @@ Read `template.html` from this skill's base directory — it carries the design 
 - Close with a `핵심 정리` takeaway card: what the user should have felt after playing.
 - Korean output uses 해요체; content language follows the project's AGENTS.md (or CLAUDE.md as fallback) setting, else the user's conversational language.
 
-### Design rules (shared across micro-world, explain-diff, visual-doc)
+### Design rules (shared across micro-world, explain-diff, visual-doc, eli5)
 
 - **Title never wraps mid-word.** `word-break: keep-all` stays on the title and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Keep the title a short noun phrase.
 - **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.

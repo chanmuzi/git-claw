@@ -1,0 +1,236 @@
+<!doctype html>
+<!--
+  eli5 frame.
+
+  Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
+    (.hero, .beat, .fig, .say, .numbers, .rule, .foot) plus the SVG label classes.
+    Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
+    micro-world, and visual-doc.
+  Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
+    showing the conventions (viewBox sizing, currentColor strokes, labeled arrows,
+    one accent per picture). Author your own drawings per subject. Never reuse these.
+
+  The sample copy is placeholder illustrating each block. Replace it with real content
+  and delete this comment in the output.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{주제 이름}</title>
+<style>
+  :root{
+    --gray900:#191F28; --gray700:#333D4B; --gray600:#4E5968; --gray500:#6B7684;
+    --gray400:#8B95A1; --gray300:#B0B8C1; --gray200:#D1D6DB; --gray100:#E5E8EB;
+    --gray50:#F2F4F6;  --gray25:#F9FAFB;
+    --blue:#3182F6; --blue-dark:#1B64DA; --blue-soft:#E8F3FF;
+    --chip-ink:#1659C9;
+    --red:#F04452; --red-soft:#FDEDEE;
+    --green:#0CA678; --green-soft:#E6F6F0;
+    --amber:#B76E00; --amber-soft:#FFF4DE;
+    --violet:#7C4DFF; --violet-soft:#EEE9FF;
+    --bg:var(--gray50); --card:#ffffff;
+    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+    --line:var(--gray100); --chipbg:var(--gray25);
+    --r-card:20px; --r-el:14px;
+    --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
+      --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
+      --gray50:#222831; --gray25:#1E242C;
+      --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
+      --chip-ink:#7FB4FF;
+      --red:#F4636F; --red-soft:#3A2226;
+      --green:#2BB88A; --green-soft:#173029;
+      --amber:#E0A44A; --amber-soft:#33291A;
+      --violet:#9A79FF; --violet-soft:#241E3A;
+      --bg:#171B21; --card:#1E242C;
+      --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+      --line:#2A313A; --chipbg:#242B34;
+      --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
+  }
+
+  /* eli5 runs wider than visual-doc: the pictures are the content. */
+  .shell{ max-width:880px; margin:0 auto; padding:0 24px 140px; }
+
+  /* ── hero ── */
+  .hero{ padding:88px 0 64px; }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.06em;
+    color:var(--faint); text-transform:uppercase; margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(38px,6.4vw,60px); font-weight:800; line-height:1.15;
+    letter-spacing:-0.035em; word-break:keep-all; margin:0 0 20px;
+  }
+  .hero .lede{
+    font-size:19px; color:var(--sub); word-break:keep-all; margin:0; max-width:32em;
+  }
+
+  /* ── beat: one picture, one claim ── */
+  .beat{ margin-top:76px; }
+  .beat h2{
+    font-size:26px; font-weight:800; letter-spacing:-0.03em;
+    word-break:keep-all; margin:0 0 22px;
+  }
+
+  /* ── figure ── */
+  .fig{
+    margin:0; background:var(--card); border:1px solid var(--line);
+    border-radius:var(--r-card); box-shadow:var(--shadow);
+    padding:30px 26px 22px; overflow-x:auto;
+  }
+  .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
+  .fig figcaption{
+    margin-top:20px; padding-top:16px; border-top:1px solid var(--line);
+    font-size:13.5px; color:var(--sub); word-break:keep-all;
+  }
+
+  /* ── the one line per beat ── */
+  .say{
+    font-size:21px; line-height:1.6; word-break:keep-all;
+    margin:24px 0 0; max-width:30em;
+  }
+  .say b{ font-weight:700; color:var(--blue-dark); }
+  .say .cost{ font-weight:700; color:var(--amber); }
+  code{
+    font-family:var(--mono); font-size:.88em; font-weight:500;
+    background:color-mix(in srgb, var(--blue) 9%, transparent);
+    color:var(--chip-ink); padding:2px 6px; border-radius:6px;
+  }
+
+  /* ── number strip: 4 max, at least one is a cost ── */
+  .numbers{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:1px; background:var(--line); border:1px solid var(--line);
+    border-radius:var(--r-el); overflow:hidden;
+  }
+  .num{ background:var(--card); padding:22px 20px; }
+  .num .k{ font-size:13px; color:var(--sub); word-break:keep-all; }
+  .num .v{
+    font-size:30px; font-weight:800; letter-spacing:-0.03em;
+    font-variant-numeric:tabular-nums; margin-top:6px; color:var(--green);
+  }
+  .num .v.cost{ color:var(--amber); }
+  .num .d{ font-size:12.5px; color:var(--faint); margin-top:6px; word-break:keep-all; }
+
+  /* ── the rule worth remembering ── */
+  .rule{
+    background:var(--amber-soft); border:1px solid color-mix(in srgb, var(--amber) 22%, transparent);
+    border-radius:var(--r-el); padding:24px 26px;
+  }
+  .rule .t{ font-size:19px; font-weight:800; letter-spacing:-0.02em; word-break:keep-all; }
+  .rule p{ margin:10px 0 0; font-size:15.5px; color:var(--sub); word-break:keep-all; }
+
+  /* ── footer: identifiers live here, never in the drawings ── */
+  .foot{
+    margin-top:88px; padding-top:20px; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:12px; color:var(--faint); line-height:1.8;
+  }
+
+  /* ── SVG label classes (locked) ── */
+  .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
+  .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
+  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
+  .dg-em{ fill:var(--blue); }                               /* the point of this picture */
+  .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="hero">
+    <div class="eyebrow">eli5</div>
+    <h1>{주제를 가리키는 짧은 명사구}</h1>
+    <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
+  </div>
+
+  <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다. -->
+  <div class="beat">
+    <h2>{문제를 가리키는 짧은 제목}</h2>
+    <figure class="fig">
+      <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="40" y="56" width="150" height="88" rx="6"
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text class="dg-l" x="115" y="106" text-anchor="middle">{들어오는 것}</text>
+
+        <line x1="205" y1="100" x2="320" y2="100"
+              stroke="currentColor" stroke-width="1.6" marker-end="url(#ar)"/>
+        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
+
+        <rect x="335" y="56" width="150" height="88" rx="6"
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text class="dg-l" x="410" y="106" text-anchor="middle">{좁은 관문}</text>
+
+        <g stroke="var(--red)" stroke-width="3.2" stroke-linecap="round">
+          <line x1="512" y1="84" x2="546" y2="118"/>
+          <line x1="546" y1="84" x2="512" y2="118"/>
+        </g>
+        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
+
+        <rect x="590" y="56" width="130" height="88" rx="6"
+              fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-dasharray="5 4" opacity=".45"/>
+        <text class="dg-l" x="655" y="106" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+      </svg>
+      <figcaption>{그림이 못 담은 사실 하나. 없으면 생략한다.}</figcaption>
+    </figure>
+    <p class="say">{그림이 보여준 것을 이름 붙이는 한 문장.} <b>{핵심 어절}</b>{입니다.}</p>
+  </div>
+
+  <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->
+  <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다. -->
+
+  <!-- BEAT 5: 대가. 숫자는 여기 한 번만, 4개 이하, 하나는 반드시 비용. -->
+  <div class="beat">
+    <h2>{대가}</h2>
+    <div class="numbers">
+      <div class="num">
+        <div class="k">{무엇을 잰 값인지}</div>
+        <div class="v">0.07 → 0.73</div>
+        <div class="d">{한 줄 보충}</div>
+      </div>
+      <div class="num">
+        <div class="k">{드는 비용}</div>
+        <div class="v cost">+23%</div>
+        <div class="d">{한 줄 보충}</div>
+      </div>
+    </div>
+    <p class="say">{값은 이만큼 더 들고, 대신 이것이 가능해집니다.}</p>
+  </div>
+
+  <!-- BEAT 6: 규칙. 언제 쓰는 것인지 한 가지만. -->
+  <div class="beat">
+    <h2>{기억할 규칙}</h2>
+    <div class="rule">
+      <div class="t">{규칙을 명령형 짧은 문장으로}</div>
+      <p>{왜 그런지 두 문장 이내.}</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    {출처: 저장소, PR 번호, 파일 경로 같은 식별자는 전부 여기에만 적는다.}
+  </div>
+
+</div>
+</body>
+</html>

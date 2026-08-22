@@ -222,7 +222,7 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   # 2. marketplace를 최신 main으로 pull 후 직접 복사 + .installed-ref 기록
   git -C ~/.claude/plugins/marketplaces/git-claw pull
   SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
-  for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc; do
+  for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
     rm -rf ~/.codex/skills/$s
     cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
     echo "$SHA" > ~/.codex/skills/$s/.installed-ref
@@ -280,7 +280,7 @@ git -C ~/.claude/plugins/marketplaces/git-claw pull
 
 # 3. marketplace → ~/.codex/skills/ 직접 복사 + .installed-ref 수동 기록
 SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
-for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc; do
+for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
   rm -rf ~/.codex/skills/$s
   cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
   echo "$SHA" > ~/.codex/skills/$s/.installed-ref

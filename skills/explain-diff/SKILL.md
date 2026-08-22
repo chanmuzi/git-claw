@@ -3,8 +3,8 @@ name: explain-diff
 description: >-
   Generate a self-contained interactive HTML explainer for a code diff, commit, branch, or PR so the developer genuinely understands the change before sharing or merging it.
   TRIGGER when: user asks to explain a diff/PR/commit/changes or wants an understanding document (e.g., "diff 설명해줘", "이 변경 이해하게 해줘", "explain this PR", "변경사항 설명 문서 만들어줘").
-  DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
-version: "1.1.2"
+  DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), the reader is someone outside the domain who needs a picture explainer (use eli5), user is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
+version: "1.1.3"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 

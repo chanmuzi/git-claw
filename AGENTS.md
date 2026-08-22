@@ -12,7 +12,7 @@
 ## 프로젝트 개요
 
 Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
-`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc` 열 가지 slash command를 제공한다.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc`, `/eli5` 열한 가지 slash command를 제공한다.
 Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
 
 ## 아키텍처
@@ -49,9 +49,13 @@ git-claw/
 │   │   ├── SKILL.md                  # /micro-world
 │   │   ├── template.html             # 셸 템플릿 (토큰·프레임 고정, 본문은 bespoke)
 │   │   └── LICENSE.txt
-│   └── visual-doc/
-│       ├── SKILL.md                  # /visual-doc
-│       ├── components.html           # 컴포넌트 레퍼런스 팔레트 (토큰 고정, 골격은 조립)
+│   ├── visual-doc/
+│   │   ├── SKILL.md                  # /visual-doc
+│   │   ├── components.html           # 컴포넌트 레퍼런스 팔레트 (토큰 고정, 골격은 조립)
+│   │   └── LICENSE.txt
+│   └── eli5/
+│       ├── SKILL.md                  # /eli5
+│       ├── frame.html                # 프레임 + beat primitive (토큰 고정, 그림은 bespoke)
 │       └── LICENSE.txt
 ├── .gitignore
 ├── README.md
@@ -116,6 +120,8 @@ npx skills add ./  # 로컬 경로에서 설치
 /visual-doc           → 조사·분석 내용을 온-브랜드 인터랙티브 문서로 생성 (두 층: 토큰 고정 + 골격은 콘텐츠가 결정, 퀴즈 없음)
 /visual-doc src/      → 특정 경로 분석 후 문서 생성
 /visual-doc 42        → PR #42 분석 후 문서 생성
+/eli5 <주제>          → 도메인 밖 사람용 그림 위주 설명 HTML 생성 (그림이 설명하고 글은 한 줄)
+/eli5 42              → PR #42를 비전공자 기준으로 설명
 ```
 
 ### 브랜치 테스트 (merge 전 스킬 검증)
@@ -216,7 +222,7 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   # 2. marketplace를 최신 main으로 pull 후 직접 복사 + .installed-ref 기록
   git -C ~/.claude/plugins/marketplaces/git-claw pull
   SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
-  for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc; do
+  for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
     rm -rf ~/.codex/skills/$s
     cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
     echo "$SHA" > ~/.codex/skills/$s/.installed-ref
@@ -267,14 +273,14 @@ universal install로 잘못 전환된 경우 또는 update가 동작하지 않�
 
 ```bash
 # 1. git-claw 관련 스킬 제거 (universal source + 해당 agent symlink 정리)
-npx skills remove -g commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc -y
+npx skills remove -g commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5 -y
 
 # 2. marketplace를 최신 main으로 pull
 git -C ~/.claude/plugins/marketplaces/git-claw pull
 
 # 3. marketplace → ~/.codex/skills/ 직접 복사 + .installed-ref 수동 기록
 SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
-for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc; do
+for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
   rm -rf ~/.codex/skills/$s
   cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
   echo "$SHA" > ~/.codex/skills/$s/.installed-ref
@@ -371,7 +377,8 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 | 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
-| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어) | `visual-doc`, `explain-diff`, `micro-world` | HTML 산출물을 내는 세 스킬 공통. 한쪽 규칙 수정 시 나머지 두 스킬의 SKILL.md·템플릿도 함께 갱신. 정본: docs/decisions/2026-07-visual-doc.md |
+| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 정본: docs/decisions/2026-07-visual-doc.md |
+| 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트
 

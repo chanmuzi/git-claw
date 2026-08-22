@@ -3,8 +3,8 @@ name: visual-doc
 description: >-
   Generate a self-contained, on-brand interactive HTML document from researched or analyzed content (a research brief, repo/code analysis, concept explainer, comparison, design writeup) by composing a bespoke structure from a fixed design-system component palette.
   TRIGGER when: user asks to turn content into a document/report/writeup in this visual style, visualize findings, or make a shareable page from analysis (e.g., "이 스타일로 문서 만들어줘", "리서치 보고서로 정리해줘", "레포 분석 문서 만들어줘", "이거 문서화해줘", "make a document out of this").
-  DO NOT TRIGGER when: user wants a diff/PR/commit explainer with a comprehension quiz (use explain-diff), an interactive simulation to inhabit a behavior (use micro-world), a code review verdict (use code-review), or a short text answer serves better.
-version: "1.3.0"
+  DO NOT TRIGGER when: user wants a diff/PR/commit explainer with a comprehension quiz (use explain-diff), an interactive simulation to inhabit a behavior (use micro-world), a picture explainer for a reader outside the domain (use eli5), a code review verdict (use code-review), or a short text answer serves better.
+version: "1.3.1"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 
@@ -91,7 +91,7 @@ Read `components.html` from this skill's base directory. Copy the `:root` tokens
 
 Delete the authoring comment at the top of `components.html` and the git-claw sample copy. Fill `<title>` — it names the browser tab: `{문서 한 줄 요약}`. Before writing, grep your output for `{문서` (the unfilled title token) and any leftover git-claw sample strings.
 
-### Design rules (shared across visual-doc, explain-diff, micro-world)
+### Design rules (shared across visual-doc, explain-diff, micro-world, eli5)
 
 - **Title never wraps mid-word.** Keep `word-break: keep-all` on the hero title and every narrative title so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Keep titles short: a hero title is a noun phrase of ~20 Korean characters that holds one line; section titles are noun phrases of ~12 or fewer. Let the lede carry the what/why.
 - **No decorative gradients.** Backgrounds are solid tokens (`var(--blue-soft)`, `var(--card)`, ...). A gradient is allowed only when it is functional, e.g. a fade scrim under a fixed bar, never as panel decoration.

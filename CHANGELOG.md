@@ -1,5 +1,13 @@
 # Change Log
 
+## v1.19.0 (2026-08-23)
+
+**New**
+- `/eli5` 스킬 신설 — 도메인 밖 사람에게 그림으로 설명하는 HTML 자료 생성. Anthropic 사내에서 쓰이던 Thariq Shihipar의 eli5 스킬(MIT, `anthropics/claude-plugins-community`)에서 출발했으나, 원본은 프롬프트 3줄이라 (1) 입력 수집 절차와 (2) 형제 스킬과의 트리거 경계가 비어 있었다. 두 가지를 채우고 저장소의 공유 디자인 규칙을 승계해 네 번째 sibling으로 편입. 원본 플러그인을 설치하는 대신 자체 스킬로 만든 이유는 설치본 SKILL.md를 고치면 `claude plugin update` 때 소실되기 때문. 구성: 독자 정의(explain-diff=머지할 개발자 / micro-world=조작하며 익히는 사람 / visual-doc=도메인 아는 동료 / eli5=도메인 밖 사람), 적용성 게이트(그릴 메커니즘이 없으면 정직하게 거절), 스토리보드 우선(문제 → 순진한 해법 → 함정 → 진짜 해법 → 대가 → 규칙), 그림 규칙(이름이 아니라 메커니즘을 그린다, 화살표에 라벨, 그림 안 전문용어 금지, `currentColor` 테마 대응), 글자 예산(beat당 한 문장), 검증 1순위는 "문장을 다 가리고 그림만 봤을 때 전달되는가". `frame.html`(토큰 + beat primitive + 작례 SVG) 배포. 배경과 근거: docs/decisions/2026-08-eli5.md
+
+**Changed**
+- `/explain-diff`·`/micro-world`·`/visual-doc` 경계 문구에 `eli5` 상호 참조 추가 — 네 스킬 모두 self-contained HTML 한 장을 내므로 구분이 산출물 형태가 아니라 독자로 갈린다. 각 `DO NOT TRIGGER` 절에 "도메인 밖 독자용 그림 설명은 eli5" 조항을 넣고, `micro-world`·`visual-doc`의 공유 디자인 규칙 헤딩을 네 스킬 기준으로 갱신 (explain-diff 1.1.3, micro-world 1.0.2, visual-doc 1.3.1)
+
 ## v1.18.1 (2026-08-14)
 
 **Changed**

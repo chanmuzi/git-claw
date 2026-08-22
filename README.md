@@ -14,7 +14,7 @@
 <p align="center">Agent Skills for consistent Git workflows</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/skills-9-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <img src="https://img.shields.io/badge/skills-10-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
   <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
@@ -45,6 +45,7 @@ git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PR
 | 📖 | `/explain-diff` | Interactive HTML explainer for understanding a diff |
 | 🧪 | `/micro-world` | Throwaway interactive simulation of a behavior |
 | 📄 | `/visual-doc` | On-brand interactive document from researched/analyzed content |
+| 🖼️ | `/eli5` | Picture-first explainer for someone outside the domain |
 
 ## Installation
 
@@ -70,7 +71,7 @@ The interactive installer lets you select skills, target agents, scope (project/
 <summary>Install all skills at once without prompts</summary>
 
 ```bash
-npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world --skill visual-doc -g
+npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world --skill visual-doc --skill eli5 -g
 ```
 
 </details>
@@ -257,6 +258,19 @@ Generates a self-contained interactive HTML document from researched or analyzed
 
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `visual-doc-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
 
+### `/eli5` — Explain It to an Outsider
+
+Produces a self-contained HTML page where **big hand-authored SVG diagrams carry the explanation and the prose is one line per picture**. The fourth sibling of `/explain-diff`, `/micro-world`, and `/visual-doc` (shared design tokens, never shared structure), separated from them by its reader: this one is for someone outside the domain entirely, and it succeeds only if the idea comes through from the drawings alone. The page is storyboarded as a sequence of beats before any HTML is written, following a problem → obvious fix → **the trap** → real fix → cost → rule arc, where the trap beat is the point of the page. Simplification is by omission, never by stating something false, and the cost beat is never dropped to make the story end happily. Jargon and identifiers are banned inside the drawings and live only in captions and the footer.
+
+```
+/eli5 how does DNS work    # Explain a topic
+/eli5 42                   # Explain PR #42 to a non-expert
+/eli5 src/auth/            # Explain what a path does
+/eli5                      # Explain the current conversation's subject
+```
+
+**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `eli5-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
+
 ## Language Behavior
 
 All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `AGENTS.md` (or `CLAUDE.md` as fallback). If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
@@ -281,7 +295,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc`, `/eli5` commands for full workflows
 ```
 
 ## Label System

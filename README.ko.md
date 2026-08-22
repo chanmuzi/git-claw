@@ -14,7 +14,7 @@
 <p align="center">일관된 Git 워크플로우를 위한 Agent Skill</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/skills-9-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <img src="https://img.shields.io/badge/skills-10-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
   <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
@@ -45,6 +45,7 @@ git-claw는 커밋, PR, 이슈, 코드 리뷰의 포맷을 하나로 통일하�
 | 📖 | `/explain-diff` | diff 이해용 인터랙티브 HTML 설명 문서 생성 |
 | 🧪 | `/micro-world` | 동작을 만져볼 수 있는 일회성 인터랙티브 시뮬 생성 |
 | 📄 | `/visual-doc` | 조사·분석 내용을 온-브랜드 인터랙티브 문서로 생성 |
+| 🖼️ | `/eli5` | 도메인 밖 사람을 위한 그림 위주 설명 자료 생성 |
 
 ## 설치
 
@@ -70,7 +71,7 @@ npx skills add chanmuzi/git-claw
 <summary>프롬프트 없이 한번에 설치</summary>
 
 ```bash
-npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world --skill visual-doc -g
+npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff --skill explain-diff --skill micro-world --skill visual-doc --skill eli5 -g
 ```
 
 </details>
@@ -257,6 +258,19 @@ diff, 커밋, 브랜치, PR을 위한 self-contained 인터랙티브 HTML 설명
 
 **출력:** 외부 의존성 없는(CDN·웹폰트 금지) 단일 HTML 파일을 저장소 루트에 `visual-doc-<slug>.html`로 저장하고 절대경로를 안내합니다. 자동으로 열거나 커밋하지 않습니다.
 
+### `/eli5` — 아무것도 모르는 사람에게 설명하기
+
+**직접 그린 큰 SVG 그림이 설명을 맡고, 글은 그림 하나당 한 줄**인 self-contained HTML 페이지를 만듭니다. `/explain-diff`·`/micro-world`·`/visual-doc`의 네 번째 형제 스킬입니다 (디자인 토큰은 공유, 구조는 공유하지 않음). 나머지와 갈리는 기준은 **독자**입니다: 이 스킬의 독자는 해당 도메인 밖에 있는 사람이고, **그림만 봐도 요지가 전달될 때만** 성공입니다. HTML을 쓰기 전에 페이지를 beat의 연속으로 스토리보드부터 짭니다: 문제 → 순진한 해법 → **함정** → 진짜 해법 → 대가 → 규칙. 이 중 함정 beat가 페이지의 핵심이며, 원자료에서 표 한 줄에 묻혀 있는 경우가 많아 일부러 파고들도록 되어 있습니다. 단순화는 **빼서** 하지 틀린 말로 하지 않으며, 이야기를 깔끔하게 끝내려고 대가 beat를 생략하지 않습니다. 전문 용어와 식별자는 그림 안에서 금지되고 캡션·푸터에만 등장합니다.
+
+```
+/eli5 DNS는 어떻게 동작하나   # 주제 설명
+/eli5 42                     # PR #42를 비전공자 기준으로 설명
+/eli5 src/auth/              # 특정 경로가 하는 일 설명
+/eli5                        # 현재 대화의 주제를 설명
+```
+
+**출력:** 외부 의존성 없는(CDN·웹폰트 금지) 단일 HTML 파일을 저장소 루트에 `eli5-<slug>.html`로 저장하고 절대경로를 안내합니다. 자동으로 열거나 커밋하지 않습니다.
+
 ## 언어 동작
 
 모든 커맨드의 출력(커밋 메시지, PR 제목/본문, 이슈 제목/본문)은 프로젝트의 `AGENTS.md`(없으면 `CLAUDE.md`)에 설정된 언어로 작성됩니다. 설정이 없으면 사용자의 대화 언어를 따릅니다. 기술 용어는 원어 그대로 유지합니다.
@@ -281,7 +295,7 @@ diff, 커밋, 브랜치, PR을 위한 self-contained 인터랙티브 HTML 설명
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (대문자 prefix: Feat, Fix, Refactor, Perf 등)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc` 커맨드로 전체 워크플로우 실행
+- `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff`, `/explain-diff`, `/micro-world`, `/visual-doc`, `/eli5` 커맨드로 전체 워크플로우 실행
 ```
 
 ## Label 시스템

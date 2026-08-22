@@ -102,6 +102,8 @@ The drawings are hand-authored inline SVG, one per beat.
 
 Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.rule`, `.foot`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
 
+Delete the authoring comment at the top of `frame.html` and every placeholder token (`{주제 이름}`, `{문제를 가리키는 짧은 제목}`, the sample beat copy) as you fill each block. A shipped page must contain none of them.
+
 Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase naming the subject, not a summary.
 
 ### Design rules (shared across eli5, explain-diff, micro-world, visual-doc)
@@ -119,13 +121,16 @@ The rules are the first defense; looking at the page is the second. If a headles
 
 ```bash
 npx --no-install playwright screenshot --full-page "file://<abs-path>" /tmp/eli5-check.png
+[ -f /tmp/eli5-check.png ] && echo RENDERED || echo "NO RENDER"
 ```
+
+**The screenshot command exits 0 even when it renders nothing.** With no browser binary installed, `--no-install` prints an install banner and succeeds, producing no file. So the second line is not optional: without it you will report a render you never looked at. If it prints `NO RENDER`, either install the browser (`npx playwright install chromium`) or say plainly that the page was not visually verified.
 
 Then check, in this order:
 
 1. **The pictures-only pass.** Look at the drawings and ignore every sentence. Does the idea still come through? This is the skill's actual success criterion, and it is the one check that cannot be skipped.
 2. No drawing is cut off, overlapping, or scaled into illegibility.
-3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file).
+3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{문제\|eli5 frame' the file).
 4. Dark mode holds (`--color-scheme=dark`).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.

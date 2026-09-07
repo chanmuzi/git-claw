@@ -27,7 +27,7 @@
 git-claw는 커밋, PR, 이슈, 코드 리뷰의 포맷을 하나로 통일하는 [Agent Skill](https://agentskills.io)입니다. 한 번 설치하면 모든 협업 산출물이 같은 컨벤션을 따릅니다 — 혼자 작업할 때도, 팀으로 협업할 때도.
 
 - **읽기 좋은 히스토리** — 구조화된 커밋, PR, 이슈로 누구든 (어떤 에이전트든) 한눈에 맥락을 파악
-- **멀티 모델 코드 리뷰** — 도메인 전문 에이전트 + Codex adversarial 분석을 교차 검증하여 severity 기반으로 정렬
+- **멀티 모델 코드 리뷰** — 도메인 전문 에이전트에 선택적으로 Codex adversarial 분석을 더해 교차 검증하고 severity 기반으로 정렬
 - **세션 연속성** — `/handoff`로 작업 컨텍스트를 캡처해 다음 세션에서 바로 이어 작업
 
 ---
@@ -175,15 +175,17 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 - `-q` / `--quick` — Quick 모드: 단일 패스, 도메인 최대 2개, Critical/Warning 우선
 - `--full-scan` — diff 외부 pre-existing issue도 General Findings에 포함 (PR 모드 전용)
 - `-a` / `--all` — Reporting Bar를 건너뛰고 confirmed finding 전체 보고 (기각분 포함, 감사 목적)
-- `--no-codex` — Codex 통합 비활성화
+- `--codex` — Codex adversarial 리뷰 opt-in (기본값 off)
+- `--codex-general` — Codex 일반 리뷰만 opt-in
 - `--codex-both` — Codex 일반 리뷰 + adversarial 동시 실행
+- `--no-codex` — 자연어 Codex 요청이 있어도 Codex 강제 비활성화
 
 </details>
 
 <details>
 <summary>Codex 통합 (선택 사항)</summary>
 
-[Codex 플러그인](https://github.com/openai/codex) 설치 및 인증(`claude plugin add codex` + `!codex setup`) 환경에서 `/code-review` 실행 시 Codex adversarial review가 자동 병렬 실행됩니다. findings는 교차 검증 후 출처 태그와 함께 통합됩니다. `--no-codex`로 비활성화 가능합니다.
+Codex는 기본적으로 꺼져 있습니다. `--codex`(또는 `--codex-general` / `--codex-both`)를 붙이면 도메인 에이전트와 병렬로 Codex가 실행되고, findings는 교차 검증 후 출처 태그와 함께 통합됩니다. 실행 전에 companion의 `setup --json`으로 [Codex 플러그인](https://github.com/openai/codex) 설치, Codex CLI 존재, 로그인 여부를 확인하며, 하나라도 빠져 있으면 Codex 없이 조용히 리뷰하지 않고 리뷰를 중단한 뒤 상황에 맞는 설정 안내(`claude plugin add codex`, `npm install -g @openai/codex`, `codex login`, `/codex:setup`)를 출력합니다.
 
 </details>
 

@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.20.0 (2026-09-07)
+
+**Changed**
+- `/code-review` Codex 통합을 opt-in으로 전환 — 기존에는 Codex plugin companion이 발견되기만 하면 플래그 없이도 adversarial review가 자동 실행됐다. 이제 `--codex` / `--codex-general` / `--codex-both`(또는 "codex도 같이" 같은 명시적 자연어 요청)가 있을 때만 실행하며, 플래그가 없으면 companion 탐색(`find`)조차 하지 않는다. Codex 활성 여부는 사용자 환경이 아니라 스킬 실행 절차(Step 2.5)가 결정하므로 플러그인 저장소에서 관리한다. `--no-codex`는 프로젝트 지침·자연어 요청을 덮어쓰는 강제 off 용도로 유지 (code-review 1.10.0 → 1.11.0)
+- `/code-review` Codex Auth Gate 신설 — Codex를 명시적으로 요청한 경우 실행 전에 `node "$COMPANION" setup --json`으로 `.auth.loggedIn`을 확인한다. companion이 없거나, Codex CLI가 설치되어 있지 않거나(`.codex.available`, plugin과 CLI는 별개 설치), 로그인되어 있지 않으면 도메인 리뷰만으로 조용히 다운그레이드하지 않고 리뷰를 중단한 뒤 상황별 설정 안내(Stop Notice A: `claude plugin add codex` / B: `codex login` / C: `npm install -g @openai/codex`)를 출력한다. companion의 `loggedIn`은 CLI 가용성과 로그인의 합성값이라 `.codex.available`을 먼저 본다. `-q --codex`처럼 Quick 모드가 Codex 요청을 강제로 끄는 경우도 무음이 아니라 `⚠️ Codex 생략` 고지를 낸다. 사용자가 Codex를 지목했는데 Codex 없는 결과를 받는 것이 오해를 낳는다는 판단. 런타임 실패(quota, 세션 만료 등)는 기존대로 도메인 findings만으로 계속 진행
+
 ## v1.19.0 (2026-08-23)
 
 **New**

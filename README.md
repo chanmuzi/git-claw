@@ -27,7 +27,7 @@ A consistent Git history that's easy to read — for both humans and agents.
 git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PRs, issues, and code reviews in a unified format. Install once, and every collaboration artifact follows the same conventions — whether you're working solo or in a team.
 
 - **Readable history** — Structured commits, PRs, and issues that anyone (or any agent) can follow at a glance
-- **Multi-model code review** — Domain agents + Codex adversarial analysis, cross-validated and severity-ranked
+- **Multi-model code review** — Domain agents, plus optional Codex adversarial analysis, cross-validated and severity-ranked
 - **Session continuity** — `/handoff` captures work context so the next session picks up where you left off
 
 ---
@@ -175,15 +175,17 @@ In PR mode, findings are published as inline review comments on specific diff li
 - `-q` / `--quick` — Quick mode: single-pass, max 2 domains, Critical/Warning first
 - `--full-scan` — Include pre-existing out-of-diff issues in General Findings (PR mode only)
 - `-a` / `--all` — Bypass the Reporting Bar and report every confirmed finding, dropped ones included (audit mode)
-- `--no-codex` — Disable Codex integration
+- `--codex` — Opt in to Codex adversarial review (off by default)
+- `--codex-general` — Opt in to Codex general review only
 - `--codex-both` — Run both Codex general review and adversarial review
+- `--no-codex` — Force Codex off, overriding a natural-language Codex request
 
 </details>
 
 <details>
 <summary>Codex integration (optional)</summary>
 
-When the [Codex plugin](https://github.com/openai/codex) is installed (`claude plugin add codex` + `!codex setup`), `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
+Codex is off by default. Pass `--codex` (or `--codex-general` / `--codex-both`) to run Codex in parallel with domain agents; findings are cross-validated and merged with source tags. Before running, the skill checks via the companion's `setup --json` that the [Codex plugin](https://github.com/openai/codex) is installed, the Codex CLI is present, and you are logged in. If any of those is missing, the review stops and prints the matching setup guidance (`claude plugin add codex`, `npm install -g @openai/codex`, `codex login`, `/codex:setup`) instead of silently reviewing without Codex.
 
 </details>
 

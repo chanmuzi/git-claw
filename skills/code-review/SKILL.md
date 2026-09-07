@@ -5,7 +5,7 @@ description: >-
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
 argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [-a|--all] [--wd] [--full-scan] [--no-codex|--codex|--codex-general|--codex-both]"
-version: "1.10.0"
+version: "1.11.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
 
@@ -64,15 +64,17 @@ When both changes and broader analysis are relevant, use Path Review mode with t
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
 | `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
 | `-q\|--quick` | off | Quick mode: single-pass analysis without agent spawn. Auto-detected domains capped at 2, Codex disabled, Info findings omitted, graph skipped. Designed for fast iteration during development/testing. |
-| `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution) |
-| `--codex` | off | Force enable Codex with default behavior (adversarial only). Use when auto-detection is unreliable |
-| `--codex-general` | off | Use Codex general review (`codex:review`) only, without adversarial review |
-| `--codex-both` | off | Run both Codex general review and adversarial review in parallel. Shorthand for `--codex --codex-general` |
+| `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution). Codex is already off by default; use this to override a natural-language Codex request in `$ARGUMENTS` that would otherwise enable it |
+| `--codex` | off | Opt in to Codex adversarial review (`codex:adversarial-review`). Codex never runs without an explicit opt-in flag |
+| `--codex-general` | off | Opt in to Codex general review (`codex:review`) only, without adversarial review |
+| `--codex-both` | off | Opt in to both Codex general review and adversarial review in parallel. Shorthand for `--codex --codex-general` |
 | `--full-scan` | off | Include pre-existing issues (unrelated to PR changes) in General Findings. By default, out-of-diff findings without causal relationship to the PR are dismissed. PR mode only; ignored in Working Dir / Path mode. |
 | `-a\|--all` | off | Bypass the Reporting Bar (Step 4.5). Report every Confirmed finding, including `out-of-scope` and `drop` dispositions. Use when auditing rather than reviewing a change. |
 
-Codex flag precedence: `--no-codex` > `--codex-both` > `--codex` + `--codex-general` (combo = **both**) > `--codex-general` alone > `--codex` alone > default.
+Codex flag precedence: `--no-codex` > `--codex-both` > `--codex` + `--codex-general` (combo = **both**) > `--codex-general` alone > `--codex` alone > default (**disabled**).
 When `--codex` and `--codex-general` are both present, the combined effect is **both** mode (equivalent to `--codex-both`).
+
+If `$ARGUMENTS` contains explicit Codex intent in natural language ("codex도 같이", "codex 돌려줘", "with codex", "run codex too"), treat as `--codex`. Absence of any Codex mention is NOT an opt-in: Codex stays disabled.
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 
@@ -202,13 +204,19 @@ When `--domain` is explicitly provided alongside `--quick`, respect the override
 
 ## Step 2.5: Codex Detection
 
-Determine whether the Codex plugin is available and resolve the Codex execution mode.
+Codex is **opt-in**. Determine whether the user explicitly requested Codex, and only then verify that the Codex plugin is installed, the Codex CLI is present, and the user is logged in before resolving the execution mode.
 
-**Quick mode**: Skip this entire step. Codex mode is already forced to **disabled** (see Quick Mode Implicit Effects). Proceed directly to Step 3.
+**Quick mode**: Skip this entire step. Codex mode is already forced to **disabled** (see Quick Mode Implicit Effects). If a Codex flag or natural-language Codex intent is also present, display the notice below first so the dropped request is never silent:
+
+> **⚠️ Codex 생략** — `--quick`은 Codex를 강제로 끕니다. Codex를 함께 돌리려면 `-q` 없이 다시 실행하세요.
+
+Proceed directly to Step 3.
+
+**No Codex flag** (`--codex`, `--codex-general`, `--codex-both` all absent, and no natural-language Codex intent): Skip this entire step. Codex mode is **disabled**, no hint is displayed, and no `find` or companion command is run. Proceed directly to Step 3.
 
 ### Companion Detection
 
-**REQUIRED: Run this command before proceeding to Mode Resolution.**
+Only reached when a Codex flag is present. **REQUIRED: Run this command before proceeding to the Auth Gate.**
 
 ```bash
 COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" -print 2>/dev/null | sort | tail -1)
@@ -217,19 +225,77 @@ COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs
 - `COMPANION` is non-empty → Codex **available**
 - `COMPANION` is empty → Codex **unavailable**
 
-**Do not proceed to Mode Resolution until this command has been executed and the result evaluated.**
+**Do not proceed to the Auth Gate until this command has been executed and the result evaluated.**
+
+### Auth Gate
+
+Only reached when Codex is **available**. **REQUIRED: Run this command and evaluate the JSON before proceeding to Mode Resolution.**
+
+```bash
+node "$COMPANION" setup --json
+```
+
+Evaluate in this order (`.auth.loggedIn` is a composite of CLI availability AND login in the companion, so check `.codex.available` first):
+
+- Exit code 0 AND `.codex.available != true` → Codex CLI **not installed** (the plugin and the CLI are separate installs). Use Stop Notice C. Quote `.codex.detail`.
+- Exit code 0 AND `.codex.available == true` AND `.auth.loggedIn == true` → Codex **logged in**
+- Exit code 0 AND `.codex.available == true` AND `.auth.loggedIn != true` → Codex **not logged in**. Use Stop Notice B. Quote `.auth.detail`.
+- Non-zero exit or unparseable output → treat as **not logged in**. Use Stop Notice B. Quote the first stderr line.
+
+The user explicitly asked for Codex, so a silent downgrade to domain-only review is not acceptable. When the request cannot be honored (companion missing, CLI not installed, or not logged in), **stop the review** and guide setup instead of continuing without Codex. See the Stop Notices below.
 
 ### Mode Resolution
 
 | Priority | Condition | Codex Mode | Hint |
 |----------|-----------|-----------|------|
 | 1 | `--no-codex` flag is set | **disabled** | None |
-| 2 | Codex unavailable + any Codex flag set (`--codex`, `--codex-general`, `--codex-both`) | **disabled** | `⚠️ Codex unavailable` — {flag} 요청했으나 companion을 찾을 수 없습니다 |
-| 3 | Codex unavailable + no Codex flag | **disabled** | None |
-| 4 | `--codex-both` flag is set, OR `--codex` + `--codex-general` both present | **both** | `💡 Codex detected` — review + adversarial 병렬 실행 |
-| 5 | `--codex-general` flag is set (without `--codex`) | **review** | `💡 Codex detected` — general review 실행 |
-| 6 | `--codex` flag is set (without `--codex-general`) | **adversarial** | `💡 Codex detected` — adversarial review (강제 활성화) |
-| 7 | Default (no Codex flag) | **adversarial** | `💡 Codex detected` — adversarial review 실행 |
+| 2 | No Codex flag and no natural-language Codex intent (default) | **disabled** | None |
+| 3 | Codex flag set + Codex unavailable | **stop** | Stop Notice A (companion not found) |
+| 4 | Codex flag set + Codex CLI not installed | **stop** | Stop Notice C (CLI not installed) |
+| 5 | Codex flag set + Codex not logged in | **stop** | Stop Notice B (auth required) |
+| 6 | `--codex-both` flag is set, OR `--codex` + `--codex-general` both present | **both** | `💡 Codex enabled` — review + adversarial 병렬 실행 |
+| 7 | `--codex-general` flag is set (without `--codex`) | **review** | `💡 Codex enabled` — general review 실행 |
+| 8 | `--codex` flag is set (without `--codex-general`) | **adversarial** | `💡 Codex enabled` — adversarial review 실행 |
+
+### Stop Notices
+
+When Mode Resolution yields **stop**, display the notice below, then **end the skill without running Step 3 or any later step**. Do not run domain agents, do not produce a review, and do not publish anything. The user re-runs `/code-review` after completing setup.
+
+`{flag}` is the Codex flag the user passed (e.g. `--codex`). When Codex was requested in natural language instead, quote that phrase verbatim in its place (e.g. `"codex도 같이"`). Natural-language requests are treated exactly like the flag: a stop is a stop. The user can override a misread with `--no-codex`.
+
+**Stop Notice A** (companion not found):
+
+> **⚠️ Codex unavailable** — {flag} 요청했으나 Codex plugin companion을 찾을 수 없습니다. 리뷰를 진행하지 않습니다.
+
+```
+Codex plugin 설치 후 다시 실행하세요:
+  claude plugin add codex     # 플러그인 설치
+  /codex:setup                # 설치·로그인 상태 확인
+Codex 없이 리뷰하려면 플래그를 빼고 /code-review 를 실행하세요.
+```
+
+**Stop Notice B** (auth required):
+
+> **⚠️ Codex auth required** — {flag} 요청했으나 Codex에 로그인되어 있지 않습니다 ({`.auth.detail` or first stderr line}). 리뷰를 진행하지 않습니다.
+
+```
+Codex 로그인 후 다시 실행하세요:
+  codex login                 # ChatGPT 계정 로그인
+  /codex:setup                # 로그인 상태 확인
+Codex 없이 리뷰하려면 플래그를 빼고 /code-review 를 실행하세요.
+```
+
+**Stop Notice C** (Codex CLI not installed):
+
+> **⚠️ Codex CLI not installed** — {flag} 요청했으나 Codex CLI가 설치되어 있지 않습니다 ({`.codex.detail`}). 리뷰를 진행하지 않습니다.
+
+```
+Codex CLI 설치 후 다시 실행하세요:
+  npm install -g @openai/codex   # CLI 설치 (plugin과 별개)
+  codex login                    # ChatGPT 계정 로그인
+  /codex:setup                   # 설치·로그인 상태 확인
+Codex 없이 리뷰하려면 플래그를 빼고 /code-review 를 실행하세요.
+```
 
 Companion subcommands per mode:
 - **adversarial**: `adversarial-review --wait`
@@ -240,7 +306,7 @@ In PR mode, append `--base {baseRefName}` to each subcommand to scope the review
 
 Display the resolved Hint (if any) immediately after detection, before launching domain agents. Hints follow the project's Hint 패턴 (`> **{icon} {action}** — {reason}`).
 
-Store the resolved mode for use in Steps 3, 4, and 5. Each spawned Codex agent re-resolves the companion path independently via `find` since agents run in separate contexts. If mode is **disabled**, skip all Codex-related logic in subsequent steps and proceed exactly as before (full backward compatibility).
+Store the resolved mode for use in Steps 3, 4, and 5. Each spawned Codex agent re-resolves the companion path independently via `find` since agents run in separate contexts. If mode is **disabled**, skip all Codex-related logic in subsequent steps and proceed with domain agents only. If mode is **stop**, the skill has already ended at the Stop Notice.
 
 ---
 
@@ -466,7 +532,7 @@ Launch Codex agents at the same time as domain agents — do NOT wait for domain
 
 ### Codex Failure Handling
 
-If a Codex agent reports a non-zero exit code or returns an error (e.g., quota exhausted, authentication failure, network error):
+If a Codex agent reports a non-zero exit code or returns an error at runtime (e.g., quota exhausted, session expired after the Auth Gate passed, network error):
 
 1. **Do NOT retry** — treat the Codex contribution as unavailable for this run.
 2. **Findings = empty** — proceed with domain agent findings only. Do not attempt to parse error output as findings.
@@ -474,7 +540,7 @@ If a Codex agent reports a non-zero exit code or returns an error (e.g., quota e
 
 | Error Signal | Terminal Notice |
 |-------------|----------------|
-| stderr contains `auth`, `login`, `API key`, `unauthorized`, `401` | `⚠️ Codex auth required` — `!codex setup` 실행 권장 |
+| stderr contains `auth`, `login`, `API key`, `unauthorized`, `401` | `⚠️ Codex auth required` — `codex login` 후 `/codex:setup`으로 상태 확인 권장 |
 | Any other non-zero exit | `ℹ️ Codex: unavailable (skipped)` |
 
 4. **GitHub format** — do NOT include any Codex failure notice. Codex availability is an internal infrastructure detail, not relevant to PR reviewers.
@@ -688,8 +754,8 @@ Each finding displays a source tag after the title (e.g., `**Finding title** —
 
 | Codex Mode | Source(s) | Tag(s) |
 |-----------|-----------|--------|
-| **disabled** | Domain agents only | Domain name (e.g., `Security`, `Architecture`) |
-| **adversarial** (default / `--codex`) | Domain agents + Codex adversarial | Domain name / `Codex` |
+| **disabled** (default) | Domain agents only | Domain name (e.g., `Security`, `Architecture`) |
+| **adversarial** (`--codex`) | Domain agents + Codex adversarial | Domain name / `Codex` |
 | **review** (`--codex-general`) | Domain agents + Codex review | Domain name / `Codex` |
 | **both** (`--codex-both` / `--codex --codex-general`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
 
@@ -1196,7 +1262,7 @@ If the Review API call fails (e.g., 422 due to invalid line mapping):
 1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags (including Codex flags and `--quick`).
 2. **Context Builder**: Gather diff, commit history, related files, and PR description (if applicable).
 3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override. If `--quick`, cap to 2 domains by priority.
-4. **Codex Detection**: If `--quick`, skip (Codex disabled). Otherwise, resolve companion path via `find`, and determine Codex mode (adversarial / review / both / disabled).
+4. **Codex Detection**: Codex is opt-in. If `--quick` (notify if a Codex request was dropped), or no Codex flag and no natural-language Codex intent, skip (Codex disabled). Otherwise, resolve companion path via `find`, verify via `node "$COMPANION" setup --json` (`.codex.available`, then `.auth.loggedIn`), and determine Codex mode (adversarial / review / both). If the companion is missing, the CLI is not installed, or not logged in, display the matching Stop Notice with setup guidance and end the skill without reviewing.
 5. **Domain Agents + Codex**: If `--quick`, perform single-pass analysis in main context (no agent spawn). Otherwise, launch activated domain agents in parallel. If Codex is enabled, launch Codex agent(s) via companion runtime concurrently. Collect all findings. If Codex fails (non-zero exit), proceed with domain findings only.
 6. **Cross-Validation**: If `--quick`, lightweight validation (context check + sanity only). Otherwise, verify each finding (domain + Codex) against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
 7. **Reporting Bar**: Assign a disposition (`ship-blocker` / `in-scope-gap` / `out-of-scope` / `drop`) to every Confirmed and Demoted finding. Report the first two in full, the third as one line under `밖으로 미룸`, and the fourth as a count only. Skipped entirely when `-a`/`--all` is set.

@@ -106,10 +106,14 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review -a|--all        → Reporting Bar 우회, confirmed finding 전체 보고 (기각분 포함)
 /code-review                 → Reporting Bar 동작 확인: 취향 수준 관측이 개별 항목이 아닌 `기각 n건` 집계로만 나오는지,
                                선행 이슈가 `밖으로 미룸`에 한 줄로만 나오고 인라인 코멘트로 달리지 않는지
-/code-review --no-codex      → Codex 통합 비활성화
-/code-review --codex         → Codex 강제 활성화 (adversarial only, default와 동일)
+/code-review                 → Codex 플래그 없음: Codex 미실행 확인 (find·companion 명령이 실행되지 않아야 함, 힌트 없음)
+/code-review --codex         → Codex opt-in: `setup --json`으로 로그인 확인 후 adversarial review 병렬 실행 (💡 Codex enabled 힌트)
+/code-review --codex         → (codex logout 상태) Stop Notice B 출력 후 리뷰 중단 확인: 도메인 에이전트 미실행, 발행 없음
+/code-review --codex         → (codex CLI 미설치, plugin만 있음) Stop Notice C 출력 확인 (`codex login`이 아니라 `npm install -g @openai/codex` 안내)
+/code-review -q --codex      → ⚠️ Codex 생략 고지 후 Quick 모드 진행 (무음 폐기 아님)
 /code-review --codex-general → Codex 일반 리뷰만 사용 (adversarial 없이)
 /code-review --codex-both    → Codex review + adversarial 동시 실행
+/code-review --no-codex      → Codex 강제 비활성화 (자연어 "codex도 같이" 요청보다 우선)
 /handoff              → 세션 컨텍스트 분석 후 handoff 프롬프트 생성
 /handoff -y           → 확인 없이 즉시 출력
 /handoff auth 리팩토링 → 특정 주제 필터링된 handoff 생성

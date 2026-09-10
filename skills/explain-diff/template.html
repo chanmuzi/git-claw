@@ -164,10 +164,10 @@
   .tree-legend{ display:flex; gap:6px; align-items:center; }
   .tree-body{ font-family:var(--mono); font-size:12.5px; line-height:2.05; padding:12px 8px; }
   .tr-row{ display:flex; align-items:center; gap:10px; padding:0 12px; white-space:nowrap; }
-  .tr-row .path{ color:var(--gray600); white-space:pre; }
+  .tr-row .path{ color:var(--gray600); }
   .tr-row .path b{ color:var(--ink); font-weight:600; }
   /* 계층 가이드(│ ├─ └─). 이름보다 연하게 깔아 들여쓰기가 먼저 읽히게 한다 */
-  .tr-row .path .guide{ color:var(--gray300); display:inline-block; } /* inline-block: 삭제 행 취소선이 가이드까지 번지지 않게 */
+  .tr-row .path .guide{ color:var(--gray300); display:inline-block; white-space:pre; } /* inline-block: 삭제 행 취소선이 가이드까지 번지지 않게. pre: 연속 공백 유지는 가이드에만 (path 전체에 걸면 소스 개행이 렌더링됨) */
   .tr-row.dir .path{ color:var(--gray700); font-weight:600; }
   .tr-row.gone .path{ color:var(--gray400); text-decoration:line-through; }
   .tr-chip{
@@ -181,10 +181,11 @@
   /* 긴 트리 접기: 행이 TREE_CAP(20)개를 넘으면 아래 JS가 .capped를 붙이고 펼치기 버튼을 단다.
      max-height는 JS가 px로 계산해 넣는다(auto ↔ px는 transition이 안 되므로). 페이드는
      별도 요소(.tree-fade)로 두어 max-height와 독립적으로 opacity를 전환한다. */
-  .tree.capped .tree-body{ position:relative; overflow:hidden; transition:max-height .42s cubic-bezier(.22,.61,.36,1); }
+  /* 세로만 자른다(clip). hidden은 스크롤 컨테이너가 되어 가로 넘침이 .tree의 overflow-x:auto로 전파되지 않는다 */
+  .tree.capped .tree-body{ position:relative; overflow-x:visible; overflow-y:clip; transition:max-height .42s cubic-bezier(.22,.61,.36,1); }
   .tree-fade{
     position:absolute; left:0; right:0; bottom:0; height:64px; pointer-events:none;
-    background:linear-gradient(to bottom, rgba(249,250,251,0), var(--gray25));
+    background:linear-gradient(to bottom, transparent, var(--gray25));
     opacity:1; transition:opacity .28s ease;
   }
   .tree.open .tree-fade{ opacity:0; }

@@ -166,6 +166,9 @@
   .tr-row{ display:flex; align-items:center; gap:10px; padding:0 12px; white-space:nowrap; }
   .tr-row .path{ color:var(--gray600); }
   .tr-row .path b{ color:var(--ink); font-weight:600; }
+  /* 계층 가이드(│ ├─ └─). 이름보다 연하게 깔아 들여쓰기가 먼저 읽히게 한다 */
+  .tr-row .path .guide{ color:var(--gray300); display:inline-block; white-space:pre; } /* inline-block: 삭제 행 취소선이 가이드까지 번지지 않게. pre: 연속 공백 유지는 가이드에만 (path 전체에 걸면 소스 개행이 렌더링됨) */
+  .tr-row.dir .path{ color:var(--gray700); font-weight:600; }
   .tr-row.gone .path{ color:var(--gray400); text-decoration:line-through; }
   .tr-chip{
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
@@ -175,6 +178,45 @@
   .tr-chip.mod{ background:var(--amber-soft); color:var(--amber); }
   .tr-chip.del{ background:var(--red-soft); color:var(--red); }
   .tr-chip.core{ background:var(--green-soft); color:var(--green); }
+  /* 긴 트리 접기: 행이 TREE_CAP(20)개를 넘으면 아래 JS가 .capped를 붙이고 펼치기 버튼을 단다.
+     max-height는 JS가 px로 계산해 넣는다(auto ↔ px는 transition이 안 되므로). 페이드는
+     별도 요소(.tree-fade)로 두어 max-height와 독립적으로 opacity를 전환한다. */
+  /* 세로만 자른다(clip). hidden은 스크롤 컨테이너가 되어 가로 넘침이 .tree의 overflow-x:auto로 전파되지 않는다 */
+  .tree.capped .tree-body{ position:relative; overflow-x:visible; overflow-y:clip; transition:max-height .42s cubic-bezier(.22,.61,.36,1); }
+  .tree-fade{
+    position:absolute; left:0; right:0; bottom:0; height:64px; pointer-events:none;
+    background:linear-gradient(to bottom, transparent, var(--gray25));
+    opacity:1; transition:opacity .28s ease;
+  }
+  .tree.open .tree-fade{ opacity:0; }
+  .tree-foot{ display:flex; justify-content:center; padding:8px 12px 12px; border-top:1px solid var(--gray50); }
+  .tree-more{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    font-size:12.5px; font-weight:600; color:var(--blue); line-height:1.4;
+    background:var(--card); border:1px solid var(--gray100); border-radius:100px;
+    padding:5px 14px; cursor:pointer; transition:background .15s ease, border-color .15s ease;
+  }
+  .tree-more:hover{ background:var(--blue-soft); border-color:transparent; }
+  .tree-more:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* 접기/펼치기 disclosure (details/summary). 브라우저 기본 summary는 본문 폰트 규칙을
+     타지 않아 삼각형과 글씨가 따로 논다. 쓰게 되면 이 스타일이 받는다. 단, 디렉토리
+     트리는 여기 넣지 않는다: 길이는 위 자동 접기가 처리하고 트리는 항상 로드 시 보인다. */
+  details.fold{ margin:8px 0 0; }
+  details.fold > summary{
+    list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    font-size:13.5px; font-weight:600; color:var(--gray600); padding:6px 4px; border-radius:8px;
+    transition:color .15s ease;
+  }
+  details.fold > summary::-webkit-details-marker{ display:none; }
+  details.fold > summary::before{
+    content:""; width:6px; height:6px; border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+    transform:rotate(-45deg); transition:transform .2s ease; margin-left:2px;
+  }
+  details.fold[open] > summary::before{ transform:rotate(45deg); }
+  details.fold > summary:hover{ color:var(--blue); }
+  details.fold > summary:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  details.fold > :not(summary){ margin-top:10px; }
 
   /* 선택적 인터랙티브 피규어 (blue-soft 컨테이너 + 세그먼트 토글).
      장식용 그라데이션은 쓰지 않는다 (디자인 시스템 공통 규칙) — solid blue-soft. */
@@ -375,10 +417,20 @@
         </div>
       </div>
       <div class="tree-body">
-        <div class="tr-row"><span class="path"><b>{{REPO_NAME}}/</b></span></div>
-        <!-- REPEAT: one row per touched file/dir. Deleted files use class="tr-row gone" + del chip.
+        <!-- NESTED tree, never a flat list of full paths. One row per node; a node is a directory
+             or a file. Build the guide prefix per row: ancestors that still have siblings below
+             contribute "│  ", closed ancestors contribute "   "; the node itself gets "├─ " or
+             "└─ " (last sibling). Keep the prefix inside <span class="guide"> so it renders faint.
+             Directory rows: class="tr-row dir", name ends with "/", usually no chip (chip only when
+             the whole directory is new or deleted). Deleted files: class="tr-row gone" + del chip.
              Chip text states WHAT happened in a few words, not the filename. No section links. -->
-        <div class="tr-row"><span class="path">├─ {{PATH}}</span><span class="tr-chip mod">{{WHAT_CHANGED}}</span></div>
+        <div class="tr-row"><span class="path"><b>{{REPO_NAME}}/</b></span></div>
+        <div class="tr-row dir"><span class="path"><span class="guide">├─ </span>{{DIR}}/</span></div>
+        <div class="tr-row dir"><span class="path"><span class="guide">│  ├─ </span>{{SUBDIR}}/</span></div>
+        <div class="tr-row"><span class="path"><span class="guide">│  │  ├─ </span>{{FILE}}</span><span class="tr-chip mod">{{WHAT_CHANGED}}</span></div>
+        <div class="tr-row gone"><span class="path"><span class="guide">│  │  └─ </span>{{DELETED_FILE}}</span><span class="tr-chip del">{{WHAT_CHANGED}}</span></div>
+        <div class="tr-row"><span class="path"><span class="guide">│  └─ </span>{{FILE}}</span><span class="tr-chip core">{{WHAT_CHANGED}}</span></div>
+        <div class="tr-row"><span class="path"><span class="guide">└─ </span>{{FILE}}</span><span class="tr-chip mod">{{WHAT_CHANGED}}</span></div>
       </div>
     </div>
 
@@ -630,6 +682,80 @@
     if (cta.disabled) return;
     cta.firstChild.textContent = "좋아요, 이제 이 diff를 자신 있게 다룰 수 있어요 ";
     ctaSub.textContent = "문서를 닫고 리뷰나 다음 작업으로 돌아가세요";
+  });
+
+  /* ── 긴 디렉토리 트리 접기 (범용: 행 수로 자동 판단, 마크업 손댈 것 없음) ──
+     TREE_CAP행까지만 보이고 나머지는 페이드 아래로 접는다. 펼치기/접기는 max-height를
+     px 값 사이에서 전환해 부드럽게 움직이고, 전환이 끝나면 펼친 상태에서는 max-height를
+     풀어 이후 레이아웃 변화(폰트 로드 등)에도 잘리지 않게 한다. */
+  var TREE_CAP = 20;
+  document.querySelectorAll(".tree").forEach(function(tree){
+    var body = tree.querySelector(".tree-body");
+    if (!body) return;
+    var rows = body.querySelectorAll(".tr-row");
+    if (rows.length <= TREE_CAP) return;
+    var hidden = rows.length - TREE_CAP;
+
+    var fade = document.createElement("div"); fade.className = "tree-fade";
+    body.appendChild(fade);
+    var foot = document.createElement("div"); foot.className = "tree-foot";
+    var btn = document.createElement("button"); btn.type = "button"; btn.className = "tree-more";
+    btn.setAttribute("aria-expanded", "false");
+    foot.appendChild(btn); tree.appendChild(foot);
+
+    function cappedHeight(){
+      /* 20번째 행의 바닥 + 아래 패딩만큼: 행 높이를 하드코딩하지 않고 실제 레이아웃에서 잰다 */
+      var last = rows[TREE_CAP - 1];
+      return last.offsetTop + last.offsetHeight + parseFloat(getComputedStyle(body).paddingBottom);
+    }
+    function label(open){ btn.textContent = open ? "접기" : "나머지 " + hidden + "개 행 펼치기"; }
+
+    tree.classList.add("capped");
+    body.style.maxHeight = cappedHeight() + "px";
+    label(false);
+
+    var busy = false;
+    btn.addEventListener("click", function(){
+      if (busy) return;
+      var opening = !tree.classList.contains("open");
+      if (reduceMotion){
+        tree.classList.toggle("open", opening);
+        body.style.maxHeight = opening ? "none" : cappedHeight() + "px";
+        btn.setAttribute("aria-expanded", String(opening)); label(opening);
+        if (!opening) keepInView();
+        return;
+      }
+      busy = true;
+      if (opening){
+        tree.classList.add("open");
+        body.style.maxHeight = body.scrollHeight + "px";
+        body.addEventListener("transitionend", function onEnd(e){
+          if (e.propertyName !== "max-height") return;
+          body.removeEventListener("transitionend", onEnd);
+          body.style.maxHeight = "none"; busy = false;
+        });
+      } else {
+        /* none → px는 transition이 안 되므로 현재 높이를 px로 고정한 뒤 다음 프레임에 줄인다 */
+        body.style.maxHeight = body.scrollHeight + "px";
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          tree.classList.remove("open");
+          body.style.maxHeight = cappedHeight() + "px";
+          body.addEventListener("transitionend", function onEnd(e){
+            if (e.propertyName !== "max-height") return;
+            body.removeEventListener("transitionend", onEnd);
+            busy = false;
+          });
+        }); });
+      }
+      btn.setAttribute("aria-expanded", String(opening)); label(opening);
+      if (!opening) keepInView();
+    });
+
+    /* 접을 때 버튼이 화면 위로 튀어 올라가면 사용자가 위치를 잃는다.
+       트리 머리가 뷰포트 위에 있으면 트리 머리로 맞춰 준다(위 scrollToEl 재사용). */
+    function keepInView(){
+      if (tree.getBoundingClientRect().top < 0) scrollToEl(tree, function(){});
+    }
   });
 
   /* FIGURE SLOT JS: if the optional interactive figure was included in Part 1,

@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained interactive HTML explainer for a code diff, commit, branch, or PR so the developer genuinely understands the change before sharing or merging it.
   TRIGGER when: user asks to explain a diff/PR/commit/changes or wants an understanding document (e.g., "diff 설명해줘", "이 변경 이해하게 해줘", "explain this PR", "변경사항 설명 문서 만들어줘").
   DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), the reader is someone outside the domain who needs a picture explainer (use eli5), user is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
-version: "1.1.3"
+version: "1.1.4"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -94,6 +94,12 @@ Structure is fixed at three parts:
 **Part 1 — 개요.**
 - `배경`: the before-state and its cost, then what the change achieves. Behavior level, not file level.
 - `구조 한눈에 보기`: annotated directory tree of every touched path. Chips state *what happened* (`정본으로 승격`, `67줄 → 1줄`, `삭제 (렌더러)`), deleted files get strikethrough. No section-jump links on tree rows.
+  - **It is a real tree, not a flat list of full paths.** A row shows only its own name, indented under its parent directory. Never emit `├─ graph/workflows/file_indexing.py` next to `├─ graph/models/llm/utils.py`: the shared `graph/` becomes one directory row, and the children nest under it. If every row starts at the same depth, the tree is wrong.
+  - Build the guide prefix per row (see the template comment): `│  ` for each ancestor that still has siblings below, `   ` for closed ancestors, then `├─ ` or `└─ ` (last sibling) for the node itself. The last row of the whole tree therefore begins with `└─ `, and every deeper row above it carries `│` in the ancestor columns.
+  - Collapse a chain of single-child directories into one row (`openspec/changes/split-embedding/`), and collapse siblings that changed the same way into one leaf with a brace glob (`config.{prod,beta,kr}.yaml`, `tests/unit/{graph,app}/…`) with a chip like `8파일 × 2블록`. Directory rows carry a chip only when the whole directory was added or deleted.
+  - Order children directories-first, then files, alphabetically, so the shape stays scannable. Depth beyond 4 levels is a signal to collapse, not to indent further.
+  - The tree is always visible at page load and is never wrapped in a `<details>` disclosure or replaced by summary cards. Keep the tree header text `디렉토리 변화` as-is (the repo root is the first tree row, not the header). If you need a disclosure elsewhere, use `<details class="fold">` so it inherits the template's typography instead of the browser default marker and font.
+  - Trees longer than 20 rows fold automatically: the template JS caps the body at 20 rows with a fade and a `나머지 n개 행 펼치기` button that animates open and closed. Do not hand-build this, and do not trim or reorder real rows to dodge it; the collapse rules above are the way to keep a tree short.
 - Optional interactive figure: include ONLY when an interaction exists where **the user's input changes the outcome** — a scenario toggle, a state switch whose columns respond differently (e.g. a start-location toggle showing two agents' loading paths side by side). Never build a step-through that reveals already-visible content in order; if no outcome-changing interaction exists for this diff, omit the figure entirely.
 
 **Part 2 — 변경 사항.** One card per theme from Step 2, ordered by importance:

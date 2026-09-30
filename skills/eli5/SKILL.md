@@ -112,7 +112,7 @@ Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase
 - **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.
 - **No em-dash or en-dash (`—`, `–`) anywhere in the output.** Not in titles, prose, captions, SVG labels, anywhere. They are a machine-writing tell. Use a colon, parentheses, a comma, or split into two sentences.
 - **Color must survive its background.** A mark carrying meaning (a legend swatch, a status dot, an emphasized stroke) must contrast with the surface under it in both themes.
-- **Both light and dark, switchable.** Never hardcode a color that breaks one mode. The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Copy three things verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>`. The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction.
+- **Both light and dark, switchable.** Never hardcode a color that breaks one mode. The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Copy three things verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>`. The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Before finishing, confirm the button survived (`grep 'class="theme-btn"'` the file).
 - **Natural Korean, not machine translation.** Do not coin stiff 한자어 Koreans do not say; keep a code identifier verbatim rather than force-translate it. Read every caption aloud once: if it sounds like a translated subtitle, rewrite it plainer.
 
 ## Step 5: Verify the Render
@@ -131,7 +131,7 @@ Then check, in this order:
 1. **The pictures-only pass.** Look at the drawings and ignore every sentence. Does the idea still come through? This is the skill's actual success criterion, and it is the one check that cannot be skipped.
 2. No drawing is cut off, overlapping, or scaled into illegibility.
 3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{문제\|eli5 frame' the file).
-4. Dark mode holds (`--color-scheme=dark`), and the theme toggle is present (`grep 'class="theme-btn"'` the file).
+4. Dark mode holds (`--color-scheme=dark`).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.
 

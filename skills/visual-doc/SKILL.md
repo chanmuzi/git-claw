@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained, on-brand interactive HTML document from researched or analyzed content (a research brief, repo/code analysis, concept explainer, comparison, design writeup) by composing a bespoke structure from a fixed design-system component palette.
   TRIGGER when: user asks to turn content into a document/report/writeup in this visual style, visualize findings, or make a shareable page from analysis (e.g., "이 스타일로 문서 만들어줘", "리서치 보고서로 정리해줘", "레포 분석 문서 만들어줘", "이거 문서화해줘", "make a document out of this").
   DO NOT TRIGGER when: user wants a diff/PR/commit explainer with a comprehension quiz (use explain-diff), an interactive simulation to inhabit a behavior (use micro-world), a picture explainer for a reader outside the domain (use eli5), a code review verdict (use code-review), or a short text answer serves better.
-version: "1.3.1"
+version: "1.4.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 
@@ -76,7 +76,7 @@ Combine them when it helps. If you cap or truncate anything (top-N items, a samp
 
 ## Step 3: Build from the Palette
 
-Read `components.html` from this skill's base directory. Copy the `:root` tokens, the base primitives, and only the component CSS you actually use into a single self-contained HTML file. **Fill and compose; never restyle the tokens.** No emoji, no ad-hoc SVG icons (the callout icons shipped in the palette are the one sanctioned set; copy them verbatim), no external resources (CDN, webfonts, remote images, remote scripts). The output must stay one self-contained HTML file.
+Read `components.html` from this skill's base directory. Copy the `:root` tokens, the base primitives, and only the component CSS you actually use into a single self-contained HTML file. **Fill and compose; never restyle the tokens.** No emoji, no ad-hoc SVG icons (the callout icons and the theme-toggle icon shipped in the palette are the sanctioned set; copy them verbatim), no external resources (CDN, webfonts, remote images, remote scripts). The output must stay one self-contained HTML file.
 
 ### Component rules (visual-doc)
 
@@ -97,7 +97,7 @@ Delete the authoring comment at the top of `components.html` and the git-claw sa
 - **No decorative gradients.** Backgrounds are solid tokens (`var(--blue-soft)`, `var(--card)`, ...). A gradient is allowed only when it is functional, e.g. a fade scrim under a fixed bar, never as panel decoration.
 - **No em-dash or en-dash (`—`, `–`) anywhere in the output.** Not in titles, prose, captions, quiz-free callouts, anywhere. They are a machine-writing tell. Use a colon, parentheses, a comma, or split into two sentences.
 - **Color must survive its background.** A mark that carries meaning (a legend swatch, a chart track, a status dot) must contrast with the surface it sits on. A near-background gray (`--chipbg` on a card) reads as invisible; use `--gray200` or a real token so the mark is legible in both light and dark.
-- **Both light and dark.** The tokens already carry a `prefers-color-scheme: dark` override. Do not hardcode colors that break one mode.
+- **Both light and dark, switchable.** Do not hardcode colors that break one mode. The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Copy three things verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>`. The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction.
 
 ### Writing style
 
@@ -117,7 +117,7 @@ The rules above are the first defense; a screenshot is the second. If a headless
 npx --no-install playwright screenshot --full-page "file://<abs-path>" /tmp/visual-doc-check.png
 ```
 
-Check: the title does not wrap mid-word; charts (line/donut) render with legible, background-contrasting marks and sane proportions; no block is broken; dark mode holds (`--color-scheme=dark`). Fix and re-render until it is clean. If no browser is available, rely on the rules and say the render was not visually verified.
+Check: the title does not wrap mid-word; charts (line/donut) render with legible, background-contrasting marks and sane proportions; no block is broken; dark mode holds (`--color-scheme=dark`) and the theme toggle is present (`grep 'class="theme-btn"'` the file). Fix and re-render until it is clean. If no browser is available, rely on the rules and say the render was not visually verified.
 
 ## Step 5: Output
 

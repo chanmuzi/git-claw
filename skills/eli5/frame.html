@@ -3,7 +3,7 @@
   eli5 frame.
 
   Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
-    (.hero, .beat, .fig, .say, .numbers, .rule, .foot) plus the SVG label classes.
+    (.hero, .beat, .fig, .say, .numbers, .rule) plus the SVG label classes.
     Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
@@ -65,25 +65,27 @@
   /* eli5 runs wider than visual-doc: the pictures are the content. */
   .shell{ max-width:880px; margin:0 auto; padding:0 24px 140px; }
 
-  /* ── hero ── */
+  /* ── hero ──
+     The eyebrow is the page's only provenance line: where this comes from and as of when.
+     There is no footer. File paths and line numbers never appear on the page. */
   .hero{ padding:88px 0 64px; }
   .eyebrow{
     font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.06em;
     color:var(--faint); text-transform:uppercase; margin-bottom:18px;
   }
   .hero h1{
-    font-size:clamp(38px,6.4vw,60px); font-weight:800; line-height:1.15;
-    letter-spacing:-0.035em; word-break:keep-all; margin:0 0 20px;
+    font-size:clamp(30px,5vw,44px); font-weight:800; line-height:1.2;
+    letter-spacing:-0.03em; word-break:keep-all; margin:0 0 16px;
   }
   .hero .lede{
-    font-size:19px; color:var(--sub); word-break:keep-all; margin:0; max-width:32em;
+    font-size:18px; color:var(--sub); word-break:keep-all; margin:0; max-width:32em;
   }
 
   /* ── beat: one picture, one claim ── */
   .beat{ margin-top:76px; }
   .beat h2{
-    font-size:26px; font-weight:800; letter-spacing:-0.03em;
-    word-break:keep-all; margin:0 0 22px;
+    font-size:22px; font-weight:800; letter-spacing:-0.025em;
+    word-break:keep-all; margin:0 0 18px;
   }
 
   /* ── figure ── */
@@ -98,10 +100,12 @@
     font-size:13.5px; color:var(--sub); word-break:keep-all;
   }
 
-  /* ── the one line per beat ── */
+  /* ── the one line per beat ──
+     Sits below the lede in the scale and runs the full column width: a narrower
+     measure than the figure above it strands a two-word last line. */
   .say{
-    font-size:21px; line-height:1.6; word-break:keep-all;
-    margin:24px 0 0; max-width:30em;
+    font-size:17px; line-height:1.65; word-break:keep-all; text-wrap:pretty;
+    margin:20px 0 0;
   }
   .say b{ font-weight:700; color:var(--blue-dark); }
   .say .cost{ font-weight:700; color:var(--amber); }
@@ -120,7 +124,7 @@
   .num{ background:var(--card); padding:22px 20px; }
   .num .k{ font-size:13px; color:var(--sub); word-break:keep-all; }
   .num .v{
-    font-size:30px; font-weight:800; letter-spacing:-0.03em;
+    font-size:26px; font-weight:800; letter-spacing:-0.03em;
     font-variant-numeric:tabular-nums; margin-top:6px; color:var(--green);
   }
   .num .v.cost{ color:var(--amber); }
@@ -131,14 +135,8 @@
     background:var(--amber-soft); border:1px solid color-mix(in srgb, var(--amber) 22%, transparent);
     border-radius:var(--r-el); padding:24px 26px;
   }
-  .rule .t{ font-size:19px; font-weight:800; letter-spacing:-0.02em; word-break:keep-all; }
-  .rule p{ margin:10px 0 0; font-size:15.5px; color:var(--sub); word-break:keep-all; }
-
-  /* ── footer: identifiers live here, never in the drawings ── */
-  .foot{
-    margin-top:88px; padding-top:20px; border-top:1px solid var(--line);
-    font-family:var(--mono); font-size:12px; color:var(--faint); line-height:1.8;
-  }
+  .rule .t{ font-size:18px; font-weight:800; letter-spacing:-0.02em; word-break:keep-all; }
+  .rule p{ margin:10px 0 0; font-size:15px; color:var(--sub); word-break:keep-all; }
 
   /* ── SVG label classes (locked) ── */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
@@ -152,7 +150,7 @@
 <div class="shell">
 
   <div class="hero">
-    <div class="eyebrow">eli5</div>
+    <div class="eyebrow">{출처 한 가지 · YYYY-MM-DD 기준}</div>
     <h1>{주제를 가리키는 짧은 명사구}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
   </div>
@@ -225,10 +223,6 @@
       <div class="t">{규칙을 명령형 짧은 문장으로}</div>
       <p>{왜 그런지 두 문장 이내.}</p>
     </div>
-  </div>
-
-  <div class="foot">
-    {출처: 저장소, PR 번호, 파일 경로 같은 식별자는 전부 여기에만 적는다.}
   </div>
 
 </div>

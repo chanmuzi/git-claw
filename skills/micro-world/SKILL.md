@@ -4,7 +4,7 @@ description: >-
   Build a throwaway interactive HTML simulation (a "micro-world") of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so the developer can inhabit and feel how the code works instead of reading about it.
   TRIGGER when: user asks to simulate, play with, or interactively explore a behavior (e.g., "micro-world 만들어줘", "이거 시뮬로 보여줘", "만져볼 수 있게 만들어줘", "동작을 인터랙티브로 이해하고 싶어").
   DO NOT TRIGGER when: user wants a document explaining a diff (use explain-diff), a picture explainer for someone outside the domain (use eli5), a code review (use code-review), or the change is config/rename/dependency-bump material with no behavior to inhabit.
-version: "1.0.2"
+version: "1.1.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -89,6 +89,7 @@ Read `template.html` from this skill's base directory — it carries the design 
 - **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.
 - **No em-dash or en-dash (`—`, `–`) anywhere in the output.** They are a machine-writing tell. Use a colon, parentheses, a comma, or split into two sentences.
 - **Natural Korean, not machine translation.** Do not coin stiff 한자어 Koreans do not say; keep a code/identifier term verbatim rather than force-translate it.
+- **Both light and dark, switchable.** The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Keep three things from the template verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>` (the shipped toggle icon is the one sanctioned SVG icon). The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Any CSS you author yourself takes every color from a token: `var(--surface)` for a raised white surface, `var(--on-accent)` for text on a `--blue`/`--green` fill, `var(--track)` and `var(--shadow-sm)` for tracks and small shadows. A literal `#fff`, a black-alpha `rgba(...)`, or an inline `style="color:..."` with a hex value reads in one theme only. The terminal is the one deliberate exception: `.term`, its header (`.term-head`), and the action palette are a dark surface in both themes and keep their own `--term-*` tokens and white-alpha borders; leave them as shipped. When the embodiment is not a terminal, only the interior you put inside `.term-body` follows the page theme, through the tokens above (override `.term-body`'s terminal defaults on your own modifier class). Content that must look the same in both real themes, such as a simulated screen with its own light/dark state, may use the `--term-*` tokens, which do not flip. Before finishing, confirm all three parts of the toggle survived: `grep -c '<button type="button" class="theme-btn"'`, `grep -c '\.theme-btn{'`, and `grep -c 'git-claw-doc-theme'` must each print at least 1 (a bare `theme-btn` match can be prose that merely mentions it).
 
 ## Step 4: Output
 

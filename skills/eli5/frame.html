@@ -36,8 +36,10 @@
     --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
   }
+  /* Dark tokens appear twice on purpose: once for "follow the system" and once for
+     the toggle. Keep the two blocks identical. */
   @media (prefers-color-scheme: dark){
-    :root{
+    :root:not([data-theme="light"]){
       --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
       --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
       --gray50:#222831; --gray25:#1E242C;
@@ -51,7 +53,24 @@
       --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
       --line:#2A313A; --chipbg:#242B34;
       --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme:dark;
     }
+  }
+  :root[data-theme="dark"]{
+    --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
+    --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
+    --gray50:#222831; --gray25:#1E242C;
+    --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
+    --chip-ink:#7FB4FF;
+    --red:#F4636F; --red-soft:#3A2226;
+    --green:#2BB88A; --green-soft:#173029;
+    --amber:#E0A44A; --amber-soft:#33291A;
+    --violet:#9A79FF; --violet-soft:#241E3A;
+    --bg:#171B21; --card:#1E242C;
+    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+    --line:#2A313A; --chipbg:#242B34;
+    --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
   }
 
   *{ box-sizing:border-box; }
@@ -61,6 +80,23 @@
     background:var(--bg); color:var(--ink);
     -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
   }
+
+  /* ── theme toggle (LOCKED) ──
+     The page follows the system setting until the reader presses this; the press
+     writes data-theme on <html>, which wins in both directions. On narrow screens
+     the button sits at the top of the page only, so it never covers body text. */
+  .theme-btn{
+    position:absolute; top:16px; right:16px; z-index:50;
+    width:36px; height:36px; padding:0; border-radius:50%;
+    display:grid; place-items:center; cursor:pointer;
+    background:var(--card); color:var(--sub); border:1px solid var(--line);
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .theme-btn:hover{ color:var(--ink); border-color:var(--gray300); }
+  .theme-btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .theme-btn svg{ width:18px; height:18px; display:block; }
+  @media (min-width:1080px){ .theme-btn{ position:fixed; top:20px; right:28px; } }
+  @media print{ .theme-btn{ display:none; } }
 
   /* eli5 runs wider than visual-doc: the pictures are the content. */
   .shell{ max-width:880px; margin:0 auto; padding:0 24px 140px; }
@@ -147,8 +183,33 @@
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
 </style>
+<script>
+/* theme toggle (LOCKED): a saved choice is applied before first paint. The button
+   still works where storage is blocked (private windows); it just is not remembered. */
+(function(){
+  var root = document.documentElement, KEY = "git-claw-doc-theme";
+  function isDark(){
+    var t = root.getAttribute("data-theme");
+    return t ? t === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+  try{
+    var saved = localStorage.getItem(KEY);
+    if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  }catch(e){}
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest && e.target.closest(".theme-btn");
+    if (!btn) return;
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+  });
+})();
+</script>
 </head>
 <body>
+<button type="button" class="theme-btn" aria-label="라이트/다크 전환" title="라이트/다크 전환">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
+</button>
 <div class="shell">
 
   <div class="hero">

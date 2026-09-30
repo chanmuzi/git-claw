@@ -147,6 +147,7 @@
   /* 환경 페인 (기본: 터미널. 다른 embodiment면 .term-body 내부를 교체) */
   .term{
     background:var(--term-bg); border-radius:var(--r-el);
+    border:1px solid rgba(255,255,255,.08); /* keeps the pane's edge visible on the dark page */
     display:flex; flex-direction:column; overflow:hidden;
     margin-top:14px;
   }

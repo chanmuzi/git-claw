@@ -381,7 +381,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 | 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
-| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 정본: docs/decisions/2026-07-visual-doc.md |
+| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어, 라이트/다크 전환 버튼) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트, 두 번 정의하는 다크 토큰)은 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. 정본: docs/decisions/2026-07-visual-doc.md |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트

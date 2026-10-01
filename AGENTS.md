@@ -306,6 +306,7 @@ ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
 - **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
 - **Dash 금지**: git 메시지(커밋·PR 제목/본문)에 em-dash(—)·en-dash(–) 사용 금지. 콜론·괄호·쉼표로 대체 (코드/문서 산문은 대상 아님)
+- **비유·번역투 금지**: 모든 스킬의 산출물(커밋·PR·이슈 제목과 본문, HTML 문서의 제목·소제목·라벨·캡션)은 사실을 그 주제의 말로 쓴다. 개조식 허용. `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `장부`/`선반` 같은 비유와 함의적 표현, 동료에게 소리 내어 말하면 어색한 문장은 쓰지 않는다. 다른 주제에 그대로 옮겨도 말이 되는 제목은 너무 추상적이다
 - **Evidence 우선**(review-reply, code-review): finding을 제시할 때 근거가 되는 원문을 **파일에서 그대로 복사**하여 함께 보여준다. 사용자가 파일을 직접 열지 않고도 판단할 수 있어야 한다
   - **블록 형태는 severity가 아니라 "수정안 존재 여부"로 결정한다** (두 축 분리). 수정안이 있으면 ` ```diff `(`-` 현재 / `+` 제안) — Info여도 마찬가지다. 대체할 게 없으면(방향성 제안, 변경 불필요) ` ```{lang} ` 인용 블록. 최대 12줄, 초과 시 `…`로 중략
   - **Action line은 severity로 결정한다**: Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. `{reason}`은 "왜 그 판단인지"를 쓰는 자리이지 수정 방법을 밀어넣는 자리가 아니다 — 수정 방법은 diff 블록으로
@@ -381,7 +382,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 | 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
-| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어, 라이트/다크 전환 버튼) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트)은 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff·micro-world의 다크 `--gray25`와 `--surface`·`--on-accent`·`--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
+| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어, 비유·번역투 금지, 라이트/다크 전환 버튼) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트)은 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff·micro-world의 다크 `--gray25`와 `--surface`·`--on-accent`·`--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트

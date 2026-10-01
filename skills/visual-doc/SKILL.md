@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained, on-brand interactive HTML document from researched or analyzed content (a research brief, repo/code analysis, concept explainer, comparison, design writeup) by composing a bespoke structure from a fixed design-system component palette.
   TRIGGER when: user asks to turn content into a document/report/writeup in this visual style, visualize findings, or make a shareable page from analysis (e.g., "이 스타일로 문서 만들어줘", "리서치 보고서로 정리해줘", "레포 분석 문서 만들어줘", "이거 문서화해줘", "make a document out of this").
   DO NOT TRIGGER when: user wants a diff/PR/commit explainer with a comprehension quiz (use explain-diff), an interactive simulation to inhabit a behavior (use micro-world), a picture explainer for a reader outside the domain (use eli5), a code review verdict (use code-review), or a short text answer serves better.
-version: "1.4.0"
+version: "1.4.1"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 
@@ -108,6 +108,7 @@ The reader skims first, reads second.
 - A lede is 2-3 sentences: state the subject, then the point. Do not chain the whole story into one sentence.
 - Bold the load-bearing phrase, not whole clauses. If three things are bold, nothing is.
 - **Natural Korean, not machine translation.** Do not coin stiff 한자어 Koreans do not say; keep a code/identifier term verbatim rather than force-translate it. Read each title and takeaway aloud once; if it sounds like a translated caption, rewrite it plainer.
+- **No metaphor, no implied meaning, no translationese in titles and labels.** A heading, a chip, a row caption, a sub-line, a tooltip states the fact in the subject's own words (`vector_store_file 1행`, `호출 최대 N회`, `원본 테이블`), terse 개조식 welcome. Not `장부`, `선반`, `고리를 돈다`, `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `마법은 없다`. A phrase that would sound odd said aloud to a colleague is cut; a phrase that could head a page about a different subject is too abstract.
 
 ## Step 4: Verify the Render
 

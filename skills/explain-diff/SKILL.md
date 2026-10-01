@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained interactive HTML explainer for a code diff, commit, branch, or PR so the developer genuinely understands the change before sharing or merging it.
   TRIGGER when: user asks to explain a diff/PR/commit/changes or wants an understanding document (e.g., "diff 설명해줘", "이 변경 이해하게 해줘", "explain this PR", "변경사항 설명 문서 만들어줘").
   DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), the reader is someone outside the domain who needs a picture explainer (use eli5), user is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
-version: "1.2.0"
+version: "1.2.1"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -77,6 +77,8 @@ The reader skims first and reads second. Prose that runs on defeats both.
 - Prefer a concrete subject over a nominalization: "호스트가 규칙을 못 읽어요" beats "규칙 조회가 실패해요".
 
 ### Natural Korean (do not read like machine translation)
+
+- **No metaphor, no implied meaning, no translationese in titles and labels.** A heading, a chip, a row caption, a sub-line, a tooltip states the fact in the subject's own words (`vector_store_file 1행`, `호출 최대 N회`, `원본 테이블`), terse 개조식 welcome. Not `장부`, `선반`, `고리를 돈다`, `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `마법은 없다`. A phrase that would sound odd said aloud to a colleague is cut; a phrase that could head a page about a different subject is too abstract.
 
 The document must read as if a Korean engineer wrote it, not as if English or a raw code term were transliterated. Translation-ese and coined 한자어 are the loudest "AI wrote this" tell — remove them.
 

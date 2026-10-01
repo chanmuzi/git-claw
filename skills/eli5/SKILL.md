@@ -141,7 +141,7 @@ Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `
 
 ### The word budget
 
-- A `.say` line is **optional**, at most one sentence, and only for what the picture cannot show: a condition (`플래그를 켠 뒤에만`), a consequence (`그래서 호출 비용은 누른 횟수만큼`), a number the drawing has no room for. The heading already states the fact the picture shows, so a `.say` that restates the heading or the labels is deleted. Most beats end at the figure.
+- Every figure gets a `.say` paragraph: **two to four plain sentences that help the reader read the picture**. Say in what order to read it, what each part is, and what follows from it (`위에서 아래로 읽어요. 원본 테이블 3개가 있고, 가운데 연결 테이블은 어느 store에 어느 file이 들어왔는지를 적어요. … 점선 상자는 플래그를 켠 뒤에만 기록돼요.`). Facts only, in the subject's own words, body size. Cut what repeats the heading word for word, cut metaphors and translated idioms, keep everything that an outsider needs to make sense of the drawing. A `.say` that says only "the picture shows X" is too thin; one that explains a mechanism the picture does not draw belongs in another beat.
 - No paragraphs of body prose anywhere on the page. If a beat genuinely needs three paragraphs, the subject wants `visual-doc`.
 - Captions (`figcaption`) carry what the drawing could not hold: a condition, an exception, a count. A few lines is fine; a paragraph means the drawing is missing a beat.
 - **File paths and line numbers stay off the page.** An outsider will never open `app/models/store.py:103`. The names of the things drawn (a table, an endpoint, a flag) are not evidence of that kind; they are the nouns of the subject and belong in the drawing (see "Real names, plain sub-line" above). A name the drawing does not show may still appear once, in that beat's caption, when the reader will actually meet it.
@@ -153,7 +153,7 @@ Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `
 
 Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.rule`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
 
-The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 17px (body weight, no emphasis color unless one word carries a cost). Do not enlarge `.say` to make a takeaway "pop", and do not give it a `max-width`; it runs the width of the figure above it. The page ends at the last beat.
+The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 17px (body weight; bold or the cost color on one phrase at most). Do not enlarge `.say` to make a takeaway "pop", and do not give it a `max-width`; it runs the width of the figure above it. The page ends at the last beat.
 
 Delete the authoring comment at the top of `frame.html` and every placeholder token (every Korean phrase in braces, such as `{출처 한 가지 · YYYY-MM-DD 기준}` and `{이 그림이 보여주는 사실 한 가지. 개조식 가능}`, plus the sample beat copy) as you fill each block. A shipped page must contain none of them.
 

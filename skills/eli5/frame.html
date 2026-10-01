@@ -8,7 +8,8 @@
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
     showing the conventions (viewBox sizing, currentColor strokes, labeled arrows,
-    one accent per picture). Author your own drawings per subject. Never reuse these.
+    one accent per picture, the layout-plan comment as the first child of <svg>,
+    a two-line box via <tspan>). Author your own drawings per subject. Never reuse these.
 
   The sample copy is placeholder illustrating each block. Replace it with real content
   and delete this comment in the output.
@@ -140,10 +141,10 @@
      Sits below the lede in the scale and runs the full column width: a narrower
      measure than the figure above it strands a two-word last line. */
   .say{
-    font-size:17px; line-height:1.65; word-break:keep-all; text-wrap:pretty;
-    margin:20px 0 0;
+    font-size:15px; font-weight:400; line-height:1.7; color:var(--sub);
+    word-break:keep-all; text-wrap:pretty; margin:18px 0 0;
   }
-  .say b{ font-weight:700; color:var(--blue-dark); }
+  .say b{ font-weight:600; color:var(--ink); }
   .say .cost{ font-weight:700; color:var(--amber); }
   code{
     font-family:var(--mono); font-size:.88em; font-weight:500;
@@ -178,6 +179,7 @@
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
   .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
   .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
+  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
 </style>
@@ -212,17 +214,18 @@
 
   <div class="hero">
     <div class="eyebrow">{출처 한 가지 · YYYY-MM-DD 기준}</div>
-    <h1>{주제를 가리키는 짧은 명사구}</h1>
+    <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
   </div>
 
   <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다. -->
   <div class="beat">
-    <h2>{문제를 가리키는 짧은 제목}</h2>
+    <h2>{이 그림이 보여주는 사실 한 가지. 개조식 가능}</h2>
     <figure class="fig">
       <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
+        <!-- W=760 · row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(✕) [590..720] -->
         <defs>
-          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5"
+          <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <polygon points="0,0 10,5 0,10" fill="currentColor"/>
           </marker>
@@ -230,30 +233,35 @@
 
         <rect x="40" y="56" width="150" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <text class="dg-l" x="115" y="106" text-anchor="middle">{들어오는 것}</text>
 
         <line x1="205" y1="100" x2="320" y2="100"
-              stroke="currentColor" stroke-width="1.6" marker-end="url(#ar)"/>
-        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
+              stroke="currentColor" stroke-width="1.6" marker-end="url(#ar1)"/>
 
         <rect x="335" y="56" width="150" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <text class="dg-l" x="410" y="106" text-anchor="middle">{좁은 관문}</text>
+        <!-- two lines: name, then one plain sub-line (dy = height of the line above). 150 wide holds 9 Hangul or 15 lowercase Latin per .dg-l line.
+             boxes are 88 high (row shares one height), so the block is centered: y = 100 − 18/2 + 4 = 95; one-line boxes: y = 100 + 4 = 104 -->
 
         <g stroke="var(--red)" stroke-width="3.2" stroke-linecap="round">
           <line x1="512" y1="84" x2="546" y2="118"/>
           <line x1="546" y1="84" x2="512" y2="118"/>
         </g>
-        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
 
         <rect x="590" y="56" width="130" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-dasharray="5 4" opacity=".45"/>
-        <text class="dg-l" x="655" y="106" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+
+        <!-- labels last: text paints over the shapes (rule 6), which is what makes dg-halo work -->
+        <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
+        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
+        <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
+        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
+        <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
       </svg>
       <figcaption>{그림이 못 담은 사실 하나. 없으면 생략한다.}</figcaption>
     </figure>
-    <p class="say">{그림이 보여준 것을 이름 붙이는 한 문장.} <b>{핵심 어절}</b>{입니다.}</p>
+    <!-- .say: 그림을 읽는 순서, 각 부분이 무엇인지, 거기서 따라오는 것. 사실만, 2~4문장, 본문 크기 -->
+    <p class="say">{그림을 읽는 순서와 각 부분의 뜻을 사실로 풀어 쓴 2~4문장. 소제목을 그대로 되풀이하지 않는다.}</p>
   </div>
 
   <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->
@@ -261,7 +269,7 @@
 
   <!-- BEAT 5: 대가. 숫자는 여기 한 번만, 4개 이하, 하나는 반드시 비용. -->
   <div class="beat">
-    <h2>{대가}</h2>
+    <h2>{드는 비용을 숫자로. 예: 마이그레이션 0건, LLM 호출 1회}</h2>
     <div class="numbers">
       <div class="num">
         <div class="k">{무엇을 잰 값인지}</div>
@@ -274,12 +282,12 @@
         <div class="d">{한 줄 보충}</div>
       </div>
     </div>
-    <p class="say">{값은 이만큼 더 들고, 대신 이것이 가능해집니다.}</p>
+    <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 풀어 쓴 2~3문장.}</p>
   </div>
 
   <!-- BEAT 6: 규칙. 언제 쓰는 것인지 한 가지만. -->
   <div class="beat">
-    <h2>{기억할 규칙}</h2>
+    <h2>{규칙을 조건과 결과로. 예: 설명은 사람이 누를 때만 다시 만든다}</h2>
     <div class="rule">
       <div class="t">{규칙을 명령형 짧은 문장으로}</div>
       <p>{왜 그런지 두 문장 이내.}</p>

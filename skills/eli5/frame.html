@@ -134,7 +134,7 @@
   .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
   /* no figcaption: everything the reader needs to read the picture goes in the .say below the card */
 
-  /* ── the one line per beat ──
+  /* ── the one paragraph per beat (2-3 sentences) ──
      Sits below the lede in the scale and runs the full column width: a narrower
      measure than the figure above it strands a two-word last line. */
   .say{
@@ -156,7 +156,7 @@
     border-radius:var(--r-el); overflow:hidden;
   }
   .num{ background:var(--card); padding:16px 18px; }
-  .num .k{ font-size:12.5px; color:var(--faint); word-break:keep-all; }
+  .num .k{ font-size:12.5px; color:var(--sub); word-break:keep-all; }
   .num .v{
     font-size:16px; font-weight:700; letter-spacing:-0.01em;
     font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink);
@@ -258,7 +258,7 @@
         <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
       </svg>
     </figure>
-    <!-- .say: 그림을 읽는 순서, 각 부분이 무엇인지, 거기서 따라오는 것. 사실만, 2~4문장, 본문 크기 -->
+    <!-- .say: 각 부분이 무엇인지와 그림에 없는 조건 하나. 사실만, 2~3문장, 본문 크기 -->
     <p class="say">{그림의 각 부분이 무엇인지와 그림에 없는 조건 하나를 2~3문장으로. 소제목과 라벨을 되풀이하지 않는다.}</p>
   </div>
 

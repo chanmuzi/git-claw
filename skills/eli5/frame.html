@@ -3,7 +3,7 @@
   eli5 frame.
 
   Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
-    (.hero, .beat, .fig, .say, .numbers, .rule) plus the SVG label classes.
+    (.hero, .beat, .fig, .say, .numbers, .close) plus the SVG label classes.
     Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
@@ -105,44 +105,41 @@
   /* ── hero ──
      The eyebrow is the page's only provenance line: where this comes from and as of when.
      There is no footer. File paths and line numbers never appear on the page. */
-  .hero{ padding:88px 0 64px; }
+  .hero{ padding:44px 0 20px; }
   .eyebrow{
     font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.06em;
-    color:var(--faint); text-transform:uppercase; margin-bottom:18px;
+    color:var(--faint); text-transform:uppercase; margin-bottom:14px;
   }
   .hero h1{
-    font-size:clamp(30px,5vw,44px); font-weight:800; line-height:1.2;
-    letter-spacing:-0.03em; word-break:keep-all; margin:0 0 16px;
+    font-size:clamp(24px,3.6vw,30px); font-weight:800; line-height:1.3;
+    letter-spacing:-0.025em; word-break:keep-all; margin:0 0 12px;
   }
   .hero .lede{
-    font-size:18px; color:var(--sub); word-break:keep-all; margin:0; max-width:32em;
+    font-size:15.5px; line-height:1.7; color:var(--sub); word-break:keep-all; margin:0; max-width:40em;
   }
 
   /* ── beat: one picture, one claim ── */
-  .beat{ margin-top:76px; }
+  .beat{ margin-top:48px; }
   .beat h2{
-    font-size:22px; font-weight:800; letter-spacing:-0.025em;
-    word-break:keep-all; margin:0 0 18px;
+    font-size:18px; font-weight:700; letter-spacing:-0.02em;
+    word-break:keep-all; margin:0 0 14px;
   }
 
   /* ── figure ── */
   .fig{
     margin:0; background:var(--card); border:1px solid var(--line);
     border-radius:var(--r-card); box-shadow:var(--shadow);
-    padding:30px 26px 22px; overflow-x:auto;
+    padding:26px 24px 20px; overflow-x:auto;
   }
   .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
-  .fig figcaption{
-    margin-top:20px; padding-top:16px; border-top:1px solid var(--line);
-    font-size:13.5px; color:var(--sub); word-break:keep-all;
-  }
+  /* no figcaption: everything the reader needs to read the picture goes in the .say below the card */
 
   /* ── the one line per beat ──
      Sits below the lede in the scale and runs the full column width: a narrower
      measure than the figure above it strands a two-word last line. */
   .say{
     font-size:15px; font-weight:400; line-height:1.7; color:var(--sub);
-    word-break:keep-all; text-wrap:pretty; margin:18px 0 0;
+    word-break:keep-all; text-wrap:pretty; margin:14px 0 0;
   }
   .say b{ font-weight:600; color:var(--ink); }
   .say .cost{ font-weight:700; color:var(--amber); }
@@ -158,22 +155,24 @@
     gap:1px; background:var(--line); border:1px solid var(--line);
     border-radius:var(--r-el); overflow:hidden;
   }
-  .num{ background:var(--card); padding:22px 20px; }
-  .num .k{ font-size:13px; color:var(--sub); word-break:keep-all; }
+  .num{ background:var(--card); padding:16px 18px; }
+  .num .k{ font-size:12.5px; color:var(--faint); word-break:keep-all; }
   .num .v{
-    font-size:26px; font-weight:800; letter-spacing:-0.03em;
-    font-variant-numeric:tabular-nums; margin-top:6px; color:var(--green);
+    font-size:16px; font-weight:700; letter-spacing:-0.01em;
+    font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink);
   }
   .num .v.cost{ color:var(--amber); }
-  .num .d{ font-size:12.5px; color:var(--faint); margin-top:6px; word-break:keep-all; }
+  .num .d{ font-size:13px; line-height:1.6; color:var(--sub); margin-top:6px; word-break:keep-all; }
 
-  /* ── the rule worth remembering ── */
-  .rule{
-    background:var(--amber-soft); border:1px solid color-mix(in srgb, var(--amber) 22%, transparent);
-    border-radius:var(--r-el); padding:24px 26px;
+  /* ── closing card: no heading above it, the statement is the heading ── */
+  .close{
+    margin-top:48px; background:var(--amber-soft);
+    border:1px solid color-mix(in srgb, var(--amber) 22%, transparent);
+    border-radius:var(--r-el); padding:20px 24px;
   }
-  .rule .t{ font-size:18px; font-weight:800; letter-spacing:-0.02em; word-break:keep-all; }
-  .rule p{ margin:10px 0 0; font-size:15px; color:var(--sub); word-break:keep-all; }
+  .close .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--amber); margin-bottom:8px; }
+  .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; line-height:1.5; }
+  .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; }
 
   /* ── SVG label classes (locked) ── */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
@@ -213,7 +212,7 @@
 <div class="shell">
 
   <div class="hero">
-    <div class="eyebrow">{출처 한 가지 · YYYY-MM-DD 기준}</div>
+    <div class="eyebrow">{출처 한 가지 · YYYY-MM-DD}</div>
     <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
   </div>
@@ -258,10 +257,9 @@
         <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
         <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
       </svg>
-      <figcaption>{그림이 못 담은 사실 하나. 없으면 생략한다.}</figcaption>
     </figure>
     <!-- .say: 그림을 읽는 순서, 각 부분이 무엇인지, 거기서 따라오는 것. 사실만, 2~4문장, 본문 크기 -->
-    <p class="say">{그림을 읽는 순서와 각 부분의 뜻을 사실로 풀어 쓴 2~4문장. 소제목을 그대로 되풀이하지 않는다.}</p>
+    <p class="say">{그림의 각 부분이 무엇인지와 그림에 없는 조건 하나를 2~3문장으로. 소제목과 라벨을 되풀이하지 않는다.}</p>
   </div>
 
   <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->
@@ -285,13 +283,11 @@
     <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 풀어 쓴 2~3문장.}</p>
   </div>
 
-  <!-- BEAT 6: 규칙. 언제 쓰는 것인지 한 가지만. -->
-  <div class="beat">
-    <h2>{규칙을 조건과 결과로. 예: 설명은 사람이 누를 때만 다시 만든다}</h2>
-    <div class="rule">
-      <div class="t">{규칙을 명령형 짧은 문장으로}</div>
-      <p>{왜 그런지 두 문장 이내.}</p>
-    </div>
+  <!-- CLOSE: 결론 카드. 위에 h2를 두지 않는다 (제목이 두 번 나온다). 페이지는 여기서 끝난다. -->
+  <div class="close">
+    <div class="k">정리</div>
+    <div class="t">{결론을 조건과 결과가 든 한 문장으로. 예: 설명은 사람이 누를 때만 다시 만든다}</div>
+    <p>{그 이유 한두 문장.}</p>
   </div>
 
 </div>

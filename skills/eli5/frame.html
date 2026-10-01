@@ -179,9 +179,9 @@
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
   .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
   .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
+  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
-  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
 </style>
 <script>
 /* theme toggle (LOCKED): a saved choice is applied before first paint. The button
@@ -233,27 +233,30 @@
 
         <rect x="40" y="56" width="150" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <text class="dg-l" x="115" y="106" text-anchor="middle">{들어오는 것}</text>
 
         <line x1="205" y1="100" x2="320" y2="100"
               stroke="currentColor" stroke-width="1.6" marker-end="url(#ar1)"/>
-        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
 
         <rect x="335" y="56" width="150" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <!-- two lines: name, then one plain sub-line (dy = height of the line above). 150 wide holds 9 Hangul or 15 lowercase Latin per .dg-l line -->
-        <text class="dg-l" x="410" y="96" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
+        <!-- two lines: name, then one plain sub-line (dy = height of the line above). 150 wide holds 9 Hangul or 15 lowercase Latin per .dg-l line.
+             boxes are 88 high (row shares one height), so the block is centered: y = 100 − 18/2 + 4 = 95; one-line boxes: y = 100 + 4 = 104 -->
 
         <g stroke="var(--red)" stroke-width="3.2" stroke-linecap="round">
           <line x1="512" y1="84" x2="546" y2="118"/>
           <line x1="546" y1="84" x2="512" y2="118"/>
         </g>
-        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
 
         <rect x="590" y="56" width="130" height="88" rx="6"
               fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-dasharray="5 4" opacity=".45"/>
-        <text class="dg-l" x="655" y="106" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+
+        <!-- labels last: text paints over the shapes (rule 6), which is what makes dg-halo work -->
+        <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
+        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
+        <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
+        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
+        <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
       </svg>
       <figcaption>{그림이 못 담은 사실 하나. 없으면 생략한다.}</figcaption>
     </figure>

@@ -4,7 +4,7 @@ description: >-
   Explain a subject to someone who knows nothing about it, as a self-contained HTML page where big diagrams carry the meaning and the prose is reduced to one line per picture.
   TRIGGER when: user types /eli5 <topic>, or asks for a dead-simple picture explainer aimed at someone outside the domain (e.g., "eli5 해줘", "아무것도 모르는 사람한테 설명하듯 만들어줘", "그림으로 쉽게 풀어줘", "비전공자한테 보여줄 자료로 만들어줘").
   DO NOT TRIGGER when: the reader is the developer who has to merge the change (use explain-diff), the subject is a behavior worth inhabiting interactively (use micro-world), the reader is domain-literate and wants the findings structured (use visual-doc), or a code review verdict is wanted (use code-review).
-version: "1.0.1"
+version: "1.1.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 
@@ -76,6 +76,16 @@ Adapt the arc when the subject is not a change (a "how does X work" page may go:
 
 **One picture, one claim.** If a drawing needs two captions, it is two drawings.
 
+### Titles say what the picture is of
+
+The arc above (problem, obvious fix, trap, real fix, cost, rule) names the **role** of each beat for you. It is not the heading. Headings, the hero title, row captions, and sub-lines are **facts about the subject, stated plainly**. 개조식 is welcome.
+
+- **Hero title**: the subject by its real name, as a noun phrase. `vector_store 테이블 10개의 구조`, `파일 업로드가 청크가 되기까지`. Not `세 줄로 읽는 벡터 저장소`, not `보이지 않는 선반`.
+- **Beat heading**: the fact the picture shows. `장부 테이블 3개, 내용물 테이블 1개`, `standard 모드: LLM 호출 1회`, `description이 비어 있는 경로 3곳`. Never a tease (`함정`), a rhetorical question, or a metaphor (`마법은 없다`).
+- **Row captions and sub-lines**: the literal word first (`원본 테이블`, `장부`, `본문과 벡터`). A metaphor may appear once per page, in a `.say` line, when it carries a meaning the literal word cannot; it never becomes a heading.
+- **No translated idiom.** `~의 여정`, `숨은 영웅`, `마법처럼`, `~를 만나다`, `한눈에 보는 ~` are machine-translation tells. If a phrase would sound odd said aloud to a colleague, cut it.
+- **The portability test**: if a heading could sit unchanged on a page about a different subject, it is too abstract. `문제`, `진짜 해법`, `드는 것과 안 드는 것` all fail; `마이그레이션 0건, 새 엔드포인트 1개` passes.
+
 ## Step 3: Draw the Mechanism
 
 The drawings are hand-authored inline SVG, one per beat.
@@ -83,20 +93,46 @@ The drawings are hand-authored inline SVG, one per beat.
 - **Depict the mechanism, not its name.** A box labeled "cache" says less than the prose. Draw the path a request takes, the two stores it sits between, the arrow that disappears when the cache is gone.
 - **Comparing options? Draw the difference.** Two states side by side with the one edge that changes between them. Separate labeled boxes with nothing connecting them is a restated list, not a comparison.
 - **Label the arrows.** An unlabeled arrow means "related somehow". `writes`, `20장씩`, `19배 압축` is information.
-- **No jargon inside the picture.** Identifiers, flag names, and function names are never a shape's label, and by default they are not on the page at all (see the word budget). A drawing that needs `use_doc_chunking` to be understood is drawn for an insider.
-- **Draw the reader's world, not the code's.** Pages, forms, queues, doors, votes. Concrete nouns the outsider already owns.
+- **Concrete by default.** Draw the specific things, not categories of things: eight named tables in their three rows beats three ovals labeled 입력 / 처리 / 저장. If you catch yourself drawing "data flows to storage", name the data and name the storage. Abstract shapes are for subjects that have no artifacts (a concept, a policy), not a shortcut for subjects that do.
+- **Real names, plain sub-line.** When the subject is a system, a box is the real thing under its real name: the table `vector_store_file`, the endpoint `POST /files`, the flag `use_doc_chunking`. Under the name, one sub-line says what it is for an outsider (`장부 1줄`, `실제 본문과 벡터`). A metaphor (`선반`, `장부`) may ride in the sub-line or in a row caption; it never replaces the name. What stays out of the drawing is **explanation**: the why, the mechanism in prose, file paths, line numbers. Those go in `.say`, the caption, or your report.
 - **Size by `viewBox`** (`viewBox="0 0 W H"`, CSS `width:100%; height:auto`), pick W and H for the content, and align shapes to a shared grid. Eyeballed offsets read as noise.
 - **Theme with `currentColor`.** Strokes and text inherit the page's foreground so both themes work. Reserve `var(--blue)` for the one element carrying the point of that picture and `var(--red)` for the thing that breaks. Two accent colors per drawing at most.
-- **Text stays around 11-13px at drawn scale**, a word or three per label. Explanatory sentences go in the caption below the figure, never inside the drawing.
+- **Text stays at the two label sizes** (`.dg-l` 13px, `.dg-s` 11px mono) plus at most one `.dg-b` big number per drawing. A line inside a box is a name or a short field list, never a sentence; sentences go in the caption. Fit every line to its box with the arithmetic in "Fit the text before you draw" below.
 - **Every figure gets** `role="img"` and an `aria-label` stating the same claim as its caption.
 - No `<script>`, `<style>`, or `<foreignObject>` inside the SVG. No emoji, no icon fonts, no external resources. Long decorative path data means the drawing is too elaborate: simplify it.
+
+### Fit the text before you draw (no renderer needed)
+
+SVG text does not wrap and does not push boxes apart. Every clipped label and every pair of overlapping labels in a shipped page came from a label that was wider than the room drawn for it. So **size the room from the label, never the label from the room**, with these per-character estimates. They are deliberately generous for the system fonts the page will be read in (Apple SD Gothic Neo, Pretendard, Segoe UI); a line that passes them fits.
+
+| Text | Width per character |
+|---|---|
+| Hangul, in any class | 1.0 × font-size (`.dg-l` 13px, `.dg-s` 11px) |
+| Latin lowercase, digits, `_` `-` `/` `.` in `.dg-l` | 0.6 × font-size (8px) |
+| Latin uppercase in `.dg-l` | 0.75 × font-size (10px) |
+| space, `·`, `(`, `)`, `:` in `.dg-l` | 4px |
+| every non-Hangul character in `.dg-s` (mono), spaces included | 7px |
+| anything not listed (`×`, `→`, `=`, `+`, `…`) | 1.0 × font-size |
+
+Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `<tspan>`'s `dy` is the height of the line **above** it (a `.dg-s` sub-line right under the `.dg-l` name has `dy="18"`; the next `.dg-s` line has `dy="15"`), so the box-height formula below and the `dy` values agree.
+
+1. **Box from label.** Take the widest line of the box, estimate it, add 28 (14px padding each side), round up to a multiple of 10: that is the box width. Height is 14 + (sum of line heights) + 14. A box is never narrower than its text; if the result is wider than you want, shorten the text.
+2. **Three lines, then stop.** A box holds a name line and at most two sub-lines, each its own `<tspan x="{box center}" dy="…">`. A field list that does not fit one sub-line is **cut** (`id · name · …`); it is never allowed to run past the border. Of everything cut across the whole drawing, at most one fact moves to the figcaption (the caption budget is one detail), and the rest is simply gone. A drawing is a selection, not an inventory.
+3. **Row budget.** For every row: 20 + (caption column + 40, if the rows carry a left-hand caption such as 원본 / 장부 / 선반; the column is at most 100) + Σ box widths + Σ gaps + 20 ≤ viewBox width. Gaps are at least 40; a gap that carries an arrow label is at least the label estimate + 24. When a row does not fit, shorten labels first, then break it into two rows, then (last) widen the viewBox up to 900. Never above 900: the figure is about 830px wide on screen, so a wider viewBox shrinks 13px text below 12px.
+4. **Nothing crosses a border.** Every box label is `text-anchor="middle"` at the box center, and rule 1 guarantees it stays inside. Free-standing text (edge labels, row captions, the big number) gets a clear zone: no other text, no line other than the one it labels, and no box edge within 6px of its estimated extent, and that extent stays inside `[20, W-20]`.
+5. **Edges run straight, and labels sit beside them.** Connect boxes with horizontal or vertical lines; when the two boxes are in different columns, use an elbow path (`M x1 y1 V ymid H x2 V y2`), not a diagonal. A diagonal is allowed only for a single edge that nothing else comes near, and its label then carries `dg-halo`. Put the label on a straight segment: 10px above a horizontal segment, or to the left of a vertical one, in class `.dg-s`, never across the line itself. When two edges end on the same box, their endpoints are at least 20px apart along that edge of the box (or they join into one elbow before arriving). Give each `<svg>` its own marker id (`ar1`, `ar2`, …): a page has several drawings and duplicate ids are invalid.
+6. **Text comes last.** Inside each `<svg>`, write every `<rect>`, `<line>`, and `<path>` first and every `<text>` after them. SVG paints in document order, so a line written after a label is drawn over it, and `dg-halo` only works when the text is painted on top.
+7. **Plan first, as a comment.** The first child of every `<svg>` is a one-line layout plan, and writing it is the check:
+   `<!-- W=760 · row1 y=56 h=88: [40..190] gap45 [235..385] gap45 [430..580] gap40 [620..720] -->`
+   Every range is closed, adjacent ranges differ by exactly the gap, the last end is ≤ W-20. If the arithmetic does not close, the drawing does not ship.
+8. **Eight boxes or twenty `<text>` elements is the ceiling** (`<tspan>`s inside them do not count). Past that, the picture is two pictures, each with its own `.say`.
 
 ### The word budget
 
 - One `.say` line per beat: **one sentence**, occasionally two. It names what the picture showed; it does not re-explain it.
 - No paragraphs of body prose anywhere on the page. If a beat genuinely needs three paragraphs, the subject wants `visual-doc`.
 - Captions (`figcaption`) may carry one extra factual detail the drawing could not hold.
-- **Identifiers stay off the page.** An outsider will never open `app/models/store.py:103`. A code identifier earns a place only when the reader will actually meet that name (a setting they toggle, a label on their screen), and then once, in that beat's caption.
+- **File paths and line numbers stay off the page.** An outsider will never open `app/models/store.py:103`. The names of the things drawn (a table, an endpoint, a flag) are not evidence of that kind; they are the nouns of the subject and belong in the drawing (see "Real names, plain sub-line" above). A name the drawing does not show may still appear once, in that beat's caption, when the reader will actually meet it.
 - **No footer, no source list.** File paths, line numbers, and the list of what you read are evidence for the person who asked, not content for the reader. They go in your report (Step 6), never in the HTML.
 - **Provenance is one line in the hero eyebrow**: one source and an as-of date, e.g. `studio-pipeline · 2026-09-28 기준`. Add a short status word only when the reader needs it to judge the page (`기획 초안`). If there is no meaningful source (a general "how does DNS work"), the eyebrow is just the date.
 - Numbers appear as before/after pairs in the number strip, four at most, and at least one of them is a cost.
@@ -107,13 +143,13 @@ Read `frame.html` from this skill's base directory. It carries the locked design
 
 The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 17px. Do not enlarge `.say` to make the takeaway "pop", and do not give it a `max-width`; it is a caption-weight line that runs the width of the figure above it. The page ends at the last beat.
 
-Delete the authoring comment at the top of `frame.html` and every placeholder token (`{주제 이름}`, `{출처 한 가지 · YYYY-MM-DD 기준}`, `{문제를 가리키는 짧은 제목}`, the sample beat copy) as you fill each block. A shipped page must contain none of them.
+Delete the authoring comment at the top of `frame.html` and every placeholder token (`{주제 이름}`, `{출처 한 가지 · YYYY-MM-DD 기준}`, `{이 그림이 보여주는 사실 한 가지…}`, the sample beat copy) as you fill each block. A shipped page must contain none of them.
 
 Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase naming the subject, not a summary.
 
 ### Design rules (shared across eli5, explain-diff, micro-world, visual-doc)
 
-- **Title never wraps mid-word.** `word-break: keep-all` stays on titles and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Titles are short noun phrases.
+- **Title never wraps mid-word.** `word-break: keep-all` stays on titles and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Titles are short noun phrases that state a fact about the subject (see "Titles say what the picture is of").
 - **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.
 - **No em-dash or en-dash (`—`, `–`) anywhere in the output.** Not in titles, prose, captions, SVG labels, anywhere. They are a machine-writing tell. Use a colon, parentheses, a comma, or split into two sentences.
 - **Color must survive its background.** A mark carrying meaning (a legend swatch, a status dot, an emphasized stroke) must contrast with the surface under it in both themes.
@@ -134,8 +170,8 @@ npx --no-install playwright screenshot --full-page "file://<abs-path>" /tmp/eli5
 Then check, in this order:
 
 1. **The pictures-only pass.** Look at the drawings and ignore every sentence. Does the idea still come through? This is the skill's actual success criterion, and it is the one check that cannot be skipped.
-2. No drawing is cut off, overlapping, or scaled into illegibility.
-3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{출처\|{문제\|eli5 frame'` the file); no footer or source list crept back in (`grep 'class="foot"'` the file).
+2. No drawing is cut off, overlapping, or scaled into illegibility. If you cannot render, redo the "Fit the text before you draw" arithmetic for every row and every free-standing label instead; a label estimate that exceeds its box, or a row that exceeds W-40, is a defect even if you cannot see it.
+3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{출처\|{이 그림\|{드는\|{규칙\|eli5 frame'` the file); no footer or source list crept back in (`grep 'class="foot"'` the file).
 4. Dark mode holds (`--color-scheme=dark`).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.

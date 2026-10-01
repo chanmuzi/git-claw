@@ -4,7 +4,7 @@ description: >-
   Explain a subject to someone who knows nothing about it, as a self-contained HTML page where big diagrams carry the meaning and the prose is reduced to one line per picture.
   TRIGGER when: user types /eli5 <topic>, or asks for a dead-simple picture explainer aimed at someone outside the domain (e.g., "eli5 해줘", "아무것도 모르는 사람한테 설명하듯 만들어줘", "그림으로 쉽게 풀어줘", "비전공자한테 보여줄 자료로 만들어줘").
   DO NOT TRIGGER when: the reader is the developer who has to merge the change (use explain-diff), the subject is a behavior worth inhabiting interactively (use micro-world), the reader is domain-literate and wants the findings structured (use visual-doc), or a code review verdict is wanted (use code-review).
-version: "1.0.0"
+version: "1.0.1"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Read, Grep, Glob, Write
 ---
 
@@ -83,7 +83,7 @@ The drawings are hand-authored inline SVG, one per beat.
 - **Depict the mechanism, not its name.** A box labeled "cache" says less than the prose. Draw the path a request takes, the two stores it sits between, the arrow that disappears when the cache is gone.
 - **Comparing options? Draw the difference.** Two states side by side with the one edge that changes between them. Separate labeled boxes with nothing connecting them is a restated list, not a comparison.
 - **Label the arrows.** An unlabeled arrow means "related somehow". `writes`, `20장씩`, `19배 압축` is information.
-- **No jargon inside the picture.** Identifiers, flag names, and function names belong in the caption or the footer, never as a shape's label. A drawing that needs `use_doc_chunking` to be understood is drawn for an insider.
+- **No jargon inside the picture.** Identifiers, flag names, and function names are never a shape's label, and by default they are not on the page at all (see the word budget). A drawing that needs `use_doc_chunking` to be understood is drawn for an insider.
 - **Draw the reader's world, not the code's.** Pages, forms, queues, doors, votes. Concrete nouns the outsider already owns.
 - **Size by `viewBox`** (`viewBox="0 0 W H"`, CSS `width:100%; height:auto`), pick W and H for the content, and align shapes to a shared grid. Eyeballed offsets read as noise.
 - **Theme with `currentColor`.** Strokes and text inherit the page's foreground so both themes work. Reserve `var(--blue)` for the one element carrying the point of that picture and `var(--red)` for the thing that breaks. Two accent colors per drawing at most.
@@ -96,13 +96,18 @@ The drawings are hand-authored inline SVG, one per beat.
 - One `.say` line per beat: **one sentence**, occasionally two. It names what the picture showed; it does not re-explain it.
 - No paragraphs of body prose anywhere on the page. If a beat genuinely needs three paragraphs, the subject wants `visual-doc`.
 - Captions (`figcaption`) may carry one extra factual detail the drawing could not hold.
+- **Identifiers stay off the page.** An outsider will never open `app/models/store.py:103`. A code identifier earns a place only when the reader will actually meet that name (a setting they toggle, a label on their screen), and then once, in that beat's caption.
+- **No footer, no source list.** File paths, line numbers, and the list of what you read are evidence for the person who asked, not content for the reader. They go in your report (Step 6), never in the HTML.
+- **Provenance is one line in the hero eyebrow**: one source and an as-of date, e.g. `studio-pipeline · 2026-09-28 기준`. Add a short status word only when the reader needs it to judge the page (`기획 초안`). If there is no meaningful source (a general "how does DNS work"), the eyebrow is just the date.
 - Numbers appear as before/after pairs in the number strip, four at most, and at least one of them is a cost.
 
 ## Step 4: Build the Page
 
-Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.rule`, `.foot`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
+Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.rule`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
 
-Delete the authoring comment at the top of `frame.html` and every placeholder token (`{주제 이름}`, `{문제를 가리키는 짧은 제목}`, the sample beat copy) as you fill each block. A shipped page must contain none of them.
+The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 17px. Do not enlarge `.say` to make the takeaway "pop", and do not give it a `max-width`; it is a caption-weight line that runs the width of the figure above it. The page ends at the last beat.
+
+Delete the authoring comment at the top of `frame.html` and every placeholder token (`{주제 이름}`, `{출처 한 가지 · YYYY-MM-DD 기준}`, `{문제를 가리키는 짧은 제목}`, the sample beat copy) as you fill each block. A shipped page must contain none of them.
 
 Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase naming the subject, not a summary.
 
@@ -130,7 +135,7 @@ Then check, in this order:
 
 1. **The pictures-only pass.** Look at the drawings and ignore every sentence. Does the idea still come through? This is the skill's actual success criterion, and it is the one check that cannot be skipped.
 2. No drawing is cut off, overlapping, or scaled into illegibility.
-3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{문제\|eli5 frame' the file).
+3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep '{주제\|{출처\|{문제\|eli5 frame'` the file); no footer or source list crept back in (`grep 'class="foot"'` the file).
 4. Dark mode holds (`--color-scheme=dark`).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.
@@ -140,7 +145,8 @@ Fix and re-render until clean. If no browser is available, still do check 1 by r
 1. Write the file to the **repository root**: `eli5-<slug>.html` (slug from the subject, kebab-case). If not in a repo, write to the current directory.
 2. Report the **absolute path**. Do NOT auto-open, do NOT commit, do NOT add to .gitignore. Delete only when the user asks.
 3. State the one idea in a single line in the report, so the user can check it matches what they wanted explained.
-4. Content language follows the project's AGENTS.md (or CLAUDE.md as fallback) setting; if none, the user's conversational language. Korean output uses 해요체.
+4. List what the page was built from in the report: repo and commit, PR or issue numbers, the key file paths. This is where the evidence lives, since the page itself carries only the eyebrow line.
+5. Content language follows the project's AGENTS.md (or CLAUDE.md as fallback) setting; if none, the user's conversational language. Korean output uses 해요체.
 
 **Constraints:**
 

@@ -153,7 +153,7 @@ Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `
 
 Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.rule`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
 
-The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 17px (body weight; bold or the cost color on one phrase at most). Do not enlarge `.say` to make a takeaway "pop", and do not give it a `max-width`; it runs the width of the figure above it. The page ends at the last beat.
+The type scale is part of what is locked: title 30-44px, beat heading 22px, lede 18px, `.say` 15px regular in the secondary text color (the same as visual-doc body prose; bold or the cost color on one phrase at most). Do not enlarge `.say` to make a takeaway "pop", and do not give it a `max-width`; it runs the width of the figure above it. The page ends at the last beat.
 
 Delete the authoring comment at the top of `frame.html` and every placeholder token (every Korean phrase in braces, such as `{출처 한 가지 · YYYY-MM-DD 기준}` and `{이 그림이 보여주는 사실 한 가지. 개조식 가능}`, plus the sample beat copy) as you fill each block. A shipped page must contain none of them.
 

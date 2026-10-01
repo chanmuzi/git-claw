@@ -235,13 +235,13 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 **Reads naturally in Korean:** Titles are short noun phrases, not sentences (with `word-break: keep-all` so Korean wraps at word boundaries, never mid-word), and the output avoids em-dashes and stiff translation-ese that mark machine writing.
 
-**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `explain-diff-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
+**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `explain-diff-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed. Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it.
 
 </details>
 
 ### `/micro-world` — Inhabit a Behavior
 
-Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is disclosed in a footnote. Each world runs one guided scenario — a mission bar with goal chips, exactly one recommended action enabled at a time — with full step playback: snapshot-based back/forward controls where pressing the forward key from a fresh page walks the entire story (arrow keys and R to restart).
+Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is disclosed in a footnote. Each world runs one guided scenario — a mission bar with goal chips, exactly one recommended action enabled at a time — with full step playback: snapshot-based back/forward controls where pressing the forward key from a fresh page walks the entire story (arrow keys and R to restart). Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it. The terminal pane stays dark in both.
 
 ```
 /micro-world                          # Simulate a behavior from the current change
@@ -271,7 +271,7 @@ Produces a self-contained HTML page where **big hand-authored SVG diagrams carry
 /eli5                      # Explain the current conversation's subject
 ```
 
-**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `eli5-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
+**Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `eli5-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed. Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it.
 
 ## Language Behavior
 

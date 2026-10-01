@@ -117,7 +117,7 @@ The rules above are the first defense; a screenshot is the second. If a headless
 npx --no-install playwright screenshot --full-page "file://<abs-path>" /tmp/visual-doc-check.png
 ```
 
-Check: the title does not wrap mid-word; charts (line/donut) render with legible, background-contrasting marks and sane proportions; no block is broken; dark mode holds (`--color-scheme=dark`) and the theme toggle is present (`grep 'class="theme-btn"'` the file). Fix and re-render until it is clean. If no browser is available, rely on the rules and say the render was not visually verified.
+Check: the title does not wrap mid-word; charts (line/donut) render with legible, background-contrasting marks and sane proportions; no block is broken; dark mode holds (`--color-scheme=dark`) and all three parts of the toggle survived: `grep -c '<button type="button" class="theme-btn"'`, `grep -c '\.theme-btn{'`, and `grep -c 'git-claw-doc-theme'` must each print at least 1 (a bare `theme-btn` match can be prose that merely mentions it). Fix and re-render until it is clean. If no browser is available, rely on the rules and say the render was not visually verified.
 
 ## Step 5: Output
 

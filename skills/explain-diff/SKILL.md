@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained interactive HTML explainer for a code diff, commit, branch, or PR so the developer genuinely understands the change before sharing or merging it.
   TRIGGER when: user asks to explain a diff/PR/commit/changes or wants an understanding document (e.g., "diff 설명해줘", "이 변경 이해하게 해줘", "explain this PR", "변경사항 설명 문서 만들어줘").
   DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), the reader is someone outside the domain who needs a picture explainer (use eli5), user is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
-version: "1.1.4"
+version: "1.2.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -55,12 +55,16 @@ Do NOT start writing the document from the diff alone.
 
 Read `template.html` from this skill's base directory. It carries the full design system (tokens, components, generic quiz/gate JS) — **fill it, never restyle it**. No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images). The output must stay a single self-contained HTML file.
 
+**Light and dark, switchable.** The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Keep three things from the template verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>` (the shipped toggle icon is the one sanctioned SVG icon). The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Any CSS you author yourself takes every color from a token: `var(--surface)` for a raised white surface, `var(--on-accent)` for text on a `--blue`/`--green` fill, `var(--track)` and `var(--shadow-sm)` for tracks and small shadows. A literal `#fff`, a black-alpha `rgba(...)`, or an inline `style="color:..."` with a hex value reads in one theme only. This applies above all to the optional custom figure, which is the only CSS you write.
+
 **Before writing anything else, clear the template's own scaffolding:**
 
 - Delete the authoring comment at the top of the file (`explain-diff output template. Fill every {{PLACEHOLDER}}…`). It is instructions for you, not content for the reader.
 - Fill `<title>` — it names the browser tab. `explain-diff: {한 줄 요약} ({대상})`.
 - Delete every `REPEAT` / `FIGURE SLOT` comment once its block is filled or dropped.
 - Before writing the file, grep your output for `{{` — a surviving placeholder means an unfilled slot.
+- Confirm all three parts of the toggle survived: `grep -c '<button type="button" class="theme-btn"'`, `grep -c '\.theme-btn{'`, and `grep -c 'git-claw-doc-theme'` must each print at least 1 (a bare `theme-btn` match can be prose that merely mentions it).
+- If you wrote any CSS or inline `style` of your own, re-read it for a literal `#fff`, a hex color, or an `rgba(`: every color comes from a token. (The `:root` token blocks contain literals by design, so a whole-file grep for these is not a usable check.)
 
 ### Writing style
 

@@ -27,6 +27,52 @@
     --r-card:20px; --r-el:14px;
     --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    /* theme-aware surfaces: never write #fff or a black-alpha literal in a rule */
+    --line:var(--gray100);
+    --surface:#ffffff;                 /* raised surface inside a tinted panel */
+    --on-accent:#ffffff;               /* text on a --blue / --green fill */
+    --track:rgba(25,31,40,.055);       /* segmented-control track */
+    --shadow-sm:0 1px 3px rgba(25,31,40,.06);
+  }
+  /* Dark tokens appear twice on purpose: once for "follow the system" and once for
+     the toggle. Keep the two blocks identical. */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
+      --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
+      --gray50:#222831; --gray25:#252C35;  /* chip surface: must differ from --card in dark */
+      --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
+      --red:#F4636F; --red-soft:#3A2226;
+      --green:#2BB88A; --green-soft:#173029;
+      --amber:#E0A44A; --amber-soft:#33291A;
+      --bg:#171B21; --card:#1E242C;
+      --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+      --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+      --line:#2A313A;
+      --surface:#2A313A;
+      --on-accent:#10151C;
+      --track:rgba(255,255,255,.07);
+      --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
+    --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
+    --gray50:#222831; --gray25:#252C35;  /* chip surface: must differ from --card in dark */
+    --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
+    --red:#F4636F; --red-soft:#3A2226;
+    --green:#2BB88A; --green-soft:#173029;
+    --amber:#E0A44A; --amber-soft:#33291A;
+    --bg:#171B21; --card:#1E242C;
+    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
+    --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+    --line:#2A313A;
+    --surface:#2A313A;
+    --on-accent:#10151C;
+    --track:rgba(255,255,255,.07);
+    --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+    color-scheme:dark;
   }
   *{ box-sizing:border-box; }
   /* scroll-behavior:smooth를 쓰지 않는다. native smooth는 거리와 거의 무관하게
@@ -39,6 +85,23 @@
     background:var(--bg); color:var(--ink);
     -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
   }
+
+  /* ── theme toggle (LOCKED) ──
+     The page follows the system setting until the reader presses this; the press
+     writes data-theme on <html>, which wins in both directions. On narrow screens
+     the button sits at the top of the page only, so it never covers body text. */
+  .theme-btn{
+    position:absolute; top:16px; right:16px; z-index:50;
+    width:36px; height:36px; padding:0; border-radius:50%;
+    display:grid; place-items:center; cursor:pointer;
+    background:var(--card); color:var(--sub); border:1px solid var(--line);
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .theme-btn:hover{ color:var(--ink); border-color:var(--gray300); }
+  .theme-btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .theme-btn svg{ width:18px; height:18px; display:block; }
+  @media (min-width:1000px){ .theme-btn{ position:fixed; top:20px; right:28px; } }
+  @media print{ .theme-btn{ display:none; } }
   .wrap{ max-width:760px; margin:0 auto; padding:0 20px 150px; }
 
   /* 한글 줄바꿈: keep-all이 없으면 브라우저가 어절(띄어쓰기)을 무시하고 글자 단위로
@@ -227,19 +290,19 @@
   .sim-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); margin-bottom:14px; }
   .sim-toggle-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
   .sim-toggle-row .lbl{ font-size:13px; font-weight:600; color:var(--gray600); }
-  .seg{ display:inline-flex; background:rgba(25,31,40,.055); border-radius:11px; padding:3px; }
+  .seg{ display:inline-flex; background:var(--track); border-radius:11px; padding:3px; }
   .seg button{
     appearance:none; border:none; font:inherit; cursor:pointer;
     font-size:12.5px; font-weight:600; color:var(--gray600);
     background:transparent;
     padding:6px 14px; border-radius:9px; transition:all .15s ease;
   }
-  .seg button:not(.on):hover{ background:#fff; color:var(--blue); }
-  .seg button.on{ background:var(--blue); color:#fff; box-shadow:0 2px 6px color-mix(in srgb, var(--blue) 30%, transparent); }
+  .seg button:not(.on):hover{ background:var(--surface); color:var(--blue); }
+  .seg button.on{ background:var(--blue); color:var(--on-accent); box-shadow:0 2px 6px color-mix(in srgb, var(--blue) 30%, transparent); }
   .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
   .sim-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media (max-width:560px){ .sim-grid{ grid-template-columns:1fr; } }
-  .sim-col{ background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 1px 3px rgba(25,31,40,.06); }
+  .sim-col{ background:var(--surface); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow-sm); }
   .sim-col h3{ font-size:13.5px; font-weight:700; margin:0 0 10px; display:flex; align-items:center; gap:7px; }
   .sim-col h3 .agent-dot{ width:8px; height:8px; border-radius:50%; background:var(--blue); }
   .sim-step{ display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--gray600); padding:4px 0; line-height:1.55; }
@@ -258,7 +321,7 @@
   .takeaway ul{ margin:0; padding-left:18px; }
   .takeaway li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
   .takeaway li:last-child{ margin-bottom:0; }
-  .takeaway code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
+  .takeaway code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 5px; }
 
   /* 리스크 */
   .risk-row{ display:flex; gap:14px; align-items:flex-start; padding:16px 4px; border-bottom:1px solid var(--gray50); }
@@ -313,14 +376,14 @@
   }
   .btn:active{ transform:scale(.97); }
   .btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
-  .btn.retry{ background:#fff; border:1px solid var(--gray200); color:var(--gray600); }
+  .btn.retry{ background:var(--surface); border:1px solid var(--gray200); color:var(--gray600); }
   .btn.retry:hover{ background:var(--gray50); }
   /* 힌트가 가리키는 섹션으로 보내는 링크. 오답 시 주 동작이므로 solid */
-  .btn.jump{ background:var(--blue); color:#fff; text-decoration:none; display:inline-block; }
+  .btn.jump{ background:var(--blue); color:var(--on-accent); text-decoration:none; display:inline-block; }
   .btn.jump:hover{ background:var(--blue-dark); }
-  .btn.fill{ background:var(--blue); color:#fff; }
+  .btn.fill{ background:var(--blue); color:var(--on-accent); }
   .btn.fill:hover{ background:var(--blue-dark); }
-  .btn.weak{ background:#fff; color:var(--blue); }
+  .btn.weak{ background:var(--surface); color:var(--blue); }
 
   /* 정답 해설: 라벨 + 핵심 한 줄 + 불릿 */
   .q-explain{ display:none; margin-top:12px; background:var(--blue-soft); border-radius:12px; padding:14px 16px; }
@@ -330,7 +393,7 @@
   .q-explain ul{ margin:0; padding-left:18px; }
   .q-explain li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
   .q-explain li:last-child{ margin-bottom:0; }
-  .q-explain code{ font-family:var(--mono); font-size:12px; background:#fff; border-radius:5px; padding:1px 5px; }
+  .q-explain code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 5px; }
 
   /* BottomCTA: 이해 게이트 (가짜 액션 문구 금지) */
   .bottom-cta{
@@ -360,13 +423,38 @@
     transition:all .25s ease;
   }
   .cta .sub{ display:block; font-size:12px; font-weight:600; margin-top:2px; opacity:.8; }
-  .cta.armed{ background:var(--green); color:#fff; box-shadow:0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
+  .cta.armed{ background:var(--green); color:var(--on-accent); box-shadow:0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
   .cta:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
 
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; transform:none !important; scroll-behavior:auto !important; } }
 </style>
+<script>
+/* theme toggle (LOCKED): a saved choice is applied before first paint. The button
+   still works where storage is blocked (private windows); it just is not remembered. */
+(function(){
+  var root = document.documentElement, KEY = "git-claw-doc-theme";
+  function isDark(){
+    var t = root.getAttribute("data-theme");
+    return t ? t === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+  try{
+    var saved = localStorage.getItem(KEY);
+    if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  }catch(e){}
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest && e.target.closest(".theme-btn");
+    if (!btn) return;
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+  });
+})();
+</script>
 </head>
 <body>
+<button type="button" class="theme-btn" aria-label="라이트/다크 전환" title="라이트/다크 전환">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
+</button>
 <div class="wrap">
 
   <header class="top">

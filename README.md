@@ -229,7 +229,7 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 **Investigate first:** Before writing, the skill reads every hunk plus its enclosing function, extracts stated intent from commits/PR body, explores callers and tests, and groups hunks into narrative themes — the document explains behavior, not lines.
 
-**Three-part structure:** Overview (background + directory tree + optional interactive figure), Changes (one card per theme, each closing with a key-takeaway card), and Comprehension check (risk pointers + quiz).
+**Three-part structure:** Overview (background + directory tree + optional interactive figure), Changes (one card per theme: prose, an optional before/after flow figure when the theme changes call order or call count, the verbatim diff excerpt, and a key-takeaway card), and Comprehension check (risk pointers + quiz).
 
 **Honest by design:** Suspicions are framed as attention pointers, never verdicts; quoted code is verbatim only; the completion button states understanding — it never pretends to perform an action.
 
@@ -258,6 +258,8 @@ Generates a self-contained interactive HTML document from researched or analyzed
 /visual-doc 42           # Analyze and document PR #42
 ```
 
+**Diagrams:** Flows, sequences, and structures are hand-authored inline SVG that uses the document's own tokens, so they follow the light/dark toggle and render wherever the file is opened. Mermaid remains as a fallback for diagrams too large to lay out by hand.
+
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `visual-doc-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
 
 ### `/eli5` — Explain It to an Outsider
@@ -270,6 +272,8 @@ Produces a self-contained HTML page where **big hand-authored SVG diagrams carry
 /eli5 src/auth/            # Explain what a path does
 /eli5                      # Explain the current conversation's subject
 ```
+
+**Interactive only when needed:** A page may carry one figure with a slider or switch, only when the reader has to move a value to see the point (the outcome changes across several values, or the point is where behavior flips). A plain before/after comparison stays a static two-row figure.
 
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `eli5-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed. Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it.
 

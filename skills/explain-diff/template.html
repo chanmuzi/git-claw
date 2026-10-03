@@ -574,8 +574,10 @@
          values of an input, or the point is the value at which behavior flips. Two fixed
          states (before/after) are a static two-row flow figure, not a toggle.
          Never build a step-through that reveals already-visible content in order.
-         Use the .sim / .seg / .sim-grid / .sim-step components above and inline the
-         bespoke JS at the bottom of the page. Delete this slot otherwise. -->
+         Build it inside .sim with a .seg switch as the input; what the input redraws is a
+         <figure class="fig"> SVG, and .sim-note is the readout. Do not build it from
+         .sim-grid / .sim-step text lists alone. Inline the bespoke JS at the bottom of the
+         page. Delete this slot otherwise. -->
   </section>
 
   <div class="group-label"><span class="g-part">Part 2</span><span class="g-name">변경 사항</span></div>
@@ -590,33 +592,35 @@
          Redraw it for the theme: size every box from its label, give each figure its own
          marker ids, and keep the layout-plan comment. Delete the whole <figure> otherwise. -->
     <figure class="fig">
-      <svg viewBox="0 0 700 180" role="img" aria-label="{{FIGURE_CLAIM — one sentence}}">
-        <!-- W=700 · caption [20..80] · row1 y=24 h=44, row2 y=112 h=44: [100..220] gap100 [320..460] gap80 [540..680] -->
+      <svg viewBox="0 0 720 180" role="img" aria-label="{{FIGURE_CLAIM — one sentence}}">
+        <!-- W=720 · caption [20..80] · row1 y=24 h=46, row2 y=112 h=46: [120..240] gap100 [340..480] gap80 [560..700] -->
         <defs>
           <marker id="ff1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="currentColor"/></marker>
           <marker id="ff1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--red)"/></marker>
           <marker id="ff1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--blue)"/></marker>
         </defs>
-        <rect x="100" y="24" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <rect x="320" y="24" width="140" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <rect x="540" y="24" width="140" height="44" rx="6" fill="none" style="stroke:var(--red)" stroke-width="1.5"/>
-        <line x1="220" y1="46" x2="320" y2="46" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
-        <line x1="460" y1="46" x2="540" y2="46" style="stroke:var(--red)" stroke-width="1.5" marker-end="url(#ff1r)"/>
-        <rect x="100" y="112" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <rect x="320" y="112" width="140" height="44" rx="6" fill="none" style="stroke:var(--blue)" stroke-width="1.5"/>
-        <rect x="540" y="112" width="140" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <line x1="220" y1="134" x2="320" y2="134" style="stroke:var(--blue)" stroke-width="1.5" marker-end="url(#ff1b)"/>
-        <line x1="460" y1="134" x2="540" y2="134" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
-        <text class="dg-l" x="20" y="50" font-weight="700">변경 전</text>
-        <text class="dg-l" x="20" y="138" font-weight="700">변경 후</text>
-        <text class="dg-l" x="160" y="50" text-anchor="middle">{{CALLER}}</text>
-        <text class="dg-s" x="270" y="36" text-anchor="middle">{{EDGE_BEFORE}}</text>
-        <text class="dg-l" x="390" y="50" text-anchor="middle">{{CALLEE_BEFORE}}</text>
-        <text class="dg-l dg-bad" x="610" y="50" text-anchor="middle">{{OUTCOME_BEFORE}}</text>
-        <text class="dg-l" x="160" y="138" text-anchor="middle">{{CALLER}}</text>
-        <text class="dg-s dg-em" x="270" y="124" text-anchor="middle">{{EDGE_AFTER}}</text>
-        <text class="dg-l dg-em" x="390" y="138" text-anchor="middle">{{CALLEE_AFTER}}</text>
-        <text class="dg-l" x="610" y="138" text-anchor="middle">{{OUTCOME_AFTER}}</text>
+        <rect x="120" y="24" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="340" y="24" width="140" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="560" y="24" width="140" height="46" rx="6" fill="none" style="stroke:var(--red)" stroke-width="1.5"/>
+        <line x1="240" y1="47" x2="340" y2="47" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
+        <line x1="480" y1="47" x2="560" y2="47" style="stroke:var(--red)" stroke-width="1.5" marker-end="url(#ff1r)"/>
+        <rect x="120" y="112" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="340" y="112" width="140" height="46" rx="6" fill="none" style="stroke:var(--blue)" stroke-width="1.5"/>
+        <rect x="560" y="112" width="140" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="240" y1="135" x2="340" y2="135" style="stroke:var(--blue)" stroke-width="1.5" marker-end="url(#ff1b)"/>
+        <line x1="480" y1="135" x2="560" y2="135" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
+        <text class="dg-l" x="20" y="49" font-weight="700">변경 전</text>
+        <text class="dg-l" x="20" y="137" font-weight="700">변경 후</text>
+        <text class="dg-l" x="180" y="49" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s" x="290" y="37" text-anchor="middle">{{EDGE_BEFORE}}</text>
+        <text class="dg-l" x="410" y="49" text-anchor="middle">{{CALLEE_BEFORE}}</text>
+        <text class="dg-s dg-bad" x="520" y="37" text-anchor="middle">{{EDGE2_BEFORE}}</text>
+        <text class="dg-l dg-bad" x="630" y="49" text-anchor="middle">{{OUTCOME_BEFORE}}</text>
+        <text class="dg-l" x="180" y="137" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s dg-em" x="290" y="125" text-anchor="middle">{{EDGE_AFTER}}</text>
+        <text class="dg-l dg-em" x="410" y="137" text-anchor="middle">{{CALLEE_AFTER}}</text>
+        <text class="dg-s" x="520" y="125" text-anchor="middle">{{EDGE2_AFTER}}</text>
+        <text class="dg-l" x="630" y="137" text-anchor="middle">{{OUTCOME_AFTER}}</text>
       </svg>
     </figure>
     <div class="codeblock">

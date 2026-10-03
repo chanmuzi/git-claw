@@ -197,11 +197,42 @@
   .tl-item .tl-desc{ font-size:13px; color:var(--gray600); line-height:1.6; }
 
   /* ── COMPONENT: annotated code ── */
-  .codeblock{ background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow-x:auto; }
-  .cb-head{ display:flex; align-items:center; justify-content:space-between; padding:9px 16px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--faint); }
-  .cb-head .file{ font-weight:600; color:var(--gray500); }
-  .codeblock pre{ margin:0; padding:12px 0; font-family:var(--mono); font-size:12.5px; line-height:1.85; color:var(--gray700); }
+  /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Syntax colors are spans the author wraps by hand (no highlighter script):
+     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
+     Each color is its token mixed with body gray, so it reads calm in both themes.
+     Long lines never wrap: .cb-body scrolls with an always-visible scrollbar. */
+  .codeblock{
+    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
+    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
+    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
+    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
+    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
+    background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow:hidden;
+  }
+  .cb-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:9px 16px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--faint);
+  }
+  .cb-head .file{ font-weight:600; color:var(--gray500); min-width:0; overflow-wrap:anywhere; }
+  .cb-body{ overflow-x:auto; }
+  .cb-body::-webkit-scrollbar{ height:10px; }
+  .cb-body::-webkit-scrollbar-track{ background:var(--gray50); }
+  .cb-body::-webkit-scrollbar-thumb{ background:var(--gray300); border-radius:999px; border:2px solid var(--gray50); }
+  /* Firefox: no ::-webkit-scrollbar. Chrome ignores the pseudo-elements once scrollbar-color is set, so scope it */
+  @supports not selector(::-webkit-scrollbar){ .cb-body{ scrollbar-color:var(--gray300) var(--gray50); } }
+  .codeblock pre{
+    margin:0; padding:12px 0; width:max-content; min-width:100%;
+    font-family:var(--mono); font-size:12.5px; line-height:1.8; color:var(--sx-base);
+  }
   .ln{ display:block; padding:0 18px; white-space:pre; }
+  .ln.gap{ color:var(--faint); font-style:italic; }
+  .sx-k{ color:var(--sx-k); }
+  .sx-f{ color:var(--sx-f); }
+  .sx-s{ color:var(--sx-s); }
+  .sx-n{ color:var(--sx-n); }
+  .sx-c{ color:var(--faint); font-style:italic; }
   .ln.hl{ background:var(--amber-soft); }
   .ln .note{ color:var(--amber); font-style:normal; }
 
@@ -532,10 +563,10 @@
       <div class="cite"><span class="av">M</span><span>git-claw <b>micro-world/SKILL.md</b></span></div>
     </blockquote></div>
 
-    <div class="demo-label">주석 달린 코드</div>
+    <div class="demo-label">주석 달린 코드 (공통 들여쓰기 제거, 토큰 span, 생략 줄, 강조 줄)</div>
     <div class="codeblock">
-      <div class="cb-head"><span class="file">skills/visual-doc/SKILL.md</span><span>발췌</span></div>
-      <pre><span class="ln">## Step 2: Design the skeleton</span><span class="ln hl">Pick components by content type.  <span class="note">← 여기서 구조가 갈림</span></span><span class="ln">Verify with a screenshot before output.</span></pre>
+      <div class="cb-head"><span class="file">skills/visual-doc/components.html · theme toggle</span><span>JavaScript</span></div>
+      <div class="cb-body"><pre><span class="ln"><span class="sx-k">var</span> root = document.documentElement, KEY = <span class="sx-s">"git-claw-doc-theme"</span>;</span><span class="ln"><span class="sx-k">function</span> <span class="sx-f">isDark</span>(){</span><span class="ln gap">  … 3줄 생략</span><span class="ln">}</span><span class="ln"><span class="sx-k">try</span>{</span><span class="ln hl">  <span class="sx-k">var</span> saved = localStorage.<span class="sx-f">getItem</span>(KEY);  <span class="note">← 저장소가 막힌 창에서는 여기서 예외</span></span><span class="ln">  <span class="sx-k">if</span> (saved === <span class="sx-s">"light"</span> || saved === <span class="sx-s">"dark"</span>) root.<span class="sx-f">setAttribute</span>(<span class="sx-s">"data-theme"</span>, saved);</span><span class="ln">}<span class="sx-k">catch</span>(e){}</span></pre></div>
     </div>
 
     <div class="demo-label">콜아웃 4종 (라벨 행 + SVG 아이콘, 이 SVG를 그대로 복사)</div>

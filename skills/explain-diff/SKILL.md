@@ -4,7 +4,7 @@ description: >-
   Generate a self-contained interactive HTML explainer for a code diff, commit, branch, or PR so the developer genuinely understands the change before sharing or merging it.
   TRIGGER when: user asks to explain a diff/PR/commit/changes or wants an understanding document (e.g., "diff 설명해줘", "이 변경 이해하게 해줘", "explain this PR", "변경사항 설명 문서 만들어줘").
   DO NOT TRIGGER when: user wants defect findings or a review verdict (use code-review), the reader is someone outside the domain who needs a picture explainer (use eli5), user is committing or creating PRs, or asks a quick question about a specific line that a direct answer serves better.
-version: "1.2.1"
+version: "1.3.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Write
 ---
 
@@ -18,7 +18,7 @@ Honesty rules apply throughout:
 
 - Never present a suspicion as a confirmed bug — frame it as an attention pointer.
 - Distinguish stated intent (commit messages, PR body) from your inferred interpretation.
-- Quote code **verbatim only** — never paraphrase, re-indent, or reconstruct from memory. Every quoted block must survive comparison against the actual file.
+- Quote code **verbatim only** — never paraphrase or reconstruct from memory. The one allowed change is removing the indentation common to every quoted line (relative indentation stays). Every quoted block must survive comparison against the actual file.
 - Do not invent content for a section with nothing to say — omit the section.
 
 ## Parse Arguments
@@ -56,6 +56,8 @@ Do NOT start writing the document from the diff alone.
 Read `template.html` from this skill's base directory. It carries the full design system (tokens, components, generic quiz/gate JS) — **fill it, never restyle it**. No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images). The output must stay a single self-contained HTML file.
 
 **Light and dark, switchable.** The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Keep three things from the template verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>` (the shipped toggle icon is the one sanctioned SVG icon). The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Any CSS you author yourself takes every color from a token: `var(--surface)` for a raised white surface, `var(--on-accent)` for text on a `--blue`/`--green` fill, `var(--track)` and `var(--shadow-sm)` for tracks and small shadows. A literal `#fff`, a black-alpha `rgba(...)`, or an inline `style="color:..."` with a hex value reads in one theme only. This applies above all to the optional custom figure, which is the only CSS you write.
+
+**Code blocks: one shared component.** Show code only inside the template's `.codeblock` (`.cb-head` with the location on the left (`파일 · 함수`) and the language on the right, then `.cb-body > pre`, one `.ln` span per line). Copy its CSS block verbatim; it is identical in all four templates. Strip the indentation common to every quoted line and keep the relative indentation; nothing else in the text changes. Replace skipped lines with one `<span class="ln gap">… N줄 생략</span>`, indented to the depth of the code it replaces. Color syntax by wrapping tokens yourself, never with a highlighter script or CDN: `sx-k` keywords (`if`, `and`, `return`, `function`), `sx-f` function names where called or defined, `sx-s` string literals, `sx-n` numbers and language constants (`True`, `None`, `null`), `sx-c` comments. Leave variables, operators, and punctuation unwrapped, and HTML-escape `<`, `>`, `&`. Never hard-wrap a long line or set `pre-wrap`: the block scrolls sideways with an always-visible scrollbar. In a diff excerpt every line starts with its sign: `<span class="ln add"><span class="sign">+</span> …</span>`, `<span class="ln del"><span class="sign">-</span> …</span>`, or two spaces for a context line. Wrap tokens on added and context lines; removed lines need no wrapping (the CSS mutes them to gray so the new code draws the eye).
 
 **Before writing anything else, clear the template's own scaffolding:**
 
@@ -110,7 +112,7 @@ Structure is fixed at three parts:
 
 **Part 2 — 변경 사항.** One card per theme from Step 2, ordered by importance:
 - Prose explaining behavior meaning — what the reader must understand, not a line-by-line narration.
-- Verbatim diff excerpts (12 lines max per block; elide the middle with `…`). Only the lines that carry the theme.
+- Verbatim diff excerpts (12 lines max per block; elide the middle with a `.ln.gap` line `… N줄 생략`). Only the lines that carry the theme.
 - Close every card with a `핵심 정리` takeaway card: one bold sentence to remember + 2-3 supporting bullets. This is the same visual language as quiz explanations — blue tinted card = "the thing to remember".
 
 **Part 3 — 이해 점검.**

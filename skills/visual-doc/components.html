@@ -374,7 +374,22 @@
   .callout + .callout{ margin-top:12px; }
   .wrap > .demo-label + *{ margin-top:0; }
 
-  /* ── COMPONENT: diagram (mermaid) full-bleed + 라이트박스 ──
+  /* ── COMPONENT: figure (손으로 쓴 인라인 SVG 다이어그램) ──
+     .card 안에 둔다. 문서 토큰을 그대로 써서 테마 전환을 따르고, 어디서 열어도 그려진다.
+     좁은 화면에서는 글자를 줄이지 않고 가로로 스크롤한다. */
+  .fig{ margin:0; overflow-x:auto; }
+  .fig svg{ display:block; width:100%; min-width:520px; height:auto; color:var(--ink); }
+  /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
+     Text inside a hand-authored SVG figure uses only these classes. */
+  .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
+  .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
+  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
+  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
+  .dg-em{ fill:var(--blue); }                               /* the point of this picture */
+  .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+
+  /* ── COMPONENT: diagram (mermaid, 대체 수단) full-bleed + 라이트박스 ──
+     손으로 배치하기 어려운 큰 다이어그램(대략 노드 15개 이상)에만 쓴다. 기본은 위의 figure다.
      mermaid는 SVG를 컨테이너 폭에 맞춰 통째로 축소하므로, 요소가 많은 다이어그램은
      본문 컬럼(800px) 안에서 글자가 작아진다. 두 층으로 대응한다:
      (1) .bleed: 다이어그램 카드만 본문 컬럼을 깨고 뷰포트 폭으로 확장
@@ -653,8 +668,29 @@
       <div class="k-note" id="knobNote">동시성 캡은 <b>min(16, 코어−2)</b>예요. 값을 올리면 대기 큐가 줄지만 컨텍스트 비용이 늘어요.</div>
     </div>
 
-    <div class="demo-label">다이어그램 (mermaid, full-bleed + 클릭 확대)</div>
-    <p class="prose">다이어그램 카드는 본문 컬럼을 깨고 넓게 렌더되고(<code>.bleed</code>), 클릭하면 라이트박스에서 휠 줌·드래그 팬이 돼요(<code>.zoomable</code>). Artifacts 환경은 <code>pre.mermaid</code>를 네이티브 렌더링해요 (이 파일을 로컬 브라우저로 열면 소스 텍스트로 보여요).</p>
+    <div class="demo-label">다이어그램 (인라인 SVG · 기본)</div>
+    <p class="prose">흐름·순서·구조 그림은 손으로 쓴 SVG로 그려요. 문서 토큰을 그대로 쓰므로 테마 전환을 따르고, 강조할 요소 하나에만 <code>--blue</code>를 써요. 아래 그림은 예시이고, 그림은 문서마다 새로 그려요.</p>
+    <div class="card"><figure class="fig">
+      <svg viewBox="0 0 750 142" role="img" aria-label="에이전트가 SKILL.md를 읽고 git commit을 실행해요">
+        <!-- W=750 · row1 y=40 h=62: [40..200] gap80 [280..460] gap80 [540..720] -->
+        <defs>
+          <marker id="vf1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="currentColor"/></marker>
+        </defs>
+        <rect x="40" y="40" width="160" height="62" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="280" y="40" width="180" height="62" rx="6" fill="none" style="stroke:var(--blue)" stroke-width="1.5"/>
+        <rect x="540" y="40" width="180" height="62" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="280" y1="71" x2="200" y2="71" stroke="currentColor" stroke-width="1.5" marker-end="url(#vf1)"/>
+        <line x1="460" y1="71" x2="540" y2="71" stroke="currentColor" stroke-width="1.5" marker-end="url(#vf1)"/>
+        <text class="dg-l" x="120" y="66" text-anchor="middle">SKILL.md<tspan class="dg-s" x="120" dy="18">지시문</tspan></text>
+        <text class="dg-s" x="240" y="61" text-anchor="middle">읽기</text>
+        <text class="dg-l dg-em" x="370" y="66" text-anchor="middle">에이전트<tspan class="dg-s" x="370" dy="18">diff 분석, 메시지 작성</tspan></text>
+        <text class="dg-s" x="500" y="61" text-anchor="middle">실행</text>
+        <text class="dg-l" x="630" y="66" text-anchor="middle">git commit<tspan class="dg-s" x="630" dy="18">커밋 1건</tspan></text>
+      </svg>
+    </figure></div>
+
+    <div class="demo-label">다이어그램 (mermaid · 큰 다이어그램용 대체 수단, full-bleed + 클릭 확대)</div>
+    <p class="prose">손으로 배치하기 어려운 큰 다이어그램에만 써요. 다이어그램 카드는 본문 컬럼을 깨고 넓게 렌더되고(<code>.bleed</code>), 클릭하면 라이트박스에서 휠 줌·드래그 팬이 돼요(<code>.zoomable</code>). Artifacts 환경은 <code>pre.mermaid</code>를 네이티브 렌더링해요 (이 파일을 로컬 브라우저로 열면 소스 텍스트로 보여요).</p>
     <div class="bleed"><div class="card zoomable" role="button" tabindex="0" aria-label="다이어그램 확대">
       <pre class="mermaid">sequenceDiagram
     participant A as 클라이언트

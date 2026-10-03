@@ -22,6 +22,7 @@
     --red:#F04452; --red-soft:#FDEDEE;
     --green:#0CA678; --green-soft:#E6F6F0;
     --amber:#B76E00; --amber-soft:#FFF4DE;
+    --violet:#7C4DFF;
     --bg:var(--gray50); --card:#ffffff;
     --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
     --r-card:20px; --r-el:14px;
@@ -45,6 +46,7 @@
       --red:#F4636F; --red-soft:#3A2226;
       --green:#2BB88A; --green-soft:#173029;
       --amber:#E0A44A; --amber-soft:#33291A;
+      --violet:#9A79FF;
       --bg:#171B21; --card:#1E242C;
       --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
       --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
@@ -64,6 +66,7 @@
     --red:#F4636F; --red-soft:#3A2226;
     --green:#2BB88A; --green-soft:#173029;
     --amber:#E0A44A; --amber-soft:#33291A;
+    --violet:#9A79FF;
     --bg:#171B21; --card:#1E242C;
     --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
     --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
@@ -199,20 +202,50 @@
   .toc-row .chev{ margin-left:auto; color:var(--gray300); font-size:14px; flex:none; padding-left:10px; }
 
   /* 코드/diff */
+  /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Syntax colors are spans the author wraps by hand (no highlighter script):
+     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
+     Each color is its token mixed with body gray, so it reads calm in both themes.
+     Long lines never wrap: .cb-body scrolls with an always-visible scrollbar. */
   .codeblock{
-    background:var(--gray25); border:1px solid var(--gray50);
-    border-radius:var(--r-el); overflow-x:auto; margin:0 0 18px;
+    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
+    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
+    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
+    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
+    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
+    background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow:hidden;
   }
   .cb-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:9px 16px; border-bottom:1px solid var(--gray50);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:9px 16px; border-bottom:1px solid var(--line);
     font-family:var(--mono); font-size:11px; color:var(--faint);
   }
-  .cb-head .file{ font-weight:600; color:var(--gray500); }
-  .codeblock pre{ margin:0; padding:12px 0; font-family:var(--mono); font-size:12.5px; line-height:1.8; }
-  .ln{ display:block; padding:0 18px; white-space:pre; color:var(--gray500); }
-  .ln.add{ background:var(--green-soft); color:var(--green); }
-  .ln.del{ background:var(--red-soft); color:var(--red); }
+  .cb-head .file{ font-weight:600; color:var(--gray500); min-width:0; overflow-wrap:anywhere; }
+  .cb-body{ overflow-x:auto; }
+  .cb-body::-webkit-scrollbar{ height:10px; }
+  .cb-body::-webkit-scrollbar-track{ background:var(--gray50); }
+  .cb-body::-webkit-scrollbar-thumb{ background:var(--gray300); border-radius:999px; border:2px solid var(--gray50); }
+  /* Firefox: no ::-webkit-scrollbar. Chrome ignores the pseudo-elements once scrollbar-color is set, so scope it */
+  @supports not selector(::-webkit-scrollbar){ .cb-body{ scrollbar-color:var(--gray300) var(--gray50); } }
+  .codeblock pre{
+    margin:0; padding:12px 0; width:max-content; min-width:100%;
+    font-family:var(--mono); font-size:12.5px; line-height:1.8; color:var(--sx-base);
+  }
+  .ln{ display:block; padding:0 18px; white-space:pre; }
+  .ln.gap{ color:var(--faint); font-style:italic; }
+  .sx-k{ color:var(--sx-k); }
+  .sx-f{ color:var(--sx-f); }
+  .sx-s{ color:var(--sx-s); }
+  .sx-n{ color:var(--sx-n); }
+  .sx-c{ color:var(--faint); font-style:italic; }
+  /* diff 줄: 추가 줄은 토큰 색 유지, 삭제 줄은 회색으로 눌러 새 코드에 시선이 가게 한다 */
+  .codeblock{ margin:0 0 18px; }
+  .ln.add{ background:var(--green-soft); }
+  .ln.del{ background:var(--red-soft); color:var(--gray500); }
+  .ln.del .sx-k, .ln.del .sx-f, .ln.del .sx-s, .ln.del .sx-n{ color:inherit; }
+  .ln .sign{ font-weight:700; }
+  .ln.add .sign{ color:var(--green); }
+  .ln.del .sign{ color:var(--red); }
 
   /* 구조 트리 (before & after) */
   .tree{
@@ -536,8 +569,8 @@
     <div class="list-header"><span class="num">3</span><h2>{{THEME_TITLE}}</h2></div>
     <p class="prose">{{WHAT_AND_WHY — behavior meaning, not line narration}}</p>
     <div class="codeblock">
-      <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{HUNK_META}}</span></div>
-      <pre><span class="ln del">- {{REMOVED_LINE_VERBATIM}}</span><span class="ln add">+ {{ADDED_LINE_VERBATIM}}</span><span class="ln">  {{CONTEXT_LINE_VERBATIM}}</span></pre>
+      <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{LANGUAGE}} · {{HUNK_META}}</span></div>
+      <div class="cb-body"><pre><span class="ln del"><span class="sign">-</span> {{REMOVED_LINE_VERBATIM}}</span><span class="ln add"><span class="sign">+</span> {{ADDED_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln">  {{CONTEXT_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln gap">  … {{N}}줄 생략</span></pre></div>
     </div>
     <div class="takeaway">
       <div class="tk-label">핵심 정리</div>

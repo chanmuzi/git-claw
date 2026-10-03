@@ -181,6 +181,44 @@
   .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+
+  /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Syntax colors are spans the author wraps by hand (no highlighter script):
+     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
+     Each color is its token mixed with body gray, so it reads calm in both themes.
+     Long lines never wrap: .cb-body scrolls with an always-visible scrollbar. */
+  .codeblock{
+    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
+    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
+    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
+    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
+    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
+    background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow:hidden;
+  }
+  .cb-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:9px 16px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--faint);
+  }
+  .cb-head .file{ font-weight:600; color:var(--gray500); min-width:0; overflow-wrap:anywhere; }
+  .cb-body{ overflow-x:auto; }
+  .cb-body::-webkit-scrollbar{ height:10px; }
+  .cb-body::-webkit-scrollbar-track{ background:var(--gray50); }
+  .cb-body::-webkit-scrollbar-thumb{ background:var(--gray300); border-radius:999px; border:2px solid var(--gray50); }
+  /* Firefox: no ::-webkit-scrollbar. Chrome ignores the pseudo-elements once scrollbar-color is set, so scope it */
+  @supports not selector(::-webkit-scrollbar){ .cb-body{ scrollbar-color:var(--gray300) var(--gray50); } }
+  .codeblock pre{
+    margin:0; padding:12px 0; width:max-content; min-width:100%;
+    font-family:var(--mono); font-size:12.5px; line-height:1.8; color:var(--sx-base);
+  }
+  .ln{ display:block; padding:0 18px; white-space:pre; }
+  .ln.gap{ color:var(--faint); font-style:italic; }
+  .sx-k{ color:var(--sx-k); }
+  .sx-f{ color:var(--sx-f); }
+  .sx-s{ color:var(--sx-s); }
+  .sx-n{ color:var(--sx-n); }
+  .sx-c{ color:var(--faint); font-style:italic; }
+  .say + .codeblock{ margin-top:14px; }
 </style>
 <script>
 /* theme toggle (LOCKED): a saved choice is applied before first paint. The button
@@ -260,6 +298,11 @@
     </figure>
     <!-- .say: 각 부분이 무엇인지와 그림에 없는 조건 하나. 사실만, 2~3문장, 본문 크기 -->
     <p class="say">{그림의 각 부분이 무엇인지와 그림에 없는 조건 하나를 2~3문장으로. 소제목과 라벨을 되풀이하지 않는다.}</p>
+    <!-- 선택: 실제 코드를 보여줘야 할 때만 .say 아래에 둔다. 그림을 대신하지 않는다 (SKILL.md "Code blocks")
+    <div class="codeblock">
+      <div class="cb-head"><span class="file">{파일 · 함수}</span><span>{언어}</span></div>
+      <div class="cb-body"><pre><span class="ln"><span class="sx-k">while</span> <span class="sx-n">True</span>:</span><span class="ln">    msg = client.<span class="sx-f">chat</span>(messages)</span><span class="ln gap">    … 4줄 생략</span></pre></div>
+    </div> -->
   </div>
 
   <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->

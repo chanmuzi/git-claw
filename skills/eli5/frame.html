@@ -3,7 +3,7 @@
   eli5 frame.
 
   Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
-    (.hero, .beat, .fig, .say, .numbers, .close) plus the SVG label classes.
+    (.hero, .beat, .fig, .say, .numbers, .close, the optional .ctl controls) plus the SVG label classes.
     Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
@@ -174,13 +174,30 @@
   .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; line-height:1.5; }
   .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; }
 
-  /* ── SVG label classes (locked) ── */
+  /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
+     Text inside a hand-authored SVG figure uses only these classes. */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
   .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
   .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
   .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+
+  /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ──
+     The .ctl row sits above the .fig it drives. The script that redraws the figure
+     goes at the end of <body>, never inside the <svg>. */
+  .ctl{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px; margin:0 0 12px; }
+  .ctl .field{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+  .ctl label, .ctl .lbl{ font-size:13.5px; color:var(--sub); }
+  .ctl output{ font-size:14px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; min-width:3em; }
+  .ctl input[type=range]{ width:160px; max-width:100%; accent-color:var(--blue); }
+  .seg{ display:inline-flex; flex-wrap:wrap; background:var(--chipbg); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .seg button{
+    appearance:none; border:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    color:var(--sub); background:transparent; padding:6px 14px; border-radius:999px;
+  }
+  .seg button[aria-pressed="true"]{ background:var(--blue); color:var(--card); }
+  .ctl input:focus-visible, .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
 
   /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Syntax colors are spans the author wraps by hand (no highlighter script):
@@ -307,6 +324,47 @@
 
   <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->
   <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다. -->
+
+  <!-- 선택: 조작할 수 있는 그림 (SKILL.md "An interactive figure"). 값이 움직여야 요점이 보이는 주제에만, 페이지당 1개.
+       두 상태 비교(전/후, 켬/끔)는 조작 요소 없이 한 그림의 두 줄로 그린다.
+       정적 그림과 같은 .beat 구조에 .ctl 한 줄을 더하고, 스크립트가 g#fig-live 안을 다시 그린다.
+  <div class="beat">
+    <h2>{입력과 결과의 관계를 말하는 사실 한 가지}</h2>
+    <div class="ctl">
+      <div class="field">
+        <label for="in-count">{입력 이름}</label>
+        <input type="range" id="in-count" min="1" max="5" step="1" value="3">
+        <output id="in-count-out" for="in-count">{기본값과 단위}</output>
+      </div>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 760 200" role="img" aria-labelledby="fig-live-say">
+        (첫 자식은 가장 넓은 상태 기준의 배치 계획 주석, 그 다음 defs)
+        <g id="fig-live"></g>
+      </svg>
+    </figure>
+    <p class="say" id="fig-live-say" aria-live="polite">{기본값일 때 무슨 일이 일어나는지 1~2문장. 스크립트가 입력에 맞춰 바꾼다.}</p>
+  </div>
+  스크립트는 body 끝에 하나만 둔다:
+  <script>
+  (function(){
+    var input = document.getElementById("in-count"), out = document.getElementById("in-count-out");
+    var g = document.getElementById("fig-live"), say = document.getElementById("fig-live-say");
+    if (!input || !g) return;
+    function rect(x,y,w,h){ return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>'; }
+    function label(x,y,t,cls){ return '<text class="'+(cls||"dg-l")+'" x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>'; }
+    function draw(){
+      var n = +input.value, shapes = "", labels = "";
+      /* 주제의 실제 규칙으로 n에서 결과를 계산하고, shapes와 labels를 채운다 */
+      g.innerHTML = shapes + labels;  /* 도형 먼저, 글자 나중 */
+      out.textContent = n + "{단위}";
+      say.textContent = "{n일 때 일어나는 일}";
+    }
+    input.addEventListener("input", draw);
+    draw();
+  })();
+  </script>
+  -->
 
   <!-- BEAT 5: 대가. 숫자는 여기 한 번만, 4개 이하, 하나는 반드시 비용. -->
   <div class="beat">

@@ -109,7 +109,7 @@ The drawings are hand-authored inline SVG, one per beat.
 - **Theme with `currentColor`.** Strokes and text inherit the page's foreground so both themes work. Reserve `var(--blue)` for the one element carrying the point of that picture and `var(--red)` for the thing that breaks. Two accent colors per drawing at most.
 - **Text stays at the two label sizes** (`.dg-l` 13px, `.dg-s` 11px mono) plus at most one `.dg-b` big number per drawing. A line inside a box is a name or a short field list, never a sentence; sentences go in the `.say`. Fit every line to its box with the arithmetic in "Fit the text before you draw" below.
 - **Every figure gets** `role="img"` and an `aria-label` stating the same claim as its heading.
-- No `<script>`, `<style>`, or `<foreignObject>` inside the SVG. No emoji, no icon fonts, no external resources. Long decorative path data means the drawing is too elaborate: simplify it.
+- No `<script>`, `<style>`, or `<foreignObject>` inside the SVG (the script of an interactive figure sits at the end of `<body>`; see "An interactive figure" below). No emoji, no icon fonts, no external resources. Long decorative path data means the drawing is too elaborate: simplify it.
 
 ### Fit the text before you draw (no renderer needed)
 
@@ -139,9 +139,29 @@ Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `
    Every range is closed, adjacent ranges differ by exactly the gap, the last end is ≤ W-20. If the arithmetic does not close, the drawing does not ship.
 8. **No ceiling on boxes.** A subject with twelve tables gets twelve boxes in one drawing if that is what the reader needs to see at once; the row budget and the 900px width are the only limits, and height grows with rows. Split into two drawings only when the subject itself has two stories (a current path and an old path), each with its own `.say`.
 
+### An interactive figure, only when a value has to move
+
+Every figure is static unless the subject passes this test (the same test as in `visual-doc` and `explain-diff`):
+
+- **Static first.** Two fixed states (before/after, on/off, hit/miss) are drawn as two rows of one static figure: the eye compares both at once, and a toggle would hide one while showing the other.
+- **Interactive only when the reader has to move a value to see the point.** That means the outcome changes across three or more values of one input (a count, a size, a rate, a threshold), or the point is the value at which the behavior flips (`요청 1개면 거부 없음, 2개부터 거부`). Then one or two inputs redraw the figure.
+- **Three questions before building.** What is the input? What moves in the drawing when it changes? What does the reader learn at a value other than the default? If the third has no answer, draw it static.
+- **The default state already makes the point.** A skimmer, a screenshot, and a printed page see only the state at load.
+- **Never a step-through** that reveals already-visible content in order, and never an input that only shows or hides text.
+
+On an eli5 page, additionally:
+
+- At most one interactive figure per page. It replaces the static figure of its beat; it is not an extra picture.
+- Controls are the `.ctl` row from `frame.html` (a range with its `<output>`, or a `.seg` switch), placed above the `.fig`. One or two inputs. No free-text input, no play button.
+- The script is one `<script>` at the end of `<body>` that redraws a `<g>` inside the figure; nothing goes inside the `<svg>` element itself. It computes the outcome with the subject's real rule (the honesty rule covers it: no invented curve) and builds shapes first, labels last.
+- The drawing rules do not relax. Do the fit arithmetic for the smallest and the largest input; the layout-plan comment describes the widest state.
+- The `.say` under the figure is the readout: the script rewrites it to say what happens at the current value (`aria-live="polite"`, two sentences at most). The default value is the one that shows the page's point.
+- A subject that needs several steps in order, a mission, or state that carries over between actions is a `micro-world`, not a figure. Say so and hand off.
+
 ### The word budget
 
 - Every figure gets **one** `.say` paragraph below the card, **two or three plain sentences**, and nothing inside the card (no caption). Say what the parts of the picture are and the one condition the drawing could not show (`가로 점선이 플래그를 켠 시점이에요. 그 뒤의 Job 은 … 행이 생기고, 그 전의 Job 은 넣는 코드가 없어 파일 목록이 0개예요.`). Facts only, in the subject's own words, body size. Do not repeat the heading, do not repeat what a label in the picture already says, do not add background. If a third sentence is not needed to read the picture, stop at two.
+- **One name per thing, the actor as subject, the count as a number.** (shared across eli5, explain-diff, micro-world, visual-doc) Pick one name for each thing and each action and keep it everywhere on the page, labels and drawings included: once it is `액세스 토큰` it is never `인증 토큰`, `세션 키`, or `자격 증명`; once it is `재발급` it is never `갱신`. A second name reads as a second thing. When two different things share a word, qualify both (`API 서버`, `인증 서버`, never a bare `서버`). Make the subject the thing that acts: `인증 서버가 두 번째 요청을 거부했어요`, not `두 번째 요청이 거부됐어요`; a sentence that hides the actor hides where the cause is. Write the count the source gives (`요청 3개`, `3번`), not `여러 개` or `요청 수만큼`.
 - No paragraphs of body prose anywhere on the page. If a beat genuinely needs three paragraphs, the subject wants `visual-doc`.
 - There is no `figcaption`. A fact that used to go in a caption goes in the `.say` if the reader needs it to read the picture, and is dropped otherwise.
 - **File paths and line numbers stay off the page.** An outsider will never open `app/models/store.py:103`. The names of the things drawn (a table, an endpoint, a flag) are not evidence of that kind; they are the nouns of the subject and belong in the drawing (see "Real names, plain sub-line" above). A name the drawing does not show may still appear once, in that beat's `.say`, when the reader will actually meet it.
@@ -151,7 +171,7 @@ Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `
 
 ## Step 4: Build the Page
 
-Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.close`), and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
+Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.say`, `.numbers`, `.close`), the optional `.ctl` controls for an interactive figure, and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
 
 The type scale is part of what is locked: title 24-30px, beat heading 18px, lede 15.5px, `.say` 15px regular in the secondary text color (the same as visual-doc body prose; bold or the cost color on one phrase at most), number-strip values 16px bold (they are often words, not numbers, so they do not get a display size). Do not enlarge anything to make it "pop", and do not give `.say` a `max-width`; it runs the width of the card above it. The page ends at the `.close` card.
 
@@ -187,6 +207,7 @@ Then check, in this order:
 2. No drawing is cut off, overlapping, or scaled into illegibility. If you cannot render, redo the "Fit the text before you draw" arithmetic for every row and every free-standing label instead; a label estimate that exceeds its box, or a row that exceeds W-40, is a defect even if you cannot see it.
 3. Titles do not wrap mid-word; no em-dash survived (`grep '—\|–'` the file); no placeholder token or authoring comment survived (`grep -n '{[가-힣]\|eli5 frame'` the file must print nothing: every frame.html placeholder is a Korean phrase in braces); no footer or source list crept back in (`grep 'class="foot"'` the file).
 4. Dark mode holds (`--color-scheme=dark`).
+5. If the page has an interactive figure: the state at load passes check 1 on its own, and the drawing holds at the smallest and the largest input (move the control, or redo the fit arithmetic for both ends).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.
 

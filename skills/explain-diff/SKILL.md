@@ -53,9 +53,9 @@ Do NOT start writing the document from the diff alone.
 
 ## Step 3: Build the Document
 
-Read `template.html` from this skill's base directory. It carries the full design system (tokens, components, generic quiz/gate JS) — **fill it, never restyle it**. No emoji, no hand-drawn SVG icons, no external resources (CDN, webfonts, remote images). The output must stay a single self-contained HTML file.
+Read `template.html` from this skill's base directory. It carries the full design system (tokens, components, generic quiz/gate JS) — **fill it, never restyle it**. No emoji, no hand-drawn SVG icons (a flow figure is a diagram, not an icon; see "Flow figure" below), no external resources (CDN, webfonts, remote images). The output must stay a single self-contained HTML file.
 
-**Light and dark, switchable.** The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Keep three things from the template verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>` (the shipped toggle icon is the one sanctioned SVG icon). The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Any CSS you author yourself takes every color from a token: `var(--surface)` for a raised white surface, `var(--on-accent)` for text on a `--blue`/`--green` fill, `var(--track)` and `var(--shadow-sm)` for tracks and small shadows. A literal `#fff`, a black-alpha `rgba(...)`, or an inline `style="color:..."` with a hex value reads in one theme only. This applies above all to the optional custom figure, which is the only CSS you write.
+**Light and dark, switchable.** The page follows the system setting by default, and the fixed `.theme-btn` in the top-right corner lets the reader override it. Keep three things from the template verbatim and together: the button markup right after `<body>`, the `.theme-btn` CSS, and the small theme `<script>` in `<head>` (the shipped toggle icon is the one sanctioned SVG icon). The dark tokens are defined twice on purpose (`@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`); keep the two blocks identical and never drop one, or the toggle stops winning in one direction. Any CSS you author yourself takes every color from a token: `var(--surface)` for a raised white surface, `var(--on-accent)` for text on a `--blue`/`--green` fill, `var(--track)` and `var(--shadow-sm)` for tracks and small shadows. A literal `#fff`, a black-alpha `rgba(...)`, or an inline `style="color:..."` with a hex value reads in one theme only. This applies above all to the optional interactive figure, which is the only CSS you write (a flow figure needs none: its classes ship in the template).
 
 **Code blocks: one shared component.** Show code only inside the template's `.codeblock` (`.cb-head` with the location on the left (`파일 · 함수`) and the language on the right, then `.cb-body > pre`, one `.ln` span per line). Copy its CSS block verbatim; it is identical in all four templates. Strip the indentation common to every quoted line and keep the relative indentation; nothing else in the text changes. Replace skipped lines with one `<span class="ln gap">… N줄 생략</span>`, indented to the depth of the code it replaces. Color syntax by wrapping tokens yourself, never with a highlighter script or CDN: `sx-k` keywords (`if`, `and`, `return`, `function`), `sx-f` function names where called or defined, `sx-s` string literals, `sx-n` numbers and language constants (`True`, `None`, `null`), `sx-c` comments. Leave variables, operators, and punctuation unwrapped, and HTML-escape `<`, `>`, `&`. Never hard-wrap a long line or set `pre-wrap`: the block scrolls sideways with an always-visible scrollbar. In a diff excerpt every line starts with its sign: `<span class="ln add"><span class="sign">+</span> …</span>`, `<span class="ln del"><span class="sign">-</span> …</span>`, or two spaces for a context line. Wrap tokens on added and context lines; removed lines need no wrapping (the CSS mutes them to gray so the new code draws the eye).
 
@@ -63,7 +63,7 @@ Read `template.html` from this skill's base directory. It carries the full desig
 
 - Delete the authoring comment at the top of the file (`explain-diff output template. Fill every {{PLACEHOLDER}}…`). It is instructions for you, not content for the reader.
 - Fill `<title>` — it names the browser tab. `explain-diff: {한 줄 요약} ({대상})`.
-- Delete every `REPEAT` / `FIGURE SLOT` comment once its block is filled or dropped.
+- Delete every `REPEAT` / `FIGURE SLOT` comment (both the interactive slot in Part 1 and the `FLOW FIGURE SLOT` in the theme card) once its block is filled or dropped.
 - Before writing the file, grep your output for `{{` — a surviving placeholder means an unfilled slot.
 - Confirm all three parts of the toggle survived: `grep -c '<button type="button" class="theme-btn"'`, `grep -c '\.theme-btn{'`, and `grep -c 'git-claw-doc-theme'` must each print at least 1 (a bare `theme-btn` match can be prose that merely mentions it).
 - If you wrote any CSS or inline `style` of your own, re-read it for a literal `#fff`, a hex color, or an `rgba(`: every color comes from a token. (The `:root` token blocks contain literals by design, so a whole-file grep for these is not a usable check.)
@@ -77,6 +77,7 @@ The reader skims first and reads second. Prose that runs on defeats both.
 - **Lede is 2-3 sentences, not one long one.** State the problem, then the fix. Do not chain the whole causal story into a single sentence.
 - Bold the load-bearing phrase in a paragraph (`<b>`), not whole clauses. If three things are bold, nothing is.
 - Prefer a concrete subject over a nominalization: "호스트가 규칙을 못 읽어요" beats "규칙 조회가 실패해요".
+- **One name per thing, the actor as subject, the count as a number.** (shared across eli5, explain-diff, micro-world, visual-doc) Pick one name for each thing and each action and keep it everywhere on the page, labels and drawings included: once it is `액세스 토큰` it is never `인증 토큰`, `세션 키`, or `자격 증명`; once it is `재발급` it is never `갱신`. A second name reads as a second thing. When two different things share a word, qualify both (`API 서버`, `인증 서버`, never a bare `서버`). Make the subject the thing that acts: `인증 서버가 두 번째 요청을 거부했어요`, not `두 번째 요청이 거부됐어요`; a sentence that hides the actor hides where the cause is. Write the count the source gives (`요청 3개`, `3번`), not `여러 개` or `요청 수만큼`.
 
 ### Natural Korean (do not read like machine translation)
 
@@ -108,12 +109,69 @@ Structure is fixed at three parts:
   - Order children directories-first, then files, alphabetically, so the shape stays scannable. Depth beyond 4 levels is a signal to collapse, not to indent further.
   - The tree is always visible at page load and is never wrapped in a `<details>` disclosure or replaced by summary cards. Keep the tree header text `디렉토리 변화` as-is (the repo root is the first tree row, not the header). If you need a disclosure elsewhere, use `<details class="fold">` so it inherits the template's typography instead of the browser default marker and font.
   - Trees longer than 20 rows fold automatically: the template JS caps the body at 20 rows with a fade and a `나머지 n개 행 펼치기` button that animates open and closed. Do not hand-build this, and do not trim or reorder real rows to dodge it; the collapse rules above are the way to keep a tree short.
-- Optional interactive figure: include ONLY when an interaction exists where **the user's input changes the outcome** — a scenario toggle, a state switch whose columns respond differently (e.g. a start-location toggle showing two agents' loading paths side by side). Never build a step-through that reveals already-visible content in order; if no outcome-changing interaction exists for this diff, omit the figure entirely.
+- Optional interactive figure: include ONLY when it passes the test in "Interactive figure" below. If nothing in this diff passes, omit the figure entirely.
 
 **Part 2 — 변경 사항.** One card per theme from Step 2, ordered by importance:
 - Prose explaining behavior meaning — what the reader must understand, not a line-by-line narration.
-- Verbatim diff excerpts (12 lines max per block; elide the middle with a `.ln.gap` line `… N줄 생략`). Only the lines that carry the theme.
+- Optional flow figure (see "Flow figure" below), between the prose and the diff excerpt, when the theme changes who calls what, in what order, or how many times.
+- Verbatim diff excerpts (12 lines max per block; elide the middle with a `.ln.gap` line `… N줄 생략`). Only the lines that carry the theme. A flow figure never replaces the excerpt.
 - Close every card with a `핵심 정리` takeaway card: one bold sentence to remember + 2-3 supporting bullets. This is the same visual language as quiz explanations — blue tinted card = "the thing to remember".
+
+### Flow figure (optional, Part 2)
+
+A diff shows which lines changed; it does not show what the system did before. When a theme changes **who calls what, in what order, or how many times** (a call moved to another layer, a retry added, N requests collapsed into one, a branch that now fails differently), draw it:
+
+- Two rows of the same path, `변경 전` above `변경 후`, on the same columns so the one difference lines up. What the change removed or what used to fail is `--red` in the top row; what the change added is `--blue` in the bottom row. Everything that did not change is drawn identically in both rows.
+- It sits between the prose and the diff excerpt. The figure shows what differs; the excerpt shows which lines cause it. Keep both.
+- Counts and names come from the code, as in the prose: three requests are three lines, not "several".
+- Omit it when the theme changes a value, a name, a type, or a message: there is nothing to draw. Never add a figure so that every card has one.
+
+Drawing rules (shared with `eli5` and `visual-doc`):
+
+- Hand-authored inline SVG inside `<figure class="fig">`, sized by `viewBox` (CSS `width:100%; height:auto`), with `role="img"` and an `aria-label` that states the figure's claim.
+- Draw the mechanism, not a row of labeled boxes: the path a request takes, the edge that disappears, a count drawn as that many lines. Label every arrow (`재발급 1회`, `20장씩`); an unlabeled arrow only says "related somehow".
+- Real names in the boxes (the function, table, or endpoint as the code calls it), with at most one plain sub-line under the name. A line in a box is a name or a short field list, never a sentence.
+- Strokes and text use `currentColor` so both themes work. `var(--blue)` marks the one element that carries the point, `var(--red)` the thing that fails. Two accent colors per figure at most.
+- Text uses the label classes shipped in the template, copied verbatim (the block that starts with the `figure labels (SHARED` comment): `.dg-l` 13px, `.dg-s` 11px mono, at most one `.dg-b` big number, `.dg-halo` for a label that sits on a line, `.dg-em` and `.dg-bad` for the two accents.
+- No `<script>`, `<style>`, or `<foreignObject>` inside the SVG, no emoji, no external resources.
+
+#### Fit the text before you draw (no renderer needed)
+
+SVG text does not wrap and does not push boxes apart. Every clipped label and every pair of overlapping labels in a shipped page came from a label that was wider than the room drawn for it. So **size the room from the label, never the label from the room**, with these per-character estimates. They are deliberately generous for the system fonts the page will be read in (Apple SD Gothic Neo, Pretendard, Segoe UI); a line that passes them fits.
+
+| Text | Width per character |
+|---|---|
+| Hangul, in any class | 1.0 × font-size (`.dg-l` 13px, `.dg-s` 11px) |
+| `m` `w` `M` `W` in `.dg-l` | 1.0 × font-size (13px) |
+| other Latin lowercase, digits, `_` `-` `/` `.` in `.dg-l` | 0.6 × font-size (8px) |
+| Latin uppercase in `.dg-l` | 0.75 × font-size (10px) |
+| space, `·`, `(`, `)`, `:` in `.dg-l` | 4px |
+| every non-Hangul character in `.dg-s` (mono), spaces included | 7px |
+| anything not listed (`×`, `→`, `=`, `+`, `…`) | 1.0 × font-size |
+
+Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 26px for `.dg-b`. A `<tspan>`'s `dy` is the height of the line **above** it (a `.dg-s` sub-line right under the `.dg-l` name has `dy="18"`; the next `.dg-s` line has `dy="15"`), so the box-height formula below and the `dy` values agree.
+
+1. **Box from label.** Take the widest line of the box, estimate it, add 28 (14px padding each side), round up to a multiple of 10: that is the box width. Height is 14 + (sum of line heights) + 14; that is a minimum, and boxes in one row share the tallest height. First-line baseline: `y = box top + 25` (14 padding + the 13px name's ascent); each later line moves by its `dy`. In a box taller than the minimum, center the block instead: `y = box center − (Σ dy)/2 + 4`. A box is never narrower than its text; if the result is wider than you want, shorten the text.
+2. **Lines grow the box, never the other way.** A box holds a name line and as many sub-lines as the content needs, each its own `<tspan x="{box center}" dy="…">`; the height formula absorbs them. Do not cut a field list to make a box small: a schema box that hides half its columns is a wrong drawing, not a tidy one.
+3. **Row budget.** For every row: 20 + (caption column + 40, when rows carry a left-hand caption; size that column from its widest caption line like any other label) + Σ box widths + Σ gaps + 20 ≤ viewBox width. Gaps are at least 40; a gap that carries an arrow label is at least the label estimate + 24. When a row does not fit, shorten labels first, then break it into two rows, then (last) widen the viewBox up to 760. Never above 760: the figure is about 710px wide on screen, so a wider viewBox shrinks 13px text below 12px. Height is unlimited: more boxes mean more rows, not smaller text.
+4. **Nothing crosses a border.** Every box label is `text-anchor="middle"` at the box center, and rule 1 guarantees it stays inside. Free-standing text (edge labels, row captions, the big number) gets a clear zone: no other text, no line other than the one it labels, and no box edge within 6px of its estimated extent, and that extent stays inside `[20, W-20]`. Vertically, a line of text occupies baseline −12 to +3 for `.dg-l`, −10 to +3 for `.dg-s`, −18 to +4 for `.dg-b`; use those for the clear zone, not just the horizontal estimate.
+5. **Edges never pass through a box.** A line that crosses a box it does not connect is a defect, whichever direction it runs. When an edge has to skip a row, route it down a lane between boxes and turn below that row. Two edges that end on the same box land at least 20px apart along that side (or merge into one elbow before arriving). Give each `<svg>` its own marker id (`ar1`, `ar2`, …): a page has several drawings and duplicate ids are invalid.
+   Preferred, not required: horizontal and vertical segments with an elbow (`M x1 y1 V ymid H x2 V y2`) rather than a diagonal, and the label on a straight segment: baseline 10px above a horizontal segment with `text-anchor="middle"`, or beside a vertical one with `text-anchor="end"` at `x = line x − 8`, in class `.dg-s`. If the two endpoints differ by less than 12px, draw the edge straight. A diagonal is fine when it is the clearer line; then its label carries `dg-halo` so it stays readable where it crosses. Rows stacked above each other are at least 40px apart (box bottom to next box top) when an edge label sits between them, 30px otherwise.
+6. **Text comes last.** Inside each `<svg>`, write every `<rect>`, `<line>`, and `<path>` first and every `<text>` after them. SVG paints in document order, so a line written after a label is drawn over it, and `dg-halo` only works when the text is painted on top.
+7. **Plan first, as a comment.** The first child of every `<svg>` is a one-line layout plan, and writing it is the check:
+   `<!-- W=760 · row1 y=56 h=88: [40..190] gap45 [235..385] gap45 [430..580] gap40 [620..720] -->`
+   Every range is closed, adjacent ranges differ by exactly the gap, the last end is ≤ W-20. If the arithmetic does not close, the drawing does not ship.
+8. **No ceiling on boxes.** A subject with twelve tables gets twelve boxes in one drawing if that is what the reader needs to see at once; the row budget and the 760px width are the only limits, and height grows with rows. Split into two drawings only when the subject itself has two stories (a current path and an old path).
+
+### Interactive figure (optional, Part 1)
+
+- **Static first.** Two fixed states (before/after, on/off, hit/miss) are drawn as two rows of one static figure: the eye compares both at once, and a toggle would hide one while showing the other.
+- **Interactive only when the reader has to move a value to see the point.** That means the outcome changes across three or more values of one input (a count, a size, a rate, a threshold), or the point is the value at which the behavior flips (`요청 1개면 거부 없음, 2개부터 거부`). Then one or two inputs redraw the figure.
+- **Three questions before building.** What is the input? What moves in the drawing when it changes? What does the reader learn at a value other than the default? If the third has no answer, draw it static.
+- **The default state already makes the point.** A skimmer, a screenshot, and a printed page see only the state at load.
+- **Never a step-through** that reveals already-visible content in order, and never an input that only shows or hides text.
+
+Build it from the template's `.sim` / `.seg` / `.sim-grid` / `.sim-step` components and inline the bespoke JS at the bottom of the page.
 
 **Part 3 — 이해 점검.**
 - `주의해서 볼 지점`: risk rows with Watch/Critical badges. Attention pointers, never verdicts. If a risk deserves a verdict, tell the user to run a code review — do not deliver one here.

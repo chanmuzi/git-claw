@@ -5,8 +5,9 @@
   Do NOT restyle: tokens and component classes are fixed by the design system
   (git-claw docs/decisions/2026-07-explain-diff-design-system.md).
   The quiz/gate JS is generic: it derives the total from the number of .q blocks
-  and reads per-question hints from data-hint. Only the optional custom figure
-  needs bespoke JS (see the FIGURE SLOT comment in Part 1).
+  and reads per-question hints from data-hint. Only the optional interactive figure
+  needs bespoke JS (see the FIGURE SLOT comment in Part 1). The optional flow figure in a
+  theme card (FLOW FIGURE SLOT) is static SVG and needs none.
 -->
 <html lang="ko">
 <head>
@@ -347,6 +348,19 @@
   .sim-note{ margin:14px 2px 0; font-size:12.5px; color:var(--gray600); line-height:1.6; }
   .sim-note b{ color:var(--ink); }
 
+  /* ── flow figure (optional, Part 2 theme card): 변경 전/후를 두 줄로 그린 정적 SVG ──
+     카드 안에 테두리 없이 놓는다. 좁은 화면에서는 글자를 줄이지 않고 가로로 스크롤한다. */
+  .fig{ margin:6px 0 18px; overflow-x:auto; }
+  .fig svg{ display:block; width:100%; min-width:520px; height:auto; color:var(--ink); }
+  /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
+     Text inside a hand-authored SVG figure uses only these classes. */
+  .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
+  .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
+  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
+  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
+  .dg-em{ fill:var(--blue); }                               /* the point of this picture */
+  .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+
   /* 핵심 정리 (섹션 마무리 요약: 퀴즈 해설과 같은 시각 언어) */
   .takeaway{ background:var(--blue-soft); border-radius:12px; padding:14px 16px; margin:2px 0 4px; }
   .takeaway .tk-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
@@ -555,8 +569,10 @@
       </div>
     </div>
 
-    <!-- FIGURE SLOT (optional): include ONLY when a meaningful interaction exists,
-         i.e. the user's input changes the outcome (a scenario toggle, a state switch).
+    <!-- FIGURE SLOT (optional): include ONLY when the reader has to move a value to see
+         the point (SKILL.md "Interactive figure"): the outcome changes across three or more
+         values of an input, or the point is the value at which behavior flips. Two fixed
+         states (before/after) are a static two-row flow figure, not a toggle.
          Never build a step-through that reveals already-visible content in order.
          Use the .sim / .seg / .sim-grid / .sim-step components above and inline the
          bespoke JS at the bottom of the page. Delete this slot otherwise. -->
@@ -568,6 +584,41 @@
   <section class="card" id="sec3">
     <div class="list-header"><span class="num">3</span><h2>{{THEME_TITLE}}</h2></div>
     <p class="prose">{{WHAT_AND_WHY — behavior meaning, not line narration}}</p>
+    <!-- FLOW FIGURE SLOT (optional): keep ONLY when this theme changes who calls what,
+         in what order, or how many times (SKILL.md "Flow figure"). Two rows of the same
+         path on the same columns; red = removed or failing (top row), blue = added (bottom row).
+         Redraw it for the theme: size every box from its label, give each figure its own
+         marker ids, and keep the layout-plan comment. Delete the whole <figure> otherwise. -->
+    <figure class="fig">
+      <svg viewBox="0 0 700 180" role="img" aria-label="{{FIGURE_CLAIM — one sentence}}">
+        <!-- W=700 · caption [20..80] · row1 y=24 h=44, row2 y=112 h=44: [100..220] gap100 [320..460] gap80 [540..680] -->
+        <defs>
+          <marker id="ff1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="currentColor"/></marker>
+          <marker id="ff1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--red)"/></marker>
+          <marker id="ff1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--blue)"/></marker>
+        </defs>
+        <rect x="100" y="24" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="320" y="24" width="140" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="540" y="24" width="140" height="44" rx="6" fill="none" style="stroke:var(--red)" stroke-width="1.5"/>
+        <line x1="220" y1="46" x2="320" y2="46" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
+        <line x1="460" y1="46" x2="540" y2="46" style="stroke:var(--red)" stroke-width="1.5" marker-end="url(#ff1r)"/>
+        <rect x="100" y="112" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="320" y="112" width="140" height="44" rx="6" fill="none" style="stroke:var(--blue)" stroke-width="1.5"/>
+        <rect x="540" y="112" width="140" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="220" y1="134" x2="320" y2="134" style="stroke:var(--blue)" stroke-width="1.5" marker-end="url(#ff1b)"/>
+        <line x1="460" y1="134" x2="540" y2="134" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
+        <text class="dg-l" x="20" y="50" font-weight="700">변경 전</text>
+        <text class="dg-l" x="20" y="138" font-weight="700">변경 후</text>
+        <text class="dg-l" x="160" y="50" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s" x="270" y="36" text-anchor="middle">{{EDGE_BEFORE}}</text>
+        <text class="dg-l" x="390" y="50" text-anchor="middle">{{CALLEE_BEFORE}}</text>
+        <text class="dg-l dg-bad" x="610" y="50" text-anchor="middle">{{OUTCOME_BEFORE}}</text>
+        <text class="dg-l" x="160" y="138" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s dg-em" x="270" y="124" text-anchor="middle">{{EDGE_AFTER}}</text>
+        <text class="dg-l dg-em" x="390" y="138" text-anchor="middle">{{CALLEE_AFTER}}</text>
+        <text class="dg-l" x="610" y="138" text-anchor="middle">{{OUTCOME_AFTER}}</text>
+      </svg>
+    </figure>
     <div class="codeblock">
       <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{LANGUAGE}} · {{HUNK_META}}</span></div>
       <div class="cb-body"><pre><span class="ln del"><span class="sign">-</span> {{REMOVED_LINE_VERBATIM}}</span><span class="ln add"><span class="sign">+</span> {{ADDED_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln">  {{CONTEXT_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln gap">  … {{N}}줄 생략</span></pre></div>

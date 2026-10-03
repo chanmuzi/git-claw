@@ -112,17 +112,19 @@
   }
   .hero h1{
     font-size:clamp(24px,3.6vw,30px); font-weight:800; line-height:1.3;
-    letter-spacing:-0.025em; word-break:keep-all; margin:0 0 12px;
+    letter-spacing:-0.025em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 12px;
   }
+  /* No max-width: the lede runs the column like .say, so its right edge matches the figure card. */
   .hero .lede{
-    font-size:15.5px; line-height:1.7; color:var(--sub); word-break:keep-all; margin:0; max-width:40em;
+    font-size:15.5px; line-height:1.7; color:var(--sub);
+    word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0;
   }
 
   /* ── beat: one picture, one claim ── */
   .beat{ margin-top:48px; }
   .beat h2{
     font-size:18px; font-weight:700; letter-spacing:-0.02em;
-    word-break:keep-all; margin:0 0 14px;
+    word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px;
   }
 
   /* ── figure ── */
@@ -139,7 +141,7 @@
      measure than the figure above it strands a two-word last line. */
   .say{
     font-size:15px; font-weight:400; line-height:1.7; color:var(--sub);
-    word-break:keep-all; text-wrap:pretty; margin:14px 0 0;
+    word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:14px 0 0;
   }
   .say b{ font-weight:600; color:var(--ink); }
   .say .cost{ font-weight:700; color:var(--amber); }
@@ -162,7 +164,7 @@
     font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink);
   }
   .num .v.cost{ color:var(--amber); }
-  .num .d{ font-size:13px; line-height:1.6; color:var(--sub); margin-top:6px; word-break:keep-all; }
+  .num .d{ font-size:13px; line-height:1.6; color:var(--sub); margin-top:6px; word-break:keep-all; text-wrap:pretty; }
 
   /* ── closing card: no heading above it, the statement is the heading ── */
   .close{
@@ -171,8 +173,8 @@
     border-radius:var(--r-el); padding:20px 24px;
   }
   .close .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--amber); margin-bottom:8px; }
-  .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; line-height:1.5; }
-  .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; }
+  .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; text-wrap:balance; line-height:1.5; }
+  .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; text-wrap:pretty; }
 
   /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
      Text inside a hand-authored SVG figure uses only these classes. */

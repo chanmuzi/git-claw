@@ -114,6 +114,8 @@
   .top h1, .top .lede, .mission, .footnote{
     word-break:keep-all; overflow-wrap:anywhere;
   }
+  /* 문단 마지막 줄에 한두 어절만 남지 않게 한다 (지원하지 않는 브라우저는 기본 줄바꿈). */
+  .top .lede, .footnote{ text-wrap:pretty; }
 
   .top{ padding:48px 4px 8px; }
   .top .eyebrow{

@@ -177,6 +177,7 @@
      chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's. */
   .evs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:14px; }
   .ev{
+    /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
     --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
     --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
     --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
@@ -312,7 +313,6 @@
   .sx-s{ color:var(--sx-s); }
   .sx-n{ color:var(--sx-n); }
   .sx-c{ color:var(--faint); font-style:italic; }
-  .say + .codeblock{ margin-top:14px; }
 </style>
 <script>
 /* theme toggle (LOCKED): a saved choice is applied before first paint. The button

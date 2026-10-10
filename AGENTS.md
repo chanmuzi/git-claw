@@ -126,6 +126,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /visual-doc 42        → PR #42 분석 후 문서 생성
 /eli5 <주제>          → 도메인 밖 사람용 그림 위주 설명 HTML 생성 (그림이 설명하고 글은 그림당 짧은 문단)
 /eli5 42              → PR #42를 비전공자 기준으로 설명
+/eli5 <설정·테이블 주제>  → 그림이 말할 수 없는 사실(파일에 없는 줄, 테이블 컬럼)에만 근거 카드가 붙고, 배지 번호가 그림·근거·해설에서 일치하는지 확인
 ```
 
 ### 브랜치 테스트 (merge 전 스킬 검증)
@@ -138,7 +139,7 @@ fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 
 플러그인 cache 디렉토리에 로컬 스킬 파일을 복사한 뒤 `/reload-plugins`로 반영한다.
 marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작한다.
 
-**중요**: `installed_plugins.json`의 `installPath`와 실제 로드되는 cache 경로가 다를 수 있다 (`/reload-plugins`가 새 hash를 생성하면서 `installed_plugins.json`을 갱신하지 않음). 가장 최근에 수정된 cache 디렉토리가 활성 경로이므로, `ls -td`로 탐색한다.
+**중요**: 플러그인 루트는 `~/.claude`가 아니라 `${CLAUDE_CONFIG_DIR:-$HOME/.claude}`다. 환경에 따라 `~/.claude-upstage`처럼 다른 디렉토리를 쓰며, 그때 `~/.claude/plugins/...`에 복사하면 조용히 무시된다 (2026-10-10 실제 사고). 활성 cache는 **스킬 실행 시 출력되는 `Base directory`** 가 정본이고, 그 다음이 `installed_plugins.json`의 `installPath`다. `ls -td`(최근 수정 순)는 `/reload-plugins`가 새 hash를 만들거나 다른 cache를 건드린 뒤에는 틀릴 수 있으므로 보조 수단으로만 쓴다.
 
 **함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
@@ -146,26 +147,30 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 > `ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf`
 
 ```bash
-# 1. 최신 cache 경로 탐색 + 로컬 스킬 복사
-CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
-cp -r skills/ "$CACHE/skills/"
+# 1. 활성 cache 경로 탐색 + 로컬 스킬 복사
+#    installPath를 우선하고, 없으면 최근 수정 순. `skills/.`로 복사해야 한다 (`skills/`는 대상이 있으면 skills/skills/로 중첩됨)
+PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
+[ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
+cp -r skills/. "$CACHE/skills/"
 
 # 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
 
 # 3. 검증 — reload가 새 cache를 만들지 않았는지 확인 (필수)
 #    로드된 스킬 본문에만 있는 고유 문자열로 확인한다
-CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+#    스킬을 한 번 호출해 "Base directory"를 읽고 그 경로와 비교하는 것이 가장 확실하다
 diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKILL.md" \
   && echo "신버전 로드됨" \
-  || { cp -r skills/ "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
+  || { cp -r skills/. "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
+#    같은 세션에서 이미 호출한 스킬은 본문이 메모리에 남아 "already loaded above; instructions unchanged"로 구버전이 다시 쓰인다.
+#    복사 뒤에는 반드시 /reload-plugins를 다시 실행한다
 
 # 4. 수정한 스킬 테스트 수행
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 #    스킬 실행 시 출력되는 "Base directory"가 위 $CACHE와 같은지 확인할 것
 
 # 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
-CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
-cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
+cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 
 # 6. (이 세션에서 실행) /reload-plugins   ← 원본 복원
 ```
@@ -386,6 +391,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩·액션 라벨·해설·세계 상태)가 다르고, 뒤 항목(영문·숫자·코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-03 2차, 3차) |
 | 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
 | 조작할 수 있는 그림의 조건 (정적 우선, 값이 3개 이상이거나 동작이 뒤집히는 경계가 요점일 때만, 세 가지 질문, 기본 상태가 요점, 순서 넘기기 금지) | `eli5`, `visual-doc`, `explain-diff` | 세 SKILL.md에 `Static first`로 시작하는 같은 5항목이 들어 있다. 두 상태 비교(전/후, 켬/끔)는 조작 요소가 아니라 두 줄짜리 정적 그림으로 그린다. 조작 UI는 템플릿마다 다르다 (eli5 `.ctl`, visual-doc `.knob`, explain-diff `.sim`/`.seg`). 여러 단계와 미션이 필요한 주제는 micro-world. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-03) |
+| 근거 카드(`.ev`: 파일 원문·유령 줄·ERD), 번호 배지(`.dg-m`/`.m`), 해설 목록(`.notes`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입. visual-doc·explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-10) |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트

@@ -143,8 +143,13 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 
 **함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
-> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리한다:
-> `ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf`
+> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath만 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다):
+>
+> ```bash
+> PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+> KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
+> [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do [ "${d%/}" = "${KEEP%/}" ] || rm -rf "$d"; done
+> ```
 
 ```bash
 # 1. 활성 cache 경로 탐색 + 로컬 스킬 복사
@@ -152,13 +157,18 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
 CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
 [ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
+[ -d "$CACHE" ] || { echo "CACHE 탐색 실패"; exit 1; }
 cp -r skills/. "$CACHE/skills/"
 
 # 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
 
 # 3. 검증 — reload가 새 cache를 만들지 않았는지 확인 (필수)
-#    로드된 스킬 본문에만 있는 고유 문자열로 확인한다
+#    Bash 호출 사이에 셸 변수가 남지 않으므로 PLUG·CACHE를 다시 계산한다. 1단계와 다른 경로가 나오면 그것이 "새 cache"다
 #    스킬을 한 번 호출해 "Base directory"를 읽고 그 경로와 비교하는 것이 가장 확실하다
+PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
+[ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
+[ -d "$CACHE" ] || { echo "CACHE 탐색 실패"; exit 1; }
 diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKILL.md" \
   && echo "신버전 로드됨" \
   || { cp -r skills/. "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
@@ -169,7 +179,11 @@ diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKI
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 #    스킬 실행 시 출력되는 "Base directory"가 위 $CACHE와 같은지 확인할 것
 
-# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
+# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사. 변수는 다시 계산한다)
+PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
+[ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
+[ -d "$CACHE" ] || { echo "CACHE 탐색 실패"; exit 1; }
 cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 
 # 6. (이 세션에서 실행) /reload-plugins   ← 원본 복원
@@ -197,19 +211,22 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 - 커밋 승인은 세션의 tool permission 설정에 따름
 - PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
 - main push 후 Claude Code 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
-  1. `git -C ~/.claude/plugins/marketplaces/git-claw pull` — marketplace 최신화
+  1. `git -C "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw" pull` — marketplace 최신화
   2. 이 세션에서 `/reload-plugins` 실행 — 최신 cache 생성
-  3. `installed_plugins.json`(예: `~/.claude/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
+  3. `installed_plugins.json`(`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
      - 새로 시작하는 다른 프로젝트 세션은 수정된 `installPath`를 자동으로 사용
      - 이미 실행 중인 다른 프로젝트 세션은 자동 반영되지 않으므로 `/reload-plugins` 실행 또는 세션 재시작 필요
   ```bash
-  # 새 cache 경로 확인
-  ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
-  # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
+  # 새 cache 경로 확인 (reload 직후에는 방금 생긴 디렉토리가 mtime 최신이다)
+  PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+  ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1
+  # $PLUG/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
-  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다 (최신 1개만 남김):
+  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다. installPath 디렉토리만 남긴다:
   ```bash
-  ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf
+  PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
+  KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
+  [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do [ "${d%/}" = "${KEEP%/}" ] || rm -rf "$d"; done
   ```
 - main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
   - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.

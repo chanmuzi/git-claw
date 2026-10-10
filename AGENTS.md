@@ -143,12 +143,17 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 
 **함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
-> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath만 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다):
+> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath와 다른 세션이 쓰고 있는 디렉토리를 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다). Claude Code는 세션이 로드한 cache 디렉토리 안에 `.in_use/{pid}` 마커를 남기므로, 살아 있는 pid가 있는 디렉토리는 다른 세션의 것이다 (2026-10-10 확인):
 >
 > ```bash
 > PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
 > KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
-> [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do [ "${d%/}" = "${KEEP%/}" ] || rm -rf "$d"; done
+> [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
+>   [ "${d%/}" = "${KEEP%/}" ] && continue
+>   live=$(for f in "$d".in_use/*; do p=$(basename "$f"); [ -d "/proc/$p" ] && echo "$p"; done 2>/dev/null)
+>   [ -n "$live" ] && { echo "skip $d (세션 사용 중: $(echo $live))"; continue; }
+>   rm -rf "$d"
+> done
 > ```
 
 ```bash
@@ -222,11 +227,16 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
   ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1
   # $PLUG/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
-  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다. installPath 디렉토리만 남긴다:
+  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다. installPath 디렉토리와 `.in_use/{pid}`에 살아 있는 pid가 있는 디렉토리(다른 세션이 로드 중)는 남긴다:
   ```bash
   PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
   KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
-  [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do [ "${d%/}" = "${KEEP%/}" ] || rm -rf "$d"; done
+  [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
+    [ "${d%/}" = "${KEEP%/}" ] && continue
+    live=$(for f in "$d".in_use/*; do p=$(basename "$f"); [ -d "/proc/$p" ] && echo "$p"; done 2>/dev/null)
+    [ -n "$live" ] && { echo "skip $d (세션 사용 중: $(echo $live))"; continue; }
+    rm -rf "$d"
+  done
   ```
 - main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
   - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.

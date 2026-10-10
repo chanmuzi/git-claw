@@ -3,7 +3,8 @@
   eli5 frame.
 
   Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
-    (.hero, .beat, .fig, .say, .numbers, .close, the optional .ctl controls) plus the SVG label classes.
+    (.hero, .beat, .fig, .notes, .say, .numbers, .close, the optional .ev evidence card and
+    .ctl controls, the .m / .dg-m badges) plus the SVG label classes.
     Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
@@ -145,6 +146,81 @@
   }
   .say b{ font-weight:600; color:var(--ink); }
   .say .cost{ font-weight:700; color:var(--amber); }
+  /* the conclusion line starts with a one-word label; no box, no border: it is prose */
+  .say .lab{ font-weight:700; color:var(--blue); margin-right:6px; }
+  .say .lab.warn{ color:var(--amber); }
+
+  /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
+  .notes{ display:grid; gap:9px; margin-top:16px; }
+  .note{
+    display:grid; grid-template-columns:20px minmax(0,1fr); gap:10px; align-items:start;
+    font-size:15px; line-height:1.65; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty;
+  }
+  .note .m{ margin-top:4px; }
+  .note b{ font-weight:600; color:var(--ink); }
+
+  /* ── numbered badge: the same shape in the drawing (.dg-m), the evidence card and the notes (.m) ── */
+  .m{
+    display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%;
+    background:var(--blue); color:var(--card); font-family:var(--mono); font-size:11px; font-weight:700;
+    line-height:1; flex:none; vertical-align:-4px;
+  }
+  .m.bad{ background:var(--red); }
+  .m.dim{ background:var(--gray400); }
+  .dg-m circle{ fill:var(--blue); }
+  .dg-m.bad circle{ fill:var(--red); }
+  .dg-m.dim circle{ fill:var(--gray400); }
+  .dg-m text{ fill:var(--card); font-family:var(--mono); font-size:11px; font-weight:700; text-anchor:middle; }
+
+  /* ── evidence card (optional; SKILL.md "Evidence card") ──
+     The real file or table, verbatim, between the figure and the notes. Dashed border and the
+     chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's. */
+  .evs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:14px; }
+  .ev{
+    /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
+    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
+    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
+    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
+    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
+    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
+    border:1px dashed var(--gray200); border-radius:var(--r-el); background:var(--chipbg); overflow:hidden; min-width:0;
+  }
+  .ev-head{
+    display:flex; align-items:center; gap:8px; padding:7px 12px; border-bottom:1px dashed var(--gray200);
+    font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0;
+  }
+  .ev-head .kind{ font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }
+  .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ev-body{ overflow-x:auto; }
+  .ev-body pre{ margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
+  /* every line reserves the badge slot (.g) so a badge never shifts the original indentation */
+  .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
+  .ev .ln{ display:flex; align-items:center; gap:8px; padding:0 12px; white-space:pre; min-height:19px; }
+  .ev .ln .t{ flex:1; }
+  .ev .ln.hi{ background:var(--blue-soft); color:var(--ink); }
+  .ev .ln.ghost{ color:var(--faint); }
+  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--gray300); border-radius:4px; padding:0 6px; margin:1px 0; }
+  .ev .ln.ghost .sx-f, .ev .ln.ghost .sx-s, .ev .ln.ghost .sx-n, .ev .ln.ghost .sx-k{ color:inherit; }
+  .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:auto; }
+  .ev .ln.hi .tag{ color:var(--chip-ink); }
+  .ev .ln.ghost .tag{ color:var(--red); margin-left:0; }
+  /* table form */
+  .erd{ display:grid; grid-template-columns:1fr auto 1fr; align-items:start; padding:12px; gap:0; }
+  @media (max-width:600px){ .erd{ grid-template-columns:1fr; } .erd .rel{ transform:rotate(90deg); height:40px; } }
+  .tbl{ border:1px solid var(--gray200); border-radius:10px; background:var(--card); overflow:hidden; min-width:0; }
+  .tbl .tn{ padding:7px 12px; font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--gray200); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  .tbl .tn small{ font-family:inherit; font-weight:400; color:var(--faint); font-size:11px; }
+  .tbl .col{ display:flex; align-items:center; gap:8px; padding:3px 12px; font-family:var(--mono); font-size:11.5px; color:var(--gray700); }
+  .tbl .col .g{ order:-1; }
+  .tbl .col::before{ content:""; width:16px; flex:none; font-size:9.5px; font-weight:700; color:var(--faint); }
+  .tbl .col.key::before{ content:"PK"; }
+  .tbl .col.fk::before{ content:"FK"; color:var(--chip-ink); }
+  .tbl .col .ty{ margin-left:auto; color:var(--faint); font-size:10.5px; white-space:nowrap; }
+  .tbl .col.hi{ background:var(--blue-soft); color:var(--ink); }
+  .tbl .col.hi .ty{ color:var(--chip-ink); }
+  .tbl .col.more{ color:var(--faint); }
+  .rel{ display:grid; place-items:center; padding:0 8px; align-self:center; }
+  .rel svg{ width:56px; height:26px; display:block; color:var(--chip-ink); }
   code{
     font-family:var(--mono); font-size:.88em; font-weight:500;
     background:color-mix(in srgb, var(--blue) 9%, transparent);
@@ -161,7 +237,7 @@
   .num .k{ font-size:12.5px; color:var(--sub); word-break:keep-all; }
   .num .v{
     font-size:16px; font-weight:700; letter-spacing:-0.01em;
-    font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink);
+    font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink); word-break:keep-all;
   }
   .num .v.cost{ color:var(--amber); }
   .num .d{ font-size:13px; line-height:1.6; color:var(--sub); margin-top:6px; word-break:keep-all; text-wrap:pretty; }
@@ -237,7 +313,6 @@
   .sx-s{ color:var(--sx-s); }
   .sx-n{ color:var(--sx-n); }
   .sx-c{ color:var(--faint); font-style:italic; }
-  .say + .codeblock{ margin-top:14px; }
 </style>
 <script>
 /* theme toggle (LOCKED): a saved choice is applied before first paint. The button
@@ -313,15 +388,46 @@
         <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
         <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
         <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+        <!-- badges last of all: on the top-left corner of the box they number, in reading order, same number as the note below -->
+        <g class="dg-m" transform="translate(40,56)"><circle r="10"/><text y="4">1</text></g>
+        <g class="dg-m" transform="translate(335,56)"><circle r="10"/><text y="4">2</text></g>
+        <g class="dg-m bad" transform="translate(590,56)"><circle r="10"/><text y="4">3</text></g>
       </svg>
     </figure>
-    <!-- .say: 각 부분이 무엇인지와 그림에 없는 조건 하나. 사실만, 2~3문장, 본문 크기 -->
-    <p class="say">{그림의 각 부분이 무엇인지와 그림에 없는 조건 하나를 2~3문장으로. 소제목과 라벨을 되풀이하지 않는다.}</p>
-    <!-- 선택: 실제 코드를 보여줘야 할 때만 .say 아래에 둔다. 그림을 대신하지 않는다 (SKILL.md "Code blocks")
-    <div class="codeblock">
-      <div class="cb-head"><span class="file">{파일 · 함수}</span><span>{언어}</span></div>
-      <div class="cb-body"><pre><span class="ln"><span class="sx-k">while</span> <span class="sx-n">True</span>:</span><span class="ln">    msg = client.<span class="sx-f">chat</span>(messages)</span><span class="ln gap">    … 4줄 생략</span></pre></div>
+    <!-- 선택: 그림이 말할 수 없는 사실(파일에 그 줄이 없음, 테이블의 컬럼, 요청에 그 필드가 없음)일 때만 (SKILL.md "Evidence card").
+         배지가 가리키는 줄은 .hi, 있어야 하는데 없는 줄은 .ghost. 모든 줄이 배지 자리(.g)를 비워 둔다
+    <div class="evs">
+      <div class="ev">
+        <div class="ev-head"><span class="kind">설정</span><span class="loc">{config/config.yaml}</span></div>
+        <div class="ev-body"><pre><span class="ln"><span class="g"></span><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi"><span class="g"><span class="m">2</span></span><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="g"></span><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
+      </div>
+      <div class="ev">
+        <div class="ev-head"><span class="kind">테이블</span><span class="loc">{후보 1행 → 청크 1행}</span></div>
+        <div class="erd">
+          <div class="tbl">
+            <div class="tn">{table_a} <small>{쉬운 말 한 마디}</small></div>
+            <div class="col key"><span class="g"></span>id</div>
+            <div class="col fk hi"><span class="g"><span class="m">1</span></span>b_id<span class="ty">→ {table_b}.id</span></div>
+            <div class="col more"><span class="g"></span>+ {N} 컬럼</div>
+          </div>
+          <div class="rel"><svg viewBox="0 0 56 26" aria-hidden="true"><path d="M2 13 H46" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M46 13 l-7 -5 M46 13 l-7 5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2 5 V21 M8 5 L2 13 L8 21" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          <div class="tbl">
+            <div class="tn">{table_b} <small>{쉬운 말 한 마디}</small></div>
+            <div class="col key"><span class="g"></span>id</div>
+            <div class="col hi"><span class="g"><span class="m">2</span></span>embedding<span class="ty">vector(1024) = 4 KB</span></div>
+          </div>
+        </div>
+      </div>
     </div> -->
+    <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 그것이 무엇이고 그림에 없는 조건 하나를 1~2문장. 사실만, 본문 크기 -->
+    <div class="notes">
+      <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
+      <div class="note"><span class="m">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장.}</div></div>
+      <div class="note"><span class="m bad">3</span><div><b>{못 닿는 곳}</b>{에 왜 못 닿는지.}</div></div>
+    </div>
+    <!-- 결론 한 줄. 라벨 한 단어만 색, 상자 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
+    <p class="say"><span class="lab warn">확인 못 한 것</span>{검증하지 못한 사실과 무엇이 확정하는지.}</p>
+    <p class="say"><span class="lab">그래서</span>{이 그림의 결론 한두 문장.}</p>
   </div>
 
   <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->

@@ -275,6 +275,8 @@ Produces a self-contained HTML page where **big hand-authored SVG diagrams carry
 
 **Interactive only when needed:** A page may carry one figure with a slider or switch, only when the reader has to move a value to see the point (the outcome changes across several values, or the point is where behavior flips). A plain before/after comparison stays a static two-row figure.
 
+**Structure:** Each beat is one drawing with numbered badges, then notes (one line per badge) and a one-line conclusion. When the drawing cannot show the fact (a line missing from a config file, the columns of a table, a field missing from a request), an evidence card quotes the real file or table verbatim between the drawing and the notes, with the missing line drawn as a dashed ghost line.
+
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `eli5-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed. Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it.
 
 ## Language Behavior

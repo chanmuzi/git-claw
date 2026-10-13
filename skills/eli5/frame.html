@@ -158,6 +158,7 @@
   }
   .note .m{ margin-top:4px; }
   .note b{ font-weight:600; color:var(--ink); }
+  .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list: no badges, the row title in bold leads */
 
   /* ── numbered badge: the same shape in the drawing (.dg-m), the evidence card and the notes (.m) ── */
   .m{
@@ -171,11 +172,16 @@
   .dg-m.bad circle{ fill:var(--red); }
   .dg-m.dim circle{ fill:var(--gray400); }
   .dg-m text{ fill:var(--card); font-family:var(--mono); font-size:11px; font-weight:700; text-anchor:middle; }
+  /* group outline: one note about several boxes gets one dashed outline and one badge on its corner (SKILL.md "The word budget") */
+  .dg-grp{ fill:none; stroke:var(--blue); stroke-width:1.2; stroke-dasharray:4 4; opacity:.7; }
+  .dg-grp.bad{ stroke:var(--red); }
 
   /* ── evidence card (optional; SKILL.md "Evidence card") ──
      The real file or table, verbatim, between the figure and the notes. Dashed border and the
-     chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's. */
-  .evs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:14px; }
+     chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's.
+     Badges of the file form sit on the card's left border (.rail), outside the scrolling body, so the
+     code keeps its full width; the grid's padding-left makes room for the half that sticks out. */
+  .evs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:14px; padding-left:10px; }
   .ev{
     /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
     --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
@@ -183,28 +189,30 @@
     --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
     --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
     --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
-    border:1px dashed var(--gray200); border-radius:var(--r-el); background:var(--chipbg); overflow:hidden; min-width:0;
+    position:relative; border:1px dashed var(--gray200); border-radius:var(--r-el); background:var(--chipbg); min-width:0;
   }
   .ev-head{
-    display:flex; align-items:center; gap:8px; padding:7px 12px; border-bottom:1px dashed var(--gray200);
+    display:flex; align-items:center; gap:8px; height:32px; padding:0 12px; border-bottom:1px dashed var(--gray200);
     font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0;
   }
   .ev-head .kind{ font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }
   .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .ev-body{ overflow-x:auto; }
+  .ev-body{ overflow-x:auto; border-radius:0 0 var(--r-el) var(--r-el); }
   .ev-body pre{ margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
-  /* every line reserves the badge slot (.g) so a badge never shifts the original indentation */
-  .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
-  .ev .ln{ display:flex; align-items:center; gap:8px; padding:0 12px; white-space:pre; min-height:19px; }
-  .ev .ln .t{ flex:1; }
+  /* lines are exactly 19px tall: the rail places each badge by line index (top = head 32 + pre padding 8 + i*19 − half the 20px badge) */
+  .ev .ln{ display:flex; align-items:center; padding:0 12px; white-space:pre; height:19px; }
+  .ev .ln .t{ flex:none; }
+  .ev .rail{ position:absolute; left:-10px; top:0; width:20px; height:100%; pointer-events:none; }
+  .ev .rail .m{ position:absolute; left:0; top:calc(39.5px + var(--i) * 19px); box-shadow:0 0 0 2px var(--bg); }
   .ev .ln.hi{ background:var(--blue-soft); color:var(--ink); }
   .ev .ln.ghost{ color:var(--faint); }
   .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--gray300); border-radius:4px; padding:0 6px; margin:1px 0; }
   .ev .ln.ghost .sx-f, .ev .ln.ghost .sx-s, .ev .ln.ghost .sx-n, .ev .ln.ghost .sx-k{ color:inherit; }
-  .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:auto; }
+  .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:14px; }  /* right after the text, never pushed to the edge */
   .ev .ln.hi .tag{ color:var(--chip-ink); }
-  .ev .ln.ghost .tag{ color:var(--red); margin-left:0; }
-  /* table form */
+  .ev .ln.ghost .tag{ color:var(--red); }
+  /* table form: every .col keeps the badge slot (.g), since a column row has no scrolling body */
+  .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
   .erd{ display:grid; grid-template-columns:1fr auto 1fr; align-items:start; padding:12px; gap:0; }
   @media (max-width:600px){ .erd{ grid-template-columns:1fr; } .erd .rel{ transform:rotate(90deg); height:40px; } }
   .tbl{ border:1px solid var(--gray200); border-radius:10px; background:var(--card); overflow:hidden; min-width:0; }
@@ -388,18 +396,24 @@
         <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
         <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
         <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
-        <!-- badges last of all: on the top-left corner of the box they number, in reading order, same number as the note below -->
+        <!-- one note about several same-shaped boxes: a dashed group outline drawn BEFORE those boxes (8px outside them, rx 10),
+             the boxes filled with var(--card) so they sit on top, and the one badge on the group's corner:
+             <rect class="dg-grp" x="327" y="48" width="166" height="104" rx="10"/>  (bad for a red group) -->
+        <!-- badges last of all: on the top-left corner of the box (or group outline) they number, in reading order, same number as the note below.
+             Not every box gets one: only the ones whose note adds what the label cannot. A drawing that is itself a list gets none (.notes.plain) -->
         <g class="dg-m" transform="translate(40,56)"><circle r="10"/><text y="4">1</text></g>
         <g class="dg-m" transform="translate(335,56)"><circle r="10"/><text y="4">2</text></g>
         <g class="dg-m bad" transform="translate(590,56)"><circle r="10"/><text y="4">3</text></g>
       </svg>
     </figure>
     <!-- 선택: 그림이 말할 수 없는 사실(파일에 그 줄이 없음, 테이블의 컬럼, 요청에 그 필드가 없음)일 때만 (SKILL.md "Evidence card").
-         배지가 가리키는 줄은 .hi, 있어야 하는데 없는 줄은 .ghost. 모든 줄이 배지 자리(.g)를 비워 둔다
+         배지가 가리키는 줄은 .hi, 있어야 하는데 없는 줄은 .ghost. 파일 형태의 배지는 줄 안이 아니라 카드 왼쪽 테두리의 .rail에,
+         줄 index(0부터, 생략 줄 포함)를 --i로 적어 둔다. 꼬리표(.tag)는 글자 바로 뒤에 붙는다
     <div class="evs">
       <div class="ev">
+        <div class="rail"><span class="m" style="--i:1">2</span></div>
         <div class="ev-head"><span class="kind">설정</span><span class="loc">{config/config.yaml}</span></div>
-        <div class="ev-body"><pre><span class="ln"><span class="g"></span><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi"><span class="g"><span class="m">2</span></span><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="g"></span><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
+        <div class="ev-body"><pre><span class="ln"><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi"><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
       </div>
       <div class="ev">
         <div class="ev-head"><span class="kind">테이블</span><span class="loc">{후보 1행 → 청크 1행}</span></div>
@@ -419,7 +433,8 @@
         </div>
       </div>
     </div> -->
-    <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 그것이 무엇이고 그림에 없는 조건 하나를 1~2문장. 사실만, 본문 크기 -->
+    <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 그것이 무엇이고 그림에 없는 조건 하나를 1~2문장. 사실만, 본문 크기.
+         그림이 세로 목록 그 자체(결정 3줄 등)라 배지가 없으면 .notes.plain: 배지 없이 행 제목(굵게)으로 시작, 행과 같은 순서 -->
     <div class="notes">
       <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
       <div class="note"><span class="m">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장.}</div></div>

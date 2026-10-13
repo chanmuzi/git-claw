@@ -127,6 +127,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /eli5 <주제>          → 도메인 밖 사람용 그림 위주 설명 HTML 생성 (그림이 설명하고 글은 그림당 짧은 문단)
 /eli5 42              → PR #42를 비전공자 기준으로 설명
 /eli5 <설정·테이블 주제>  → 그림이 말할 수 없는 사실(파일에 없는 줄, 테이블 컬럼)에만 근거 카드가 붙고, 배지 번호가 그림·근거·해설에서 일치하는지 확인
+/eli5 <분기·묶음 주제>    → 해설 하나가 상자 여럿을 말하면 묶음 테두리(`.dg-grp`)에 배지 하나만 붙는지, 세로 목록 그림에는 배지가 없는지(`.notes.plain`), 근거 카드 배지가 카드 테두리 위 `.rail`에 있고 꼬리표가 글자 바로 뒤에 붙는지 확인
 ```
 
 ### 브랜치 테스트 (merge 전 스킬 검증)
@@ -418,7 +419,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩·액션 라벨·해설·세계 상태)가 다르고, 뒤 항목(영문·숫자·코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-03 2차, 3차) |
 | 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
 | 조작할 수 있는 그림의 조건 (정적 우선, 값이 3개 이상이거나 동작이 뒤집히는 경계가 요점일 때만, 세 가지 질문, 기본 상태가 요점, 순서 넘기기 금지) | `eli5`, `visual-doc`, `explain-diff` | 세 SKILL.md에 `Static first`로 시작하는 같은 5항목이 들어 있다. 두 상태 비교(전/후, 켬/끔)는 조작 요소가 아니라 두 줄짜리 정적 그림으로 그린다. 조작 UI는 템플릿마다 다르다 (eli5 `.ctl`, visual-doc `.knob`, explain-diff `.sim`/`.seg`). 여러 단계와 미션이 필요한 주제는 micro-world. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-03) |
-| 근거 카드(`.ev`: 파일 원문·유령 줄·ERD), 번호 배지(`.dg-m`/`.m`), 해설 목록(`.notes`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입. visual-doc·explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-10) |
+| 근거 카드(`.ev`: 파일 원문·유령 줄·ERD, 파일 형태의 배지는 카드 테두리 위 `.rail`), 번호 배지(`.dg-m`/`.m`)와 묶음 테두리(`.dg-grp`), 해설 목록(`.notes`, 배지 없는 `.notes.plain`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입, 2026-10-13 묶음 배지·배지 수 기준·rail 추가. visual-doc·explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-13) |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트

@@ -109,13 +109,13 @@
   .wrap{ max-width:860px; margin:0 auto; padding:0 20px 80px; }
 
   /* 한글 줄바꿈: keep-all이 없으면 브라우저가 어절을 무시하고 글자 단위로 끊어
-     제목·설명이 "접/두"처럼 부자연스럽게 갈라진다. 셸 고정 표면에 어절 단위
+     제목과 설명이 "접/두"처럼 부자연스럽게 갈라진다. 셸 고정 표면에 어절 단위
      개행을 건다. 터미널(.term-body)은 char 단위 break-all이 필요하므로 대상 아님. */
-  .top h1, .top .lede, .mission, .footnote{
+  .top h1, .top .lede, .mission, .footnote, .narr, .takeaway{
     word-break:keep-all; overflow-wrap:anywhere;
   }
   /* 문단 마지막 줄에 한두 어절만 남지 않게 한다 (지원하지 않는 브라우저는 기본 줄바꿈). */
-  .top .lede, .footnote{ text-wrap:pretty; }
+  .top .lede, .footnote, .narr, .takeaway{ text-wrap:pretty; }
 
   .top{ padding:48px 4px 8px; }
   .top .eyebrow{
@@ -128,7 +128,7 @@
     line-height:1.35; margin:0 0 10px; text-wrap:balance;
   }
   .top .lede{ font-size:16px; color:var(--sub); margin:0 0 8px; max-width:60ch; }
-  .top .lede code{ font-family:var(--mono); font-size:13px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .top .lede code{ font-family:var(--mono); font-size:13px; background:var(--gray25); border-radius:6px; padding:1px 3px; }
 
   /* 미션 바 */
   .mission{
@@ -213,7 +213,7 @@
   .cmd-btn.next{ border-color:var(--term-blue); box-shadow:0 0 0 1px var(--term-blue) inset; }
   .cmd-btn.next .d{ color:var(--term-blue); }
 
-  /* 해설 스트립: 환경 페인 바로 아래. 의미·판정은 전부 여기 */
+  /* 해설 스트립: 환경 페인 바로 아래. 의미와 판정은 전부 여기 */
   .narr{
     background:var(--blue-soft); border-radius:var(--r-el);
     padding:14px 18px; margin-top:12px; transition:background .25s ease;
@@ -223,7 +223,7 @@
   .narr ul{ margin:0; padding-left:18px; }
   .narr li{ font-size:13px; color:var(--gray600); line-height:1.6; margin-bottom:3px; }
   .narr li:last-child{ margin-bottom:0; }
-  .narr code{ font-family:var(--mono); font-size:12px; background:color-mix(in srgb, var(--surface) 70%, transparent); border-radius:5px; padding:1px 5px; }
+  .narr code{ font-family:var(--mono); font-size:12px; background:color-mix(in srgb, var(--surface) 70%, transparent); border-radius:5px; padding:1px 3px; }
   .narr.ok{ background:var(--green-soft); }
   .narr.ok h3{ color:var(--green); }
   .narr.warn{ background:var(--amber-soft); }
@@ -288,9 +288,16 @@
   .takeaway ul{ margin:0; padding-left:18px; }
   .takeaway li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
   .takeaway li:last-child{ margin-bottom:0; }
-  .takeaway code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 5px; }
+  .takeaway code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 3px; }
 
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+
+  /* ── inline code chip wrapping (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     A chip never breaks inside: a flag split at "--" reads as two tokens. Below 600px a chip moves to
+     the next line whole, and one longer than its line or table cell scrolls inside itself instead of
+     pushing the page sideways. */
+  :not(pre) > code{ white-space:nowrap; }
+  @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
 
   /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Syntax colors are spans the author wraps by hand (no highlighter script):
@@ -360,8 +367,8 @@
 
   <header class="top">
     <span class="eyebrow">micro-world</span>
-    <h1>{{TITLE — the behavior this world lets you inhabit}}</h1>
-    <p class="lede">{{LEDE — the mission and how to drive it, e.g. "파랗게 빛나는 다음 명령을 순서대로 실행하면 돼요."}}</p>
+    <h1>{{TITLE: the behavior this world lets you inhabit}}</h1>
+    <p class="lede">{{LEDE: the mission and how to drive it, e.g. "파랗게 빛나는 다음 명령을 순서대로 실행하면 돼요."}}</p>
   </header>
 
   <div class="mission" id="mission">
@@ -374,7 +381,7 @@
   <div class="term">
     <div class="term-head">
       <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
-      <span class="t-title">{{ENV_TITLE — e.g. user@host: ~/repo}}</span>
+      <span class="t-title">{{ENV_TITLE: e.g. user@host: ~/repo}}</span>
       <div class="term-nav">
         <button id="navBack" title="이전 스텝으로 (←)">‹</button>
         <button id="navFwd" title="다음 스텝 실행/이동 (→)">›</button>
@@ -385,7 +392,7 @@
          of .term-body while keeping the frame, nav, and palette. -->
     <div class="term-body" id="termBody"></div>
     <div class="palette">
-      <div class="p-label">실행할 명령 (❯ 셸 · ✳ Claude 세션) &nbsp;·&nbsp; 키보드: → 다음 스텝 실행 · ← 이전 스텝 · R 재시작</div>
+      <div class="p-label">실행할 명령 (❯ 셸, ✳ Claude 세션)  |  키보드: → 다음 스텝 실행, ← 이전 스텝, R 재시작</div>
       <!-- BESPOKE: one button per action. Real command text in .c, Korean label in .d.
            Wire each to runtime run() in the script. Keep the meta restart button last. -->
       <button class="cmd-btn" id="a1"><span class="c">{{COMMAND}}</span><span class="d">{{WHAT_IT_DOES}}</span></button>
@@ -401,7 +408,7 @@
   </div>
 
   <div class="world">
-    <div class="world-head">세계 상태 · 명령이 실행될 때마다 여기가 변해요</div>
+    <div class="world-head">세계 상태, 명령이 실행될 때마다 여기가 변해요</div>
     <div class="world-grid">
       <!-- BESPOKE: divided sub-panels of observable state (never scattered cards).
            Use .fs (tree rows + .vtag chips) and .sess (.sess-chip) primitives. -->
@@ -416,7 +423,7 @@
     </div>
   </div>
 
-  <p class="footnote">{{SIMPLIFICATION_FOOTNOTE — plain faint text: what was simplified vs the real system, and which transition rules are faithful. Never an alarm-colored callout.}}</p>
+  <p class="footnote">{{SIMPLIFICATION_FOOTNOTE (plain faint text): what was simplified vs the real system, and which transition rules are faithful. Never an alarm-colored callout.}}</p>
 
   <section class="card">
     <div class="takeaway">

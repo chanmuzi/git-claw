@@ -60,6 +60,13 @@ Parse `$ARGUMENTS` and conversation context:
 
 Write the issue title and body in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback).
 If no language is configured, follow the user's conversational language.
+
+### Writing rules (shared across commit, pr, issue, review-reply, code-review, handoff)
+
+- **No machine-writing symbols.** Never write the em-dash (`—`), the en-dash (`–`), or the middle dot (`·`) in anything this skill produces: titles, bodies, comments, replies, hints, tables, summaries. They mark text as machine-written. A dash becomes a colon, parentheses, a comma, or a second sentence. A middle dot between items becomes a comma or a Korean connective (`설치와 로그인`, `제목, 본문, 라벨`). A range is written with `~` (`1~3`). Text carried over from elsewhere (an earlier commit subject, a merged PR title, your summary of a reviewer's point) is normalized the same way.
+- **Verbatim quotes stay verbatim.** Code, file contents, and a reviewer's comment quoted inside a code block, a diff block, or a blockquote presented as a quote keep their characters exactly as the source has them. Outside such a quote the rule above has no exception.
+- **Natural Korean.** When the output language is Korean, write it the way you would say it to a colleague. Attach particles to the word before them, also after English or code (`API를`, `` `config`가 ``). Cut filler nouns that add nothing (`처리`, `진행`, `수행`): `캐시 삭제 처리 진행` is `캐시 삭제`. No literal translation of idioms and no metaphor (`~의 여정`, `숨은 비용`, `한눈에 보는 ~`). Write counts as numbers (`3곳`, `2회`). Read the title or subject line aloud once; if it sounds like a translated caption, rewrite it.
+- **Check before you send.** Before committing, creating, or posting, reread the drafted text for `—`, `–`, and `·`. When the text is in a file, `grep -nP '[—–·]' <file>` must print nothing outside verbatim quotes.
 Keep technical terms in their original form.
 Examples below are in Korean.
 
@@ -68,7 +75,7 @@ Examples below are in Korean.
 ```markdown
 ## 설명
 
-{What is happening — clear, specific description of the bug}
+{What is happening: clear, specific description of the bug}
 
 ## 재현 단계
 
@@ -82,11 +89,11 @@ Examples below are in Korean.
 
 ## 실제 동작
 
-{What actually happens — include error messages or logs if available}
+{What actually happens: include error messages or logs if available}
 
 ## 환경
 
-- {Runtime, OS, browser, version — only if relevant}
+- {Runtime, OS, browser, version: only if relevant}
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
@@ -96,11 +103,11 @@ Examples below are in Korean.
 ```markdown
 ## 배경
 
-{Why this feature is needed — problem or opportunity}
+{Why this feature is needed: problem or opportunity}
 
 ## 제안
 
-{What should be built or changed — describe the desired behavior}
+{What should be built or changed: describe the desired behavior}
 
 ## 기대 효과
 
@@ -142,9 +149,9 @@ Examples below are in Korean.
 
 1. Determine issue type from `$ARGUMENTS` and conversation context.
 2. If the type is ambiguous, ask the user.
-3. Gather relevant context from the conversation — code references, error messages, related PRs.
+3. Gather relevant context from the conversation: code references, error messages, related PRs.
 4. Select the matching template and draft the issue title and body.
-   - Title: concise, descriptive. No type prefix — the label handles categorization.
+   - Title: concise, descriptive. No type prefix: the label handles categorization.
    - Title language: follow the same language rule as the body. For Korean projects, keep technical terms as-is but use Korean sentence structure (e.g., `E2E 실험에서 non-default retrieval index snapshot 지원`).
    - Fill in template sections from available context. Omit optional sections with no content.
 5. Determine labels:

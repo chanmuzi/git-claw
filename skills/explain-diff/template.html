@@ -112,9 +112,9 @@
      끊는다. 그래서 "접두"가 "접/두"로 갈라지고 제목이 부자연스럽게 짤린다.
      서사 텍스트는 어절 단위로만 개행하고, 그래도 넘치는 긴 라틴 토큰만
      마지막 수단으로 쪼갠다(overflow-wrap:anywhere). 코드/트리 블록은 자체
-     white-space 규칙(pre·nowrap)을 쓰므로 여기 대상이 아니다. */
+     white-space 규칙(pre, nowrap)을 쓰므로 여기 대상이 아니다. */
   .top h1, .top .lede, .prose, .toc-row .desc,
-  .tk-core, .takeaway li, .q-text, .ex-core, .q-explain li,
+  .tk-core, .takeaway li, .q-text, .ex-core, .q-explain li, .opt,
   .risk-body, .risk-body b{
     word-break:keep-all; overflow-wrap:anywhere;
   }
@@ -186,7 +186,7 @@
   .list-header h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; margin:0; }
   .prose{ font-size:15px; color:var(--sub); max-width:62ch; margin:10px 0 18px; }
   .prose b{ color:var(--ink); font-weight:700; }
-  .prose code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .prose code, .top .lede code, .tk-core code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 3px; }
 
   /* 목차: 클릭 이동, 각 행 = 해당 섹션의 한 줄 요약 */
   a.toc-row{
@@ -205,6 +205,13 @@
   .toc-row .chev{ margin-left:auto; color:var(--gray300); font-size:14px; flex:none; padding-left:10px; }
 
   /* 코드/diff */
+  /* ── inline code chip wrapping (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     A chip never breaks inside: a flag split at "--" reads as two tokens. Below 600px a chip moves to
+     the next line whole, and one longer than its line or table cell scrolls inside itself instead of
+     pushing the page sideways. */
+  :not(pre) > code{ white-space:nowrap; }
+  @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
+
   /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Syntax colors are spans the author wraps by hand (no highlighter script):
      sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
@@ -318,7 +325,7 @@
   details.fold > :not(summary){ margin-top:10px; }
 
   /* 선택적 인터랙티브 피규어 (blue-soft 컨테이너 + 세그먼트 토글).
-     장식용 그라데이션은 쓰지 않는다 (디자인 시스템 공통 규칙) — solid blue-soft. */
+     장식용 그라데이션은 쓰지 않는다 (디자인 시스템 공통 규칙): solid blue-soft. */
   .sim{
     background:var(--blue-soft);
     border-radius:var(--r-el); padding:20px; margin:4px 0 6px;
@@ -378,14 +385,14 @@
   .takeaway ul{ margin:0; padding-left:18px; }
   .takeaway li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
   .takeaway li:last-child{ margin-bottom:0; }
-  .takeaway code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 5px; }
+  .takeaway code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 3px; }
 
   /* 리스크 */
   .risk-row{ display:flex; gap:14px; align-items:flex-start; padding:16px 4px; border-bottom:1px solid var(--gray50); }
   .risk-row:last-child{ border-bottom:none; }
   .risk-body{ font-size:14px; color:var(--sub); max-width:56ch; }
   .risk-body b{ display:block; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:2px; }
-  .risk-body code{ font-family:var(--mono); font-size:12px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .risk-body code{ font-family:var(--mono); font-size:12px; background:var(--gray25); border-radius:6px; padding:1px 3px; }
   .risk-body .hint{ display:block; font-size:12.5px; color:var(--faint); margin-top:4px; }
   .badge{ margin-left:auto; flex:none; font-size:10.5px; font-weight:600; padding:2px 9px; border-radius:100px; line-height:1.7; }
   .badge.watch{ background:var(--amber-soft); color:var(--amber); }
@@ -396,7 +403,7 @@
   .q:last-of-type{ border-bottom:none; margin-bottom:0; }
   .q-text{ font-size:15.5px; font-weight:700; margin:8px 0 14px; line-height:1.55; }
   .q-text .qn{ color:var(--blue); font-weight:700; margin-right:6px; }
-  .q-text code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 6px; }
+  .q-text code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 3px; }
   .opts{ display:flex; flex-direction:column; gap:9px; }
   .opt{
     appearance:none; text-align:left; font:inherit; font-size:14px; font-weight:600;
@@ -450,7 +457,7 @@
   .q-explain ul{ margin:0; padding-left:18px; }
   .q-explain li{ font-size:13px; color:var(--gray600); line-height:1.65; margin-bottom:4px; }
   .q-explain li:last-child{ margin-bottom:0; }
-  .q-explain code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 5px; }
+  .q-explain code{ font-family:var(--mono); font-size:12px; background:var(--surface); border-radius:5px; padding:1px 3px; }
 
   /* BottomCTA: 이해 게이트 (가짜 액션 문구 금지) */
   .bottom-cta{
@@ -521,7 +528,7 @@
     <div class="metabar">
       <span class="meta-chip"><span class="dot"></span>{{TARGET_LABEL}}</span>
       <span class="meta-chip"><span class="mono">{{COMMIT_RANGE}}</span></span>
-      <span class="meta-chip">{{N}}개 파일 · <span class="plus">+{{ADDED}}</span> <span class="minus">−{{REMOVED}}</span></span>
+      <span class="meta-chip">{{N}}개 파일, <span class="plus">+{{ADDED}}</span> <span class="minus">−{{REMOVED}}</span></span>
       <span class="meta-chip"><span class="mono">{{DATE}}</span></span>
     </div>
   </header>
@@ -537,15 +544,15 @@
     <a class="toc-row" href="#sec3"><span class="idx">3</span><span>{{THEME_TITLE}}<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
     <div class="toc-group"><span class="g-part">Part 3</span>이해 점검</div>
     <a class="toc-row" href="#risks"><span class="idx">{{K+1}}</span><span>주의해서 볼 지점<span class="desc">{{RISK_SUMMARY}}</span></span><span class="chev">›</span></a>
-    <a class="toc-row" href="#quiz"><span class="idx">{{K+2}}</span><span>이해도 퀴즈<span class="desc">5문항 · 전부 맞혀야 이해 완료 · 틀리면 힌트 보고 다시 풀 수 있어요</span></span><span class="chev">›</span></a>
+    <a class="toc-row" href="#quiz"><span class="idx">{{K+2}}</span><span>이해도 퀴즈<span class="desc">5문항, 전부 맞혀야 이해 완료, 틀리면 힌트 보고 다시 풀 수 있어요</span></span><span class="chev">›</span></a>
   </section>
 
   <div class="group-label"><span class="g-part">Part 1</span><span class="g-name">개요</span></div>
 
   <section class="card" id="sec1">
     <div class="list-header"><span class="num">1</span><h2>배경</h2></div>
-    <p class="prose">{{WHY_THIS_CHANGE — before-state and its cost}}</p>
-    <p class="prose">{{AFTER_STATE — what the change achieves, behavior-level}}</p>
+    <p class="prose">{{WHY_THIS_CHANGE: before-state and its cost}}</p>
+    <p class="prose">{{AFTER_STATE: what the change achieves, behavior-level}}</p>
   </section>
 
   <section class="card" id="sec2">
@@ -556,7 +563,7 @@
       <div class="tree-head">
         <span class="t-title">디렉토리 변화</span>
         <div class="tree-legend">
-          <span class="tr-chip core">승격·신설</span>
+          <span class="tr-chip core">승격과 신설</span>
           <span class="tr-chip mod">수정</span>
           <span class="tr-chip del">삭제</span>
         </div>
@@ -595,46 +602,48 @@
   <!-- REPEAT: one card per theme, ordered by importance (sec3..secK) -->
   <section class="card" id="sec3">
     <div class="list-header"><span class="num">3</span><h2>{{THEME_TITLE}}</h2></div>
-    <p class="prose">{{WHAT_AND_WHY — behavior meaning, not line narration}}</p>
+    <p class="prose">{{WHAT_AND_WHY: behavior meaning, not line narration}}</p>
     <!-- FLOW FIGURE SLOT (optional): keep ONLY when this theme changes who calls what,
          in what order, or how many times (SKILL.md "Flow figure"). Two rows of the same
          path on the same columns; red = removed or failing (top row), blue = added (bottom row).
          Redraw it for the theme: size every box from its label, give each figure its own
          marker ids, and keep the layout-plan comment. Delete the whole <figure> otherwise. -->
     <figure class="fig">
-      <svg viewBox="0 0 720 180" role="img" aria-label="{{FIGURE_CLAIM — one sentence}}">
-        <!-- W=720 · caption [20..80] · row1 y=24 h=46, row2 y=112 h=46: [120..240] gap100 [340..480] gap80 [560..700] -->
+      <svg viewBox="0 0 720 180" role="img" aria-label="{{FIGURE_CLAIM: one sentence}}">
+        <!-- W=720 | caption pill [20..96] | row1 y=24 h=46, row2 y=112 h=46: [136..256] gap84 [340..480] gap80 [560..700] -->
         <defs>
           <marker id="ff1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="currentColor"/></marker>
           <marker id="ff1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--red)"/></marker>
           <marker id="ff1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" style="fill:var(--blue)"/></marker>
         </defs>
-        <rect x="120" y="24" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="136" y="24" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <rect x="340" y="24" width="140" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <rect x="560" y="24" width="140" height="46" rx="6" fill="none" style="stroke:var(--red)" stroke-width="1.5"/>
-        <line x1="240" y1="47" x2="340" y2="47" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
+        <line x1="256" y1="47" x2="340" y2="47" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
         <line x1="480" y1="47" x2="560" y2="47" style="stroke:var(--red)" stroke-width="1.5" marker-end="url(#ff1r)"/>
-        <rect x="120" y="112" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="136" y="112" width="120" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <rect x="340" y="112" width="140" height="46" rx="6" fill="none" style="stroke:var(--blue)" stroke-width="1.5"/>
         <rect x="560" y="112" width="140" height="46" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <line x1="240" y1="135" x2="340" y2="135" style="stroke:var(--blue)" stroke-width="1.5" marker-end="url(#ff1b)"/>
+        <line x1="256" y1="135" x2="340" y2="135" style="stroke:var(--blue)" stroke-width="1.5" marker-end="url(#ff1b)"/>
         <line x1="480" y1="135" x2="560" y2="135" stroke="currentColor" stroke-width="1.5" marker-end="url(#ff1)"/>
-        <text class="dg-l" x="20" y="49" font-weight="700">변경 전</text>
-        <text class="dg-l" x="20" y="137" font-weight="700">변경 후</text>
-        <text class="dg-l" x="180" y="49" text-anchor="middle">{{CALLER}}</text>
-        <text class="dg-s" x="290" y="37" text-anchor="middle">{{EDGE_BEFORE}}</text>
+        <rect class="dg-pill bad" x="20" y="36" width="76" height="22" rx="11"/>
+        <rect class="dg-pill em" x="20" y="124" width="66" height="22" rx="11"/>
+        <text class="dg-cap bad" x="58" y="51" text-anchor="middle">BEFORE</text>
+        <text class="dg-cap em" x="53" y="139" text-anchor="middle">AFTER</text>
+        <text class="dg-l" x="196" y="49" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s" x="298" y="37" text-anchor="middle">{{EDGE_BEFORE}}</text>
         <text class="dg-l" x="410" y="49" text-anchor="middle">{{CALLEE_BEFORE}}</text>
         <text class="dg-s dg-bad" x="520" y="37" text-anchor="middle">{{EDGE2_BEFORE}}</text>
         <text class="dg-l dg-bad" x="630" y="49" text-anchor="middle">{{OUTCOME_BEFORE}}</text>
-        <text class="dg-l" x="180" y="137" text-anchor="middle">{{CALLER}}</text>
-        <text class="dg-s dg-em" x="290" y="125" text-anchor="middle">{{EDGE_AFTER}}</text>
+        <text class="dg-l" x="196" y="137" text-anchor="middle">{{CALLER}}</text>
+        <text class="dg-s dg-em" x="298" y="125" text-anchor="middle">{{EDGE_AFTER}}</text>
         <text class="dg-l dg-em" x="410" y="137" text-anchor="middle">{{CALLEE_AFTER}}</text>
         <text class="dg-s" x="520" y="125" text-anchor="middle">{{EDGE2_AFTER}}</text>
         <text class="dg-l" x="630" y="137" text-anchor="middle">{{OUTCOME_AFTER}}</text>
       </svg>
     </figure>
     <div class="codeblock">
-      <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{LANGUAGE}} · {{HUNK_META}}</span></div>
+      <div class="cb-head"><span class="file">{{FILE_PATH}}</span><span>{{LANGUAGE}}, {{HUNK_META}}</span></div>
       <div class="cb-body"><pre><span class="ln del"><span class="sign">-</span> {{REMOVED_LINE_VERBATIM}}</span><span class="ln add"><span class="sign">+</span> {{ADDED_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln">  {{CONTEXT_LINE_VERBATIM_WITH_SX_SPANS}}</span><span class="ln gap">  … {{N}}줄 생략</span></pre></div>
     </div>
     <div class="takeaway">
@@ -656,7 +665,7 @@
     <div class="risk-row">
       <div class="risk-body">
         <b>{{RISK_TITLE}}</b>
-        {{RISK_BODY — the concrete scenario and what to check}}
+        {{RISK_BODY: the concrete scenario and what to check}}
         <span class="hint">확정된 버그가 아니라 주의 포인터예요.</span>
       </div>
       <span class="badge watch">Watch</span>
@@ -671,12 +680,12 @@
          data-hint: points to the relevant section, NEVER reveals the answer.
          data-hint-href: id of that same section (#sec2, #risks, ...) so the hint is clickable.
          data-hint-label: that section's title, used as the link text.
-         Omit both -href/-label only if no single section covers the question — the
+         Omit both -href/-label only if no single section covers the question: the
          link is then dropped and the hint stays text-only.
          Exactly one option has data-ok="true". 3-4 options each. -->
     <div class="q" data-hint="{{HINT_POINTING_TO_SECTION}}"
          data-hint-href="#sec{{N}}" data-hint-label="{{THAT_SECTION_TITLE}}">
-      <p class="q-text"><span class="qn">Q1</span>{{QUESTION — behavior prediction / failure mode / rejected alternative / invariant / future-maintainer scenario}}</p>
+      <p class="q-text"><span class="qn">Q1</span>{{QUESTION: behavior prediction / failure mode / rejected alternative / invariant / future-maintainer scenario}}</p>
       <div class="opts">
         <button class="opt" data-ok="false">{{PLAUSIBLE_MISCONCEPTION}}</button>
         <button class="opt" data-ok="true">{{CORRECT}}</button>
@@ -726,9 +735,9 @@
       cta.disabled = false;
       cta.classList.add("armed");
       cta.firstChild.textContent = "이 변경을 이해했어요 ";
-      ctaSub.textContent = TOTAL + "/" + TOTAL + " · 남에게 설명할 수 있는 수준이에요";
+      ctaSub.textContent = TOTAL + "/" + TOTAL + ", 남에게 설명할 수 있는 수준이에요";
     } else {
-      ctaSub.textContent = "맞힌 문항 " + correct + "/" + TOTAL + " · 전부 맞히면 이해 완료예요";
+      ctaSub.textContent = "맞힌 문항 " + correct + "/" + TOTAL + ", 전부 맞히면 이해 완료예요";
     }
   }
 
@@ -736,11 +745,11 @@
      native smooth scroll은 거리와 거의 무관하게 duration이 고정이라, 먼 거리를
      점프하면 중간 구간의 속도가 폭주해 어지럽다. 즉시 이동은 반대로 단절감을 준다.
      여기서는 duration을 sqrt(거리)에 비례시켜, 먼 거리일수록 더 긴 시간을 쓰되
-     증가폭은 완만하게 둔다. 상·하한을 걸어 짧은 이동은 굼뜨지 않고 긴 이동도
+     증가폭은 완만하게 둔다. 상한과 하한을 걸어 짧은 이동은 굼뜨지 않고 긴 이동도
      늘어지지 않는다. */
   var LAND_OFFSET = 24; /* .card의 scroll-margin-top과 같은 값 */
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var animating = false; /* 프로그램 이동이 비행 중인지 — 아래 복귀 칩 판정이 이 값을 본다 */
+  var animating = false; /* 프로그램 이동이 비행 중인지: 아래 복귀 칩 판정이 이 값을 본다 */
 
   function easeInOutCubic(t){
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -820,8 +829,8 @@
     q.querySelector(".rt-hint").textContent = q.dataset.hint || "";
 
     /* 힌트가 가리키는 섹션이 지정된 경우에만 링크를 남긴다.
-       querySelector가 아니라 getElementById로 찾는다 — 플레이스홀더가 채워지지
-       않은 채 남으면("#sec{{N}}") 셀렉터 파싱이 예외를 던져 퀴즈 전체가 죽는다. */
+       querySelector가 아니라 getElementById로 찾는다: 플레이스홀더가 채워지지
+       않은 채 남으면("#sec" 뒤 번호 자리가 빈 채로) 셀렉터 파싱이 예외를 던져 퀴즈 전체가 죽는다. */
     var jump = q.querySelector(".btn.jump");
     var href = q.dataset.hintHref;
     if (href && href.charAt(0) === "#" && document.getElementById(href.slice(1))){

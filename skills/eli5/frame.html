@@ -200,7 +200,7 @@
   .ev-head .kind{ font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }
   .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ev-body{ overflow-x:auto; border-radius:0 0 var(--r-el) var(--r-el); }
-  .ev-body pre{ margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
+  .ev-body pre{ width:max-content; min-width:100%; margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
   /* lines are exactly 19px tall: the rail places each badge by line index (top = head 32 + pre padding 8 + i*19 − half the 20px badge) */
   .ev .ln{ display:flex; align-items:center; padding:0 12px; white-space:pre; height:19px; }
   .ev .ln .t{ flex:none; }
@@ -234,7 +234,7 @@
   code{
     font-family:var(--mono); font-size:.88em; font-weight:500;
     background:color-mix(in srgb, var(--blue) 9%, transparent);
-    color:var(--chip-ink); padding:2px 6px; border-radius:6px;
+    color:var(--chip-ink); padding:2px 3px; border-radius:6px;
   }
 
   /* ── number strip: 4 max, at least one is a cost ── */
@@ -294,6 +294,13 @@
   }
   .seg button[aria-pressed="true"]{ background:var(--blue); color:var(--card); }
   .ctl input:focus-visible, .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* ── inline code chip wrapping (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     A chip never breaks inside: a flag split at "--" reads as two tokens. Below 600px a chip moves to
+     the next line whole, and one longer than its line or table cell scrolls inside itself instead of
+     pushing the page sideways. */
+  :not(pre) > code{ white-space:nowrap; }
+  @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
 
   /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Syntax colors are spans the author wraps by hand (no highlighter script):
@@ -362,7 +369,7 @@
 <div class="shell">
 
   <div class="hero">
-    <div class="eyebrow">{출처 한 가지 · YYYY-MM-DD}</div>
+    <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
     <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
   </div>
@@ -372,7 +379,7 @@
     <h2>{이 그림이 보여주는 사실 한 가지. 개조식 가능}</h2>
     <figure class="fig">
       <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
-        <!-- W=760 · row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(✕) [590..720] -->
+        <!-- W=760 | row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(✕) [590..720] -->
         <defs>
           <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="7" markerHeight="7" orient="auto-start-reverse">

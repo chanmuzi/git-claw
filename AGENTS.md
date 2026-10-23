@@ -48,7 +48,7 @@ git-claw/
 │   │   └── LICENSE.txt
 │   ├── micro-world/
 │   │   ├── SKILL.md                  # /micro-world
-│   │   ├── template.html             # 셸 템플릿 (토큰·프레임 고정, 본문은 bespoke)
+│   │   ├── template.html             # 셸 템플릿 (토큰과 프레임 고정, 본문은 bespoke)
 │   │   ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │   │   └── LICENSE.txt
 │   ├── visual-doc/
@@ -87,7 +87,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /plugin marketplace add /Users/chanmuzi/coding/workspace/git-claw
 /plugin install git-claw@git-claw
 
-# SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
+# SKILL.md 수정 후 반영 (캐시 갱신: 새 세션 불필요)
 /reload-plugins
 
 # 각 command 테스트
@@ -110,7 +110,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review -a|--all        → Reporting Bar 우회, confirmed finding 전체 보고 (기각분 포함)
 /code-review                 → Reporting Bar 동작 확인: 취향 수준 관측이 개별 항목이 아닌 `기각 n건` 집계로만 나오는지,
                                선행 이슈가 `밖으로 미룸`에 한 줄로만 나오고 인라인 코멘트로 달리지 않는지
-/code-review                 → Codex 플래그 없음: Codex 미실행 확인 (find·companion 명령이 실행되지 않아야 함, 힌트 없음)
+/code-review                 → Codex 플래그 없음: Codex 미실행 확인 (find, companion 명령이 실행되지 않아야 함, 힌트 없음)
 /code-review --codex         → Codex opt-in: `setup --json`으로 로그인 확인 후 adversarial review 병렬 실행 (💡 Codex enabled 힌트)
 /code-review --codex         → (codex logout 상태) Stop Notice B 출력 후 리뷰 중단 확인: 도메인 에이전트 미실행, 발행 없음
 /code-review --codex         → (codex CLI 미설치, plugin만 있음) Stop Notice C 출력 확인 (`codex login`이 아니라 `npm install -g @openai/codex` 안내)
@@ -125,14 +125,16 @@ npx skills add ./  # 로컬 경로에서 설치
 /explain-diff 42      → PR #42 설명 문서 생성
 /explain-diff src/    → 특정 경로로 diff 범위 제한
 /micro-world          → 특정 동작을 만져볼 수 있는 일회성 시뮬 HTML 생성 (적용성 게이트: 시뮬 가치 없으면 정직하게 거절)
-/visual-doc           → 조사·분석 내용을 온-브랜드 인터랙티브 문서로 생성 (두 층: 토큰 고정 + 골격은 콘텐츠가 결정, 퀴즈 없음)
+/visual-doc           → 조사와 분석 내용을 온-브랜드 인터랙티브 문서로 생성 (두 층: 토큰 고정 + 골격은 콘텐츠가 결정, 퀴즈 없음)
 /visual-doc src/      → 특정 경로 분석 후 문서 생성
 /visual-doc 42        → PR #42 분석 후 문서 생성
 /eli5 <주제>          → 도메인 밖 사람용 그림 위주 설명 HTML 생성 (그림이 설명하고 글은 그림당 짧은 문단)
 /eli5 42              → PR #42를 비전공자 기준으로 설명
-/eli5 <설정·테이블 주제>  → 그림이 말할 수 없는 사실(파일에 없는 줄, 테이블 컬럼)에만 근거 카드가 붙고, 배지 번호가 그림·근거·해설에서 일치하는지 확인
-/eli5 <두 상태 비교 주제>  → 비교가 좌우가 아니라 행으로 쌓이는지, 근거 카드가 한 열인지, `measure.html` 측정이 `data-sbs`·`data-fit` 모두 `none`인지, 상태 캡션이 행 위 머리줄에 있고 비교 종류에 맞게 읽히는지(추천: 끝난 변경 BEFORE/AFTER, 제안 AS-IS/TO-BE, 그 밖은 행마다 참인 것)이며 색이 상태와 맞는지(깨지는 쪽만 빨강) 확인
-/eli5 <분기·묶음 주제>    → 해설 하나가 상자 여럿을 말하면 묶음 테두리(`.dg-grp`)에 배지 하나만 붙는지, 세로 목록 그림에는 배지가 없는지(`.notes.plain`), 근거 카드 배지가 카드 테두리 위 `.rail`에 있고 꼬리표가 글자 바로 뒤에 붙는지 확인
+/eli5 <설정과 테이블 주제>  → 그림이 말할 수 없는 사실(파일에 없는 줄, 테이블 컬럼)에만 근거 카드가 붙고, 배지 번호가 그림, 근거, 해설에서 일치하는지 확인
+/visual-doc <표와 원문 인용이 많은 주제>  → Render check의 `data-ovf`가 none인지, `.wide` 표가 카드 안에서 줄바꿈되는지, `--flag` 칩이 줄 끝에서 갈라지지 않는지, em-dash가 든 원문을 고쳐 쓰지 않고 짧게 인용했는지 확인
+/commit, /pr, /code-review  → 출력과 게시물에 `—`, `–`, `·`가 없는지, `> **Recommendation**: Accept, {이유}`처럼 콜론이 연달아 찍히지 않는지, Codex 출처 태그가 `(Codex)`인지 확인
+/eli5 <두 상태 비교 주제>  → 비교가 좌우가 아니라 행으로 쌓이는지, 근거 카드가 한 열인지, `measure.html` 측정이 `data-sbs`와 `data-fit` 모두 `none`인지, 상태 캡션이 행 위 머리줄에 있고 비교 종류에 맞게 읽히는지(추천: 끝난 변경 BEFORE/AFTER, 제안 AS-IS/TO-BE, 그 밖은 행마다 참인 것)이며 색이 상태와 맞는지(깨지는 쪽만 빨강) 확인
+/eli5 <분기와 묶음 주제>    → 해설 하나가 상자 여럿을 말하면 묶음 테두리(`.dg-grp`)에 배지 하나만 붙는지, 세로 목록 그림에는 배지가 없는지(`.notes.plain`), 근거 카드 배지가 카드 테두리 위 `.rail`에 있고 꼬리표가 글자 바로 뒤에 붙는지 확인
 ```
 
 ### 브랜치 테스트 (merge 전 스킬 검증)
@@ -147,9 +149,9 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 
 **중요**: 플러그인 루트는 `~/.claude`가 아니라 `${CLAUDE_CONFIG_DIR:-$HOME/.claude}`다. 환경에 따라 `~/.claude-upstage`처럼 다른 디렉토리를 쓰며, 그때 `~/.claude/plugins/...`에 복사하면 조용히 무시된다 (2026-10-10 실제 사고). 활성 cache는 **스킬 실행 시 출력되는 `Base directory`** 가 정본이고, 그 다음이 `installed_plugins.json`의 `installPath`다. `ls -td`(최근 수정 순)는 `/reload-plugins`가 새 hash를 만들거나 다른 cache를 건드린 뒤에는 틀릴 수 있으므로 보조 수단으로만 쓴다.
 
-**함정 — 복사본이 무시되는 경우**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
+**복사본이 무시되는 함정**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
-> `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath와 다른 세션이 쓰고 있는 디렉토리를 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다). Claude Code는 세션이 로드한 cache 디렉토리 안에 `.in_use/{pid}` 마커를 남기므로, 살아 있는 pid가 있는 디렉토리는 다른 세션의 것이다 (2026-10-10 확인):
+> marketplace commit이 바뀐 뒤 `/reload-plugins`를 실행하면 그 commit 이름의 새 cache 디렉토리가 생겨 누적된다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath와 다른 세션이 쓰고 있는 디렉토리를 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다). Claude Code는 세션이 로드한 cache 디렉토리 안에 `.in_use/{pid}` 마커를 남기므로, 살아 있는 pid가 있는 디렉토리는 다른 세션의 것이다 (2026-10-10 확인):
 >
 > ```bash
 > PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
@@ -173,29 +175,34 @@ cp -r skills/. "$CACHE/skills/"
 
 # 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
 
-# 3. 검증 — reload가 새 cache를 만들지 않았는지 확인 (필수)
-#    Bash 호출 사이에 셸 변수가 남지 않으므로 PLUG·CACHE를 다시 계산한다. 1단계와 다른 경로가 나오면 그것이 "새 cache"다
-#    스킬을 한 번 호출해 "Base directory"를 읽고 그 경로와 비교하는 것이 가장 확실하다
+# 3. 검증 (필수): reload가 새 cache를 만들었으면 거기에도 신버전이 있어야 한다
+#    /reload-plugins는 marketplace commit 이름(앞 12자리)으로 새 cache를 만들 수 있고, 이때 installPath는 바뀌지 않는다
+#    (2026-10-23 확인). installPath만 비교하면 밀려난 옛 cache를 보고 "신버전"으로 잘못 통과하므로, installPath와
+#    가장 최근 수정된 cache를 모두 확인한다. Bash 호출 사이에 셸 변수가 남지 않으므로 다시 계산한다
 PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
 CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
-[ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
-[ -d "$CACHE" ] || { echo "CACHE 탐색 실패"; exit 1; }
-diff -q skills/{수정한 스킬}/SKILL.md "$CACHE/skills/{수정한 스킬}/SKILL.md" \
-  && echo "신버전 로드됨" \
-  || { cp -r skills/. "$CACHE/skills/"; echo "새 cache 감지 → 재복사 완료. /reload-plugins 재실행 필요"; }
+NEWEST=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1); NEWEST=${NEWEST%/}
+stale=0
+for c in "$CACHE" "$NEWEST"; do
+  [ -d "$c" ] || continue
+  diff -q skills/{수정한 스킬}/SKILL.md "$c/skills/{수정한 스킬}/SKILL.md" >/dev/null \
+    || { cp -r skills/. "$c/skills/"; echo "재복사: $c"; stale=1; }
+done
+[ $stale = 0 ] && echo "신버전 확인 (installPath, 최신 cache)" || echo "/reload-plugins 재실행 필요"
+#    확정은 4단계의 "Base directory"로 한다: 그 경로의 SKILL.md가 신버전이어야 한다
+#    가장 최근 수정된 cache가 다른 세션이 쓰는 디렉토리일 수도 있다 (그 세션이 reload하면 브랜치 버전을 받는다). 5단계에서 두 곳 모두 되돌린다
 #    같은 세션에서 이미 호출한 스킬은 본문이 메모리에 남아 "already loaded above; instructions unchanged"로 구버전이 다시 쓰인다.
 #    복사 뒤에는 반드시 /reload-plugins를 다시 실행한다
 
 # 4. 수정한 스킬 테스트 수행
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
-#    스킬 실행 시 출력되는 "Base directory"가 위 $CACHE와 같은지 확인할 것
+#    스킬 실행 시 출력되는 "Base directory"에서 diff -q skills/{수정한 스킬}/SKILL.md "{Base directory}/SKILL.md"가 같다고 나와야 한다
 
-# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사. 변수는 다시 계산한다)
+# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사. 3단계처럼 installPath와 최신 cache 모두)
 PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
 CACHE=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
-[ -d "$CACHE" ] || CACHE=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1)
-[ -d "$CACHE" ] || { echo "CACHE 탐색 실패"; exit 1; }
-cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
+NEWEST=$(ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1); NEWEST=${NEWEST%/}
+for c in "$CACHE" "$NEWEST"; do [ -d "$c" ] && cp -r "$PLUG/marketplaces/git-claw/skills/." "$c/skills/"; done
 
 # 6. (이 세션에서 실행) /reload-plugins   ← 원본 복원
 ```
@@ -204,7 +211,7 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 
 ### 테스트 안내 흐름
 
-로컬 테스트 안내 시 아래 구조를 따른다. Claude가 복사·실행·리포트·복원을 전담하고, 사용자는 `/reload-plugins`만 실행한다.
+로컬 테스트 안내 시 아래 구조를 따른다. Claude가 복사, 실행, 리포트, 복원을 전담하고, 사용자는 `/reload-plugins`만 실행한다.
 
 1. **최신 cache 탐색 + 복사**: `ls -td` 로 최신 cache 경로 탐색 → 로컬 스킬 복사
 2. **reload 요청**: 사용자에게 이 세션에서 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드)
@@ -220,10 +227,10 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 - Type: feat, fix, refactor, style, docs, test, perf, chore, hotfix
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
-- PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
+- PR merge 시 squash 금지: 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
 - main push 후 Claude Code 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
-  1. `git -C "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw" pull` — marketplace 최신화
-  2. 이 세션에서 `/reload-plugins` 실행 — 최신 cache 생성
+  1. `git -C "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw" pull`: marketplace 최신화
+  2. 이 세션에서 `/reload-plugins` 실행: 최신 cache 생성
   3. `installed_plugins.json`(`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
      - 새로 시작하는 다른 프로젝트 세션은 수정된 `installPath`를 자동으로 사용
      - 이미 실행 중인 다른 프로젝트 세션은 자동 반영되지 않으므로 `/reload-plugins` 실행 또는 세션 재시작 필요
@@ -233,7 +240,7 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
   ls -td "$PLUG"/cache/git-claw/git-claw/*/ | head -1
   # $PLUG/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
-  4. 오래된 cache 정리 — **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다. installPath 디렉토리와 `.in_use/{pid}`에 살아 있는 pid가 있는 디렉토리(다른 세션이 로드 중)는 남긴다:
+  4. 오래된 cache 정리: **반드시 installPath 갱신(3번) 후에** 실행한다. `/reload-plugins`마다 새 hash 디렉토리가 생겨 구버전 cache가 누적되며, 다른 도구가 stale 경로를 참조하면 outdated 경고의 원인이 된다. installPath 디렉토리와 `.in_use/{pid}`에 살아 있는 pid가 있는 디렉토리(다른 세션이 로드 중)는 남긴다:
   ```bash
   PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
   KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
@@ -244,7 +251,7 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
     rm -rf "$d"
   done
   ```
-- main push 후 Codex 동기화 (**`npx skills update` 사용 금지 — 직접 복사**):
+- main push 후 Codex 동기화 (**`npx skills update` 사용 금지: 직접 복사**):
   - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). 아래 "Skills CLI 운영 가이드" 참조.
   - 이 저장소의 Codex install은 **Codex 전용**(`~/.codex/skills`)이다. 이 형태를 유지하려면 marketplace에서 직접 복사하고 `.installed-ref`를 수동 기록한다.
   - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 동기화 후 **세션 재시작** 필요.
@@ -270,12 +277,12 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
     echo "$SHA" > ~/.codex/skills/$s/.installed-ref
   done
 
-  # 3. 검증 — 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
+  # 3. 검증: 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
   diff -q ~/.claude/plugins/marketplaces/git-claw/skills/code-review/SKILL.md ~/.codex/skills/code-review/SKILL.md
   ls ~/.claude/skills/   # git-claw skill이 보이면 universal install로 오염된 것
   ```
 - 스킬 rename / 제거 시 stale 폴더 cleanup:
-  - `npx skills` CLI는 rename·제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
+  - `npx skills` CLI는 rename, 제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
   - rename/제거 PR의 CHANGELOG 항목에 반드시 다음 cleanup 안내를 포함한다 (install 형태를 바꾸지 않는 직접 삭제를 우선한다):
     ```bash
     rm -rf ~/.codex/skills/{old-name}        # 권장
@@ -289,7 +296,7 @@ cp -r "$PLUG/marketplaces/git-claw/skills/." "$CACHE/skills/"
 
 ### 운영 원칙
 
-- **기존 install 형태(scope·target·copy/symlink)를 사용자 동의 없이 변경하지 않는다.** update/cleanup은 기존 설치 형태를 그대로 유지하는 방식으로만 진행한다.
+- **기존 install 형태(scope, target, copy/symlink)를 사용자 동의 없이 변경하지 않는다.** update/cleanup은 기존 설치 형태를 그대로 유지하는 방식으로만 진행한다.
 - update/remove/add 명령의 옵션 차이로 install 위치가 바뀔 수 있다. 옵션을 명시하지 않은 채 실행하지 말고, 변경되는 디렉터리/symlink target을 사전에 확인한다.
 - "guide"/"안내"/"정리"는 **설명 요청**이지 실행 요청이 아니다. 실행이 필요하면 사용자에게 명시적 승인을 받는다.
 
@@ -328,7 +335,7 @@ for s in commit pr issue review-reply code-review handoff explain-diff micro-wor
   echo "$SHA" > ~/.codex/skills/$s/.installed-ref
 done
 
-# 4. 검증 — Claude Code 쪽 중복 없는지 확인
+# 4. 검증: Claude Code 쪽 중복 없는지 확인
 ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 
 # 5. (사용자 직접) Codex CLI 세션 재시작
@@ -339,18 +346,18 @@ ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
 모든 스킬(commit, pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
 
 - **Assignee / Label**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me`와 적용 가능한 `--label`을 포함. 권한 부족 등으로 `--assignee`/`--label` fallback이 발생하면, drop된 플래그가 무엇이고 왜 빠졌는지 사용자에게 명시적으로 고지한다 (silent drop 금지)
-- **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
+- **참조 라벨 구분**: "관련" 표기 시 유형을 명시한다. `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
 - **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
 - **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
-- **Dash 금지**: git 메시지(커밋·PR 제목/본문)에 em-dash(—)·en-dash(–) 사용 금지. 콜론·괄호·쉼표로 대체 (코드/문서 산문은 대상 아님)
-- **비유·번역투 금지**: 모든 스킬의 산출물(커밋·PR·이슈 제목과 본문, HTML 문서의 제목·소제목·라벨·캡션)은 사실을 그 주제의 말로 쓴다. 개조식 허용. `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `장부`/`선반` 같은 비유와 함의적 표현, 동료에게 소리 내어 말하면 어색한 문장은 쓰지 않는다. 다른 주제에 그대로 옮겨도 말이 되는 제목은 너무 추상적이다
+- **기계 문장 기호 금지**: 모든 스킬의 산출물(커밋, PR, 이슈의 제목과 본문, 리뷰 코멘트와 답글, handoff, HTML 문서)에 em-dash(`—`), en-dash(`–`), 가운뎃점(`·`)을 쓰지 않는다. dash는 콜론, 괄호, 쉼표, 문장 나누기로, 항목 사이 가운뎃점은 쉼표나 `와`/`과`로, 범위는 `~`로 쓴다. 원문 그대로 인용한 코드, 파일, 리뷰어 코멘트만 예외다. 스킬 지시문과 템플릿에도 쓰지 않는다 (모델이 지시문의 문체를 따라 쓴다). 텍스트 스킬 여섯 개는 `Writing rules (shared across commit` 블록, HTML 스킬 네 개는 `No machine-writing symbols` 항목에 같은 글로 들어 있다
+- **비유와 번역투 금지**: 모든 스킬의 산출물(커밋, PR, 이슈 제목과 본문, HTML 문서의 제목, 소제목, 라벨, 캡션)은 사실을 그 주제의 말로 쓴다. 개조식 허용. `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `장부`/`선반` 같은 비유와 함의적 표현, 동료에게 소리 내어 말하면 어색한 문장은 쓰지 않는다. 다른 주제에 그대로 옮겨도 말이 되는 제목은 너무 추상적이다
 - **Evidence 우선**(review-reply, code-review): finding을 제시할 때 근거가 되는 원문을 **파일에서 그대로 복사**하여 함께 보여준다. 사용자가 파일을 직접 열지 않고도 판단할 수 있어야 한다
-  - **블록 형태는 severity가 아니라 "수정안 존재 여부"로 결정한다** (두 축 분리). 수정안이 있으면 ` ```diff `(`-` 현재 / `+` 제안) — Info여도 마찬가지다. 대체할 게 없으면(방향성 제안, 변경 불필요) ` ```{lang} ` 인용 블록. 최대 12줄, 초과 시 `…`로 중략
-  - **Action line은 severity로 결정한다**: Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. `{reason}`은 "왜 그 판단인지"를 쓰는 자리이지 수정 방법을 밀어넣는 자리가 아니다 — 수정 방법은 diff 블록으로
-  - 인용문 재구성 금지 — 요약·의역·기억에 의한 복원 모두 금지. 인용할 수 없는 finding은 검증되지 않은 finding이므로 제시하지 않는다
+  - **블록 형태는 severity가 아니라 "수정안 존재 여부"로 결정한다** (두 축 분리). 수정안이 있으면 ` ```diff `(`-` 현재 / `+` 제안): Info여도 마찬가지다. 대체할 게 없으면(방향성 제안, 변경 불필요) ` ```{lang} ` 인용 블록. 최대 12줄, 초과 시 `…`로 중략
+  - **Action line은 severity로 결정한다**: Critical/Warning → `> **Fix**:`, Info → `> **Recommendation**:`. `{reason}`은 "왜 그 판단인지"를 쓰는 자리이지 수정 방법을 밀어넣는 자리가 아니다: 수정 방법은 diff 블록으로
+  - 인용문 재구성 금지: 요약, 의역, 기억에 의한 복원 모두 금지. 인용할 수 없는 finding은 검증되지 않은 finding이므로 제시하지 않는다
   - **부재(absent code)가 문제인 경우**: 인용할 원문이 없다고 finding을 버리지 않는다. anchor(추가될 자리의 인접 코드, 또는 이미 올바르게 된 sibling)를 인용하고 `+`만 있는 diff로 제안한다
-  - 충돌 주장(규칙·컨벤션·다른 파일과 모순)은 **양쪽 원문을 모두** 인용한다. 한쪽만으로는 불일치가 성립하지 않는다
+  - 충돌 주장(규칙, 컨벤션, 다른 파일과 모순)은 **양쪽 원문을 모두** 인용한다. 한쪽만으로는 불일치가 성립하지 않는다
   - 변경 불필요 판정(Accept / Won't Fix / ❌ Ignore)일수록 근거 인용이 더 중요하다. 반박하는 코드를 보여주지 못하면 기각할 수 없다
 
 ## 터미널 렌더링 가이드라인
@@ -375,7 +382,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | `---` | 짧은 세 대시 (`---`) | 대시 개수(`---`, `------` 등)와 무관하게 동일 렌더링. Markdown `<hr>`로 파싱됨 |
 | `─` (thin box drawing) | 리터럴 텍스트 | 길이 조절 가능. 항목 간 구분에 적합 |
 | `━` (heavy box drawing) | 리터럴 텍스트 | `─`보다 두꺼움. 섹션 간 구분에 적합 |
-| `<details>`, `<summary>` | **렌더링 안 됨** — raw HTML 표시 | 터미널 출력에서 절대 사용 금지 |
+| `<details>`, `<summary>` | **렌더링 안 됨**: raw HTML 표시 | 터미널 출력에서 절대 사용 금지 |
 | 빈 줄 (list 내) | **무시됨** | bold paragraph로 전환하여 list 컨텍스트 회피 |
 | ` ```diff ` 블록 | 코드 블록 (하이라이팅은 호스트별 상이) | `-`/`+` 문자 자체가 의미를 담으므로 색상 미지원 환경에서도 안전. before/after 표현의 기본형 |
 
@@ -385,7 +392,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 - 항목 간 분리가 필요하면 numbered list 대신 bold paragraph(`**1. ...**`)를 사용한다. List 밖에서는 빈 줄이 정상 렌더링됨.
 - `---`는 카테고리 구분 및 항목 간 구분 모두 사용 가능. 위계가 필요하면 Unicode 구분자(`────────────────────`)와 조합하여 3단 위계를 구성한다.
 - GitHub에 게시하는 포맷과 터미널 포맷의 차이를 인식하고, 각 매체에 맞는 템플릿을 사용한다.
-- **크로스 에이전트 안전성**: 이 스킬은 Claude Code 전용이 아니다(Codex CLI, Gemini CLI, Cursor 등). 위 표는 Claude Code 기준이므로, 출력 템플릿은 렌더러 간 공통분모(heading, bold, fenced code block, list, blockquote)만 사용한다. 색상·하이라이팅에 **의미를 의존시키지 않는다** — 정보는 문자 자체로 전달되어야 한다. 표는 폭이 좁은 터미널에서 깨지므로 출력 템플릿에 쓰지 않는다 (문서용은 무방).
+- **크로스 에이전트 안전성**: 이 스킬은 Claude Code 전용이 아니다(Codex CLI, Gemini CLI, Cursor 등). 위 표는 Claude Code 기준이므로, 출력 템플릿은 렌더러 간 공통분모(heading, bold, fenced code block, list, blockquote)만 사용한다. 색상과 하이라이팅에 **의미를 의존시키지 않는다**: 정보는 문자 자체로 전달되어야 한다. 표는 폭이 좁은 터미널에서 깨지므로 출력 템플릿에 쓰지 않는다 (문서용은 무방).
 
 ### 3단 위계 가이드
 
@@ -402,7 +409,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 
 **형식:**
 
-> **{icon} {action}** — {reason}
+> **{icon} {action}**: {reason}
 
 | icon | 용도 |
 |------|------|
@@ -420,36 +427,39 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 | 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
-| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 비교는 행으로 쌓고 좌우 배치는 렌더 측정을 통과할 때만, 자연스러운 한국어, 비유·번역투 금지, 라이트/다크 전환 버튼, 코드 블록) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트)과 코드 블록 CSS(`code block (SHARED` 주석으로 시작하는 블록: `.codeblock`, `sx-*` 구문 강조, 가로 스크롤)는 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. explain-diff의 diff 줄 규칙(`.ln.add`/`.ln.del`/`.sign`)만 그 템플릿 전용이다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff·micro-world의 다크 `--gray25`와 `--surface`·`--on-accent`·`--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
-| 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩·액션 라벨·해설·세계 상태)가 다르고, 뒤 항목(영문·숫자·코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-03 2차, 3차) |
-| 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`·`.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
-| 렌더 측정 (`measure.html`: `data-sbs` 2열 이상 grid 안 가로 넘침, `data-fit` 그림 라벨의 viewBox 이탈·상자 경계 걸침·라벨 겹침) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 스킬 폴더에 같은 파일이 있다. 페이지 사본 끝에 붙여 `--dump-dom`으로 읽고, 페이지 자체에는 넣지 않는다. 좌우 배치 판단(`Rows by default` 항목)과 그림 라벨 맞춤(`Fit the text before you draw`)은 브라우저가 있으면 이 측정이 글자 폭 표보다 우선한다. 한 곳을 고치면 네 파일을 같게 맞춘다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23) |
+| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash, en-dash, 가운뎃점 금지, 배경 대비 색상, 비교는 행으로 쌓고 좌우 배치는 렌더 측정을 통과할 때만, 자연스러운 한국어, 비유와 번역투 금지, 라이트/다크 전환 버튼, 코드 블록) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md와 템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS와 마크업, `<head>` 테마 스크립트)과 코드 블록 CSS(`code block (SHARED` 주석으로 시작하는 블록: `.codeblock`, `sx-*` 구문 강조, 가로 스크롤)는 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. explain-diff의 diff 줄 규칙(`.ln.add`/`.ln.del`/`.sign`)만 그 템플릿 전용이다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff, micro-world의 다크 `--gray25`와 `--surface`, `--on-accent`, `--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
+| 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩, 액션 라벨, 해설, 세계 상태)가 다르고, 뒤 항목(영문, 숫자, 코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-03 2차, 3차) |
+| 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`, `.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
+| 렌더 측정 (`measure.html`: `data-sbs` 2열 이상 grid 안 가로 넘침, `data-fit` 그림 라벨의 viewBox 이탈, 상자 경계 걸침, 라벨 겹침, `data-ovf` 테두리나 배경이 있는 상자 밖으로 넘치거나 잘리는 내용과 페이지 가로 넘침) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 스킬 폴더에 같은 파일이 있다. 페이지 사본 끝에 붙여 `--dump-dom`으로 읽고, 읽는 폭과 500px(headless Chrome의 최소 폭)에서 각각 돌리고, 진행에 따라 내용이 바뀌는 페이지는 `#steps=N`으로 단계를 넘겨 잰다. 페이지 자체에는 넣지 않는다. 좌우 배치 판단(`Rows by default` 항목)과 그림 라벨 맞춤(`Fit the text before you draw`)은 브라우저가 있으면 이 측정이 글자 폭 표보다 우선한다. 한 곳을 고치면 네 파일을 같게 맞춘다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23, 2026-10-23 2차) |
+| 렌더 검증 절차 (`Render check (shared` 소절: Chrome 라이트/다크 스크린샷, 1,800px 조각 확인, `measure.html` 두 폭, 금지 문자와 조사 grep) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 SKILL.md에 같은 글로 들어 있고, 그 뒤의 스킬별 확인 항목만 다르다. `allowed-tools`의 `Bash(google-chrome *)`, `Bash(chromium *)`, `Bash(cat *)`, `Bash(python3 *)`, `Bash(which *)`, `Bash(grep *)`가 이 절차에 쓰인다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23 2차) |
+| 코드 칩 줄바꿈 (`inline code chip wrapping (SHARED` CSS 블록: 칩 안에서 줄을 바꾸지 않고, 600px 이하에서는 한 덩어리로 다음 줄로 넘기며 넘치면 칩 안에서 스크롤, 칩 좌우 여백 3px) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 템플릿에 같은 코드로 들어 있다. 칩 색과 글자 크기는 템플릿마다 다르다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23 2차) |
+| 텍스트 스킬 글쓰기 규칙 (`Writing rules (shared across commit` 소절: 기계 문장 기호 금지, 원문 인용 예외, 자연스러운 한국어, 보내기 전 확인) | `commit`, `pr`, `issue`, `review-reply`, `code-review`, `handoff` | 여섯 SKILL.md에 같은 글로 들어 있다. HTML 스킬 네 개의 `No machine-writing symbols` 항목과 금지 문자, 예외 규칙이 같으므로 한쪽을 고치면 다른 쪽도 맞춘다. 정본: docs/decisions/2026-10-machine-writing-symbols.md |
 | 조작할 수 있는 그림의 조건 (정적 우선, 값이 3개 이상이거나 동작이 뒤집히는 경계가 요점일 때만, 세 가지 질문, 기본 상태가 요점, 순서 넘기기 금지) | `eli5`, `visual-doc`, `explain-diff` | 세 SKILL.md에 `Static first`로 시작하는 같은 5항목이 들어 있다. 두 상태 비교(전/후, 켬/끔)는 조작 요소가 아니라 두 줄짜리 정적 그림으로 그린다. 조작 UI는 템플릿마다 다르다 (eli5 `.ctl`, visual-doc `.knob`, explain-diff `.sim`/`.seg`). 여러 단계와 미션이 필요한 주제는 micro-world. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-03) |
-| 근거 카드(`.ev`: 파일 원문·유령 줄·ERD, 파일 형태의 배지는 카드 테두리 위 `.rail`), 번호 배지(`.dg-m`/`.m`)와 묶음 테두리(`.dg-grp`), 해설 목록(`.notes`, 배지 없는 `.notes.plain`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입, 2026-10-13 묶음 배지·배지 수 기준·rail 추가. visual-doc·explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-13) |
+| 근거 카드(`.ev`: 파일 원문, 유령 줄, ERD, 파일 형태의 배지는 카드 테두리 위 `.rail`), 번호 배지(`.dg-m`/`.m`)와 묶음 테두리(`.dg-grp`), 해설 목록(`.notes`, 배지 없는 `.notes.plain`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입, 2026-10-13 묶음 배지, 배지 수 기준, rail 추가. visual-doc, explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-13) |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |
 
 ## 새 스킬 추가 체크리스트
 
 새 스킬 디렉토리(`skills/{name}/`) 생성 시 아래 파일을 반드시 함께 업데이트한다:
 
-1. `skills/{name}/SKILL.md` — 스킬 본문 (frontmatter 포함)
-2. `skills/{name}/LICENSE.txt` — 라이선스 파일
-3. `.claude-plugin/marketplace.json` — `skills` 배열에 경로 추가, `description` 반영
-4. `AGENTS.md` — 프로젝트 개요(slash command 목록), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙
-5. `README.md` — 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시, `skills-N` 배지 count 동기화
-6. `README.ko.md` — README.md와 동일 항목 한국어 반영 (`skills-N` 배지 포함)
-7. `CHANGELOG.md` — 변경 항목 추가
+1. `skills/{name}/SKILL.md`: 스킬 본문 (frontmatter 포함)
+2. `skills/{name}/LICENSE.txt`: 라이선스 파일
+3. `.claude-plugin/marketplace.json`: `skills` 배열에 경로 추가, `description` 반영
+4. `AGENTS.md`: 프로젝트 개요(slash command 목록), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙
+5. `README.md`: 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시, `skills-N` 배지 count 동기화
+6. `README.ko.md`: README.md와 동일 항목 한국어 반영 (`skills-N` 배지 포함)
+7. `CHANGELOG.md`: 변경 항목 추가
 
 위 목록 반영 후, 기존 스킬 이름(예: `review-reply`)으로 Grep하여 참조가 있는 파일을 추가 확인한다. 누락된 파일이 있으면 함께 업데이트한다.
 
 ## 기존 스킬 변경 체크리스트
 
-기존 스킬의 기능 추가·수정·삭제 시 아래 파일을 확인하고 필요 시 업데이트한다:
+기존 스킬의 기능 추가, 수정, 삭제 시 아래 파일을 확인하고 필요 시 업데이트한다:
 
-1. `README.md` — 해당 스킬의 플래그, 사용 예시, 설명 반영
-2. `README.ko.md` — README.md와 동일 항목 한국어 반영
-3. `CHANGELOG.md` — 변경 항목 추가
-4. `AGENTS.md` — 스킬 공통 규칙, 로컬 테스트, 스킬 간 공유 로직 테이블 등 해당 시 업데이트
+1. `README.md`: 해당 스킬의 플래그, 사용 예시, 설명 반영
+2. `README.ko.md`: README.md와 동일 항목 한국어 반영
+3. `CHANGELOG.md`: 변경 항목 추가
+4. `AGENTS.md`: 스킬 공통 규칙, 로컬 테스트, 스킬 간 공유 로직 테이블 등 해당 시 업데이트
 
 변경한 스킬 이름으로 Grep하여 참조가 있는 파일을 추가 확인한다.
 
@@ -478,7 +488,7 @@ git commit -m "chore: release vX.Y.Z"
 # 2. 태그 생성 및 푸시
 git tag vX.Y.Z && git push origin main vX.Y.Z
 
-# 3. GitHub Release 생성 — 여기까지 해야 릴리스가 끝난다
+# 3. GitHub Release 생성: 여기까지 해야 릴리스가 끝난다
 #    CHANGELOG.md의 해당 버전 섹션 본문을 릴리스 노트 파일로 저장한 뒤 사용
 gh release create vX.Y.Z --title "vX.Y.Z" --notes-file <릴리스 노트 파일>
 gh release list --limit 5   # 방금 릴리스한 버전이 Latest로 표시되는지 확인
@@ -490,10 +500,10 @@ gh release list --limit 5   # 방금 릴리스한 버전이 Latest로 표시되�
 
 ### 릴리스에 포함되는 파일
 
-1. `.claude-plugin/marketplace.json` — `metadata.version` bump
-2. `skills/*/SKILL.md` — frontmatter `version` 동기화
-3. `CHANGELOG.md` — Change Log 항목 추가
-4. `README.md`, `README.ko.md` — 필요 시 업데이트 (새 기능/변경된 동작)
+1. `.claude-plugin/marketplace.json`: `metadata.version` bump
+2. `skills/*/SKILL.md`: frontmatter `version` 동기화
+3. `CHANGELOG.md`: Change Log 항목 추가
+4. `README.md`, `README.ko.md`: 필요 시 업데이트 (새 기능/변경된 동작)
 
 ## 언어
 

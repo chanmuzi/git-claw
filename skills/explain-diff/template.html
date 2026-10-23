@@ -362,6 +362,14 @@
   .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+  /* optional, for a figure whose rows compare states (SKILL.md "State captions and the focal string"): */
+  .dg-q{ font-size:15px; font-weight:700; }                 /* with .dg-l: the one string the figure is about (no fill, so .dg-em/.dg-bad still apply) */
+  .dg-pill{ fill:var(--gray100); }                          /* state caption pill: rect h=22 rx=11 */
+  .dg-pill.bad{ fill:var(--red-soft); }
+  .dg-pill.em{ fill:var(--blue-soft); }
+  .dg-cap{ font-size:12px; font-weight:800; letter-spacing:.04em; fill:var(--sub); } /* state caption text on the pill */
+  .dg-cap.bad{ fill:var(--red); }
+  .dg-cap.em{ fill:var(--blue); }
 
   /* 핵심 정리 (섹션 마무리 요약: 퀴즈 해설과 같은 시각 언어) */
   .takeaway{ background:var(--blue-soft); border-radius:12px; padding:14px 16px; margin:2px 0 4px; }

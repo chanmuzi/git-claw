@@ -180,8 +180,10 @@
      The real file or table, verbatim, between the figure and the notes. Dashed border and the
      chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's.
      Badges of the file form sit on the card's left border (.rail), outside the scrolling body, so the
-     code keeps its full width; the grid's padding-left makes room for the half that sticks out. */
-  .evs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:14px; padding-left:10px; }
+     code keeps its full width; the grid's padding-left makes room for the half that sticks out.
+     Cards stack one per row by default; .evs.pair puts two short cards side by side (SKILL.md "Rows by default"). */
+  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:16px; margin-top:14px; padding-left:10px; }
+  .evs.pair{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
   .ev{
     /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
     --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
@@ -268,6 +270,14 @@
   .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+  /* optional, for a figure whose rows compare states (SKILL.md "State captions and the focal string"): */
+  .dg-q{ font-size:15px; font-weight:700; }                 /* with .dg-l: the one string the figure is about (no fill, so .dg-em/.dg-bad still apply) */
+  .dg-pill{ fill:var(--gray100); }                          /* state caption pill: rect h=22 rx=11 */
+  .dg-pill.bad{ fill:var(--red-soft); }
+  .dg-pill.em{ fill:var(--blue-soft); }
+  .dg-cap{ font-size:12px; font-weight:800; letter-spacing:.04em; fill:var(--sub); } /* state caption text on the pill */
+  .dg-cap.bad{ fill:var(--red); }
+  .dg-cap.em{ fill:var(--blue); }
 
   /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ──
      The .ctl row sits above the .fig it drives. The script that redraws the figure

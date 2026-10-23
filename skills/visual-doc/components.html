@@ -387,6 +387,14 @@
   .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
   .dg-em{ fill:var(--blue); }                               /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+  /* optional, for a figure whose rows compare states (SKILL.md "State captions and the focal string"): */
+  .dg-q{ font-size:15px; font-weight:700; }                 /* with .dg-l: the one string the figure is about (no fill, so .dg-em/.dg-bad still apply) */
+  .dg-pill{ fill:var(--gray100); }                          /* state caption pill: rect h=22 rx=11 */
+  .dg-pill.bad{ fill:var(--red-soft); }
+  .dg-pill.em{ fill:var(--blue-soft); }
+  .dg-cap{ font-size:12px; font-weight:800; letter-spacing:.04em; fill:var(--sub); } /* state caption text on the pill */
+  .dg-cap.bad{ fill:var(--red); }
+  .dg-cap.em{ fill:var(--blue); }
 
   /* ── COMPONENT: diagram (mermaid, 대체 수단) full-bleed + 라이트박스 ──
      손으로 배치하기 어려운 큰 다이어그램(대략 노드 15개 이상)에만 쓴다. 기본은 위의 figure다.

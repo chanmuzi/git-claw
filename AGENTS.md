@@ -44,18 +44,22 @@ git-claw/
 │   ├── explain-diff/
 │   │   ├── SKILL.md                  # /explain-diff
 │   │   ├── template.html             # 산출물 디자인 시스템 템플릿 (스킬과 함께 배포)
+│   │   ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │   │   └── LICENSE.txt
 │   ├── micro-world/
 │   │   ├── SKILL.md                  # /micro-world
 │   │   ├── template.html             # 셸 템플릿 (토큰·프레임 고정, 본문은 bespoke)
+│   │   ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │   │   └── LICENSE.txt
 │   ├── visual-doc/
 │   │   ├── SKILL.md                  # /visual-doc
 │   │   ├── components.html           # 컴포넌트 레퍼런스 팔레트 (토큰 고정, 골격은 조립)
+│   │   ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │   │   └── LICENSE.txt
 │   └── eli5/
 │       ├── SKILL.md                  # /eli5
 │       ├── frame.html                # 프레임 + beat primitive (토큰 고정, 그림은 bespoke)
+│       ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │       └── LICENSE.txt
 ├── .gitignore
 ├── README.md
@@ -127,6 +131,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /eli5 <주제>          → 도메인 밖 사람용 그림 위주 설명 HTML 생성 (그림이 설명하고 글은 그림당 짧은 문단)
 /eli5 42              → PR #42를 비전공자 기준으로 설명
 /eli5 <설정·테이블 주제>  → 그림이 말할 수 없는 사실(파일에 없는 줄, 테이블 컬럼)에만 근거 카드가 붙고, 배지 번호가 그림·근거·해설에서 일치하는지 확인
+/eli5 <두 상태 비교 주제>  → 비교가 좌우가 아니라 행으로 쌓이는지, 근거 카드가 한 열인지, `measure.html` 측정이 `data-sbs`·`data-fit` 모두 `none`인지, 상태 캡션이 행 위 머리줄에 있고 비교 종류에 맞게 읽히는지(추천: 끝난 변경 BEFORE/AFTER, 제안 AS-IS/TO-BE, 그 밖은 행마다 참인 것)이며 색이 상태와 맞는지(깨지는 쪽만 빨강) 확인
 /eli5 <분기·묶음 주제>    → 해설 하나가 상자 여럿을 말하면 묶음 테두리(`.dg-grp`)에 배지 하나만 붙는지, 세로 목록 그림에는 배지가 없는지(`.notes.plain`), 근거 카드 배지가 카드 테두리 위 `.rail`에 있고 꼬리표가 글자 바로 뒤에 붙는지 확인
 ```
 
@@ -415,9 +420,10 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 | Evidence 블록 (verbatim 인용, diff 포맷, 12줄 상한, 양쪽 인용, 변경 불필요 시 인용) | `code-review`, `review-reply` | finding 제시 스키마 동일. 한쪽 문구 수정 시 다른 쪽 evidence rules도 함께 갱신 |
 | 프로젝트 설정 조회 (AGENTS.md 우선, 없으면 CLAUDE.md fallback) | 전 스킬 | Branch Strategy, 언어, 릴리스, label 규칙 등 프로젝트 설정을 읽는 모든 지점에 동일 적용. adapter 체계(`@AGENTS.md` 한 줄 CLAUDE.md) 프로젝트에서 @ import를 해석하지 않는 호스트도 규칙을 읽도록 보장 |
-| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 자연스러운 한국어, 비유·번역투 금지, 라이트/다크 전환 버튼, 코드 블록) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트)과 코드 블록 CSS(`code block (SHARED` 주석으로 시작하는 블록: `.codeblock`, `sx-*` 구문 강조, 가로 스크롤)는 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. explain-diff의 diff 줄 규칙(`.ln.add`/`.ln.del`/`.sign`)만 그 템플릿 전용이다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff·micro-world의 다크 `--gray25`와 `--surface`·`--on-accent`·`--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
+| 공유 디자인 규칙 (제목 `word-break: keep-all`, 장식 그라데이션 금지, em-dash 금지, 배경 대비 색상, 비교는 행으로 쌓고 좌우 배치는 렌더 측정을 통과할 때만, 자연스러운 한국어, 비유·번역투 금지, 라이트/다크 전환 버튼, 코드 블록) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | HTML 산출물을 내는 네 스킬 공통. 한쪽 규칙 수정 시 나머지 세 스킬의 SKILL.md·템플릿도 함께 갱신. 전환 버튼(`.theme-btn` CSS·마크업, `<head>` 테마 스크립트)과 코드 블록 CSS(`code block (SHARED` 주석으로 시작하는 블록: `.codeblock`, `sx-*` 구문 강조, 가로 스크롤)는 네 템플릿에 같은 코드로 들어 있으므로 한 곳을 고치면 나머지도 맞춘다. explain-diff의 diff 줄 규칙(`.ln.add`/`.ln.del`/`.sign`)만 그 템플릿 전용이다. 다크 토큰은 "두 번 정의하고 두 블록을 같게 유지"하는 구조만 공통이고 값은 템플릿마다 의도적으로 다르다 (explain-diff·micro-world의 다크 `--gray25`와 `--surface`·`--on-accent`·`--track`, explain-diff의 버튼 고정 기준 폭 1000px). 다른 템플릿의 다크 블록을 통째로 복사해 맞추지 않는다. 정본: docs/decisions/2026-07-visual-doc.md |
 | 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기) | `visual-doc`, `explain-diff`, `micro-world`, `eli5` | 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩·액션 라벨·해설·세계 상태)가 다르고, 뒤 항목(영문·숫자·코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-03 2차, 3차) |
-| 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
+| 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록) | `eli5`, `visual-doc`, `explain-diff` | 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 코드로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`·`.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다 |
+| 렌더 측정 (`measure.html`: `data-sbs` 2열 이상 grid 안 가로 넘침, `data-fit` 그림 라벨의 viewBox 이탈·상자 경계 걸침·라벨 겹침) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 스킬 폴더에 같은 파일이 있다. 페이지 사본 끝에 붙여 `--dump-dom`으로 읽고, 페이지 자체에는 넣지 않는다. 좌우 배치 판단(`Rows by default` 항목)과 그림 라벨 맞춤(`Fit the text before you draw`)은 브라우저가 있으면 이 측정이 글자 폭 표보다 우선한다. 한 곳을 고치면 네 파일을 같게 맞춘다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23) |
 | 조작할 수 있는 그림의 조건 (정적 우선, 값이 3개 이상이거나 동작이 뒤집히는 경계가 요점일 때만, 세 가지 질문, 기본 상태가 요점, 순서 넘기기 금지) | `eli5`, `visual-doc`, `explain-diff` | 세 SKILL.md에 `Static first`로 시작하는 같은 5항목이 들어 있다. 두 상태 비교(전/후, 켬/끔)는 조작 요소가 아니라 두 줄짜리 정적 그림으로 그린다. 조작 UI는 템플릿마다 다르다 (eli5 `.ctl`, visual-doc `.knob`, explain-diff `.sim`/`.seg`). 여러 단계와 미션이 필요한 주제는 micro-world. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-03) |
 | 근거 카드(`.ev`: 파일 원문·유령 줄·ERD, 파일 형태의 배지는 카드 테두리 위 `.rail`), 번호 배지(`.dg-m`/`.m`)와 묶음 테두리(`.dg-grp`), 해설 목록(`.notes`, 배지 없는 `.notes.plain`)과 `그래서` 결론 줄 | `eli5` (현재 단독) | 2026-10-10 eli5에 먼저 도입, 2026-10-13 묶음 배지·배지 수 기준·rail 추가. visual-doc·explain-diff 이식은 eli5에서 한 번 더 검증한 뒤 진행하며, 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5.md (개정 2026-10-13) |
 | 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람) | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md |

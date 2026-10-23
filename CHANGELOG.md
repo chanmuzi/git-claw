@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.22.1 (2026-10-23)
 
 **Fixed**
 - 모든 스킬에서 em-dash, en-dash, 가운뎃점 제거: 실제 산출물 피드백 반영. dash 금지가 git 메시지와 HTML 스킬에만 있었고 가운뎃점은 어디서도 금지하지 않았다. 스킬 파일 자체에도 em-dash 약 400곳, 가운뎃점 약 130곳이 있어 지시문 문체가 산출물로 새어 나왔고, Hint 형식(`> **⚡ Amend** — ...`), code-review의 Codex 출처 태그(`— Codex`), 상태 줄 구분자(`critical · warnings`)는 결과물에 그대로 찍혔다. 텍스트 스킬 여섯 개(commit, pr, issue, review-reply, code-review, handoff)에 같은 `Writing rules` 소절(기계 문장 기호 금지, 원문 인용 예외, 자연스러운 한국어, 보내기 전 확인)을, HTML 스킬 네 개에 같은 `No machine-writing symbols` 항목을 넣었다. Hint는 `**{icon} {action}**: {reason}`, Codex 태그는 `(Codex)`/`(Codex Adv)`, 판정 줄은 `Recommendation: Accept, {이유}`로 바꿨다. 모든 SKILL.md, 템플릿, AGENTS.md, README에서 금지 문자를 걷어냈고, 기계 변환 뒤 콜론이 연달아 찍히는 63곳과 어색해진 한국어 나열을 손으로 고쳤다. 배경과 근거: docs/decisions/2026-10-machine-writing-symbols.md

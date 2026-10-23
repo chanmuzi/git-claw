@@ -1,5 +1,5 @@
 <p align="right">
-  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a>
+  <a href="README.md">English</a>, <a href="README.ko.md">한국어</a>
 </p>
 
 <p align="center">
@@ -22,13 +22,13 @@
 
 ---
 
-A consistent Git history that's easy to read — for both humans and agents.
+A consistent Git history that's easy to read: for both humans and agents.
 
-git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PRs, issues, and code reviews in a unified format. Install once, and every collaboration artifact follows the same conventions — whether you're working solo or in a team.
+git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PRs, issues, and code reviews in a unified format. Install once, and every collaboration artifact follows the same conventions: whether you're working solo or in a team.
 
-- **Readable history** — Structured commits, PRs, and issues that anyone (or any agent) can follow at a glance
-- **Multi-model code review** — Domain agents, plus optional Codex adversarial analysis, cross-validated and severity-ranked
-- **Session continuity** — `/handoff` captures work context so the next session picks up where you left off
+- **Readable history**: Structured commits, PRs, and issues that anyone (or any agent) can follow at a glance
+- **Multi-model code review**: Domain agents, plus optional Codex adversarial analysis, cross-validated and severity-ranked
+- **Session continuity**: `/handoff` captures work context so the next session picks up where you left off
 
 ---
 
@@ -95,7 +95,7 @@ npx skills update   # Update all installed skills
 
 > Symlink installs (recommended) apply updates to all agents at once. Copy installs require updating each copy individually.
 
-> **Skill renames are not auto-tracked.** When a skill is renamed upstream, the Skills CLI keeps the old folder around, so you may see two skills with the same description, or the skill may surface under its old name. Remove the stale folder manually — **match the scope you installed with**:
+> **Skill renames are not auto-tracked.** When a skill is renamed upstream, the Skills CLI keeps the old folder around, so you may see two skills with the same description, or the skill may surface under its old name. Remove the stale folder manually: **match the scope you installed with**:
 > ```bash
 > # Global install (npx skills add ... -g)  →  ~/.codex/skills/{old-name}
 > npx skills remove {old-name} -g     # or
@@ -111,20 +111,20 @@ npx skills update   # Update all installed skills
 
 > **Skill prefix by agent:** Claude Code uses `/` (e.g., `/commit`), Codex CLI uses `$` (e.g., `$commit`).
 
-### `/commit` — Create a Git Commit
+### `/commit`: Create a Git Commit
 
-Analyzes your staged/unstaged changes and proposes conventional commit messages. Before staging, files are grouped by intent — infrastructure, agent config, app code, build tooling, docs, tests — and multi-intent changes are automatically split into separate commits with same-intent exceptions for tightly coupled changes (schema+code, signature+call-sites, code+validating tests). Messages avoid em-dash/en-dash to stay clean of AI-generated markers.
+Analyzes your staged/unstaged changes and proposes conventional commit messages. Before staging, files are grouped by intent (infrastructure, agent config, app code, build tooling, docs, tests), and multi-intent changes are automatically split into separate commits with same-intent exceptions for tightly coupled changes (schema+code, signature+call-sites, code+validating tests). Messages never use the em-dash, the en-dash, or the middle dot.
 
 ```
 /commit              # Analyze and commit
 /commit --amend      # Amend the last commit
 ```
 
-Types: `feat` · `fix` · `refactor` · `style` · `docs` · `test` · `perf` · `chore` · `hotfix`
+Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `perf`, `chore`, `hotfix`
 
-### `/pr` — Create a Pull Request
+### `/pr`: Create a Pull Request
 
-Creates a PR with a structured template. Automatically detects Individual or Release mode. Titles and bodies avoid em-dash/en-dash to stay clean of AI-generated markers.
+Creates a PR with a structured template. Automatically detects Individual or Release mode. Titles and bodies never use the em-dash, the en-dash, or the middle dot, the usual markers of machine-written text; every skill follows the same rule.
 
 ```
 /pr              # Individual PR (Feat, Fix, Refactor, etc.)
@@ -134,7 +134,7 @@ Creates a PR with a structured template. Automatically detects Individual or Rel
 
 After creating an individual PR, the skill offers a one-line opt-in to generate an `/explain-diff` explainer for the change (default No, never re-asked).
 
-### `/issue` — Create a GitHub Issue
+### `/issue`: Create a GitHub Issue
 
 Creates a structured issue with the appropriate template and auto-assigns type/priority labels.
 
@@ -144,18 +144,18 @@ Creates a structured issue with the appropriate template and auto-assigns type/p
 /issue feature     # Feature request
 ```
 
-### `/review-reply` — Review & Reply to PR Comments
+### `/review-reply`: Review & Reply to PR Comments
 
-Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you. Each item quotes the source verbatim and shows the proposed change as a diff, so you can accept or reject a suggestion without opening the files yourself — including dismissals, which quote the code that refutes the reviewer.
+Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you. Each item quotes the source verbatim and shows the proposed change as a diff, so you can accept or reject a suggestion without opening the files yourself: including dismissals, which quote the code that refutes the reviewer.
 
 ```
 /review-reply          # Review current branch's PR
 /review-reply 42       # Review PR #42
 ```
 
-### `/code-review` — Context-Aware Code Review
+### `/code-review`: Context-Aware Code Review
 
-Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens — catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. A **Reporting Bar** then separates "true" from "worth reporting": every surviving finding gets a disposition independent of its severity — `ship-blocker` and `in-scope-gap` are reported in full, pre-existing issues get one line under `밖으로 미룸` and never an inline comment, and style preferences are counted rather than written up. The cut appears as a single `기각 {n}건` line, so a short review reads as a judgment rather than a gap. Produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). Every finding quotes the offending code verbatim and shows the fix as a diff, so a report is readable on its own — no jumping to the file to work out what was wrong. When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). In PR mode, agents receive the PR's purpose as their primary review lens: catching incomplete implementations, consistency gaps, and purpose-misaligned changes. Cross-validates findings to filter false positives, with an out-of-diff causality filter that dismisses pre-existing issues unrelated to the PR. A **Reporting Bar** then separates "true" from "worth reporting": every surviving finding gets a disposition independent of its severity: `ship-blocker` and `in-scope-gap` are reported in full, pre-existing issues get one line under `밖으로 미룸` and never an inline comment, and style preferences are counted rather than written up. The cut appears as a single `기각 {n}건` line, so a short review reads as a judgment rather than a gap. Produces severity-based output (🔴 Critical, 🟡 Warning, 🟢 Info). Every finding quotes the offending code verbatim and shows the fix as a diff, so a report is readable on its own: no jumping to the file to work out what was wrong. When no changes are detected, automatically transitions to reviewing the current working directory. Conversation context is used to determine the optimal review scope.
 
 ```
 /code-review           # Auto-detect PR, review changes, or review cwd (context-aware)
@@ -168,17 +168,17 @@ In PR mode, findings are published as inline review comments on specific diff li
 <details>
 <summary>Flags</summary>
 
-- `--wd` — Force working directory mode, even on a PR branch
-- `--domain security,perf` — Override auto-detected domains
-- `-y` / `-f` — Publish without approval
-- `-g` — Generate Mermaid change-flow graph (PR mode only)
-- `-q` / `--quick` — Quick mode: single-pass, max 2 domains, Critical/Warning first
-- `--full-scan` — Include pre-existing out-of-diff issues in General Findings (PR mode only)
-- `-a` / `--all` — Bypass the Reporting Bar and report every confirmed finding, dropped ones included (audit mode)
-- `--codex` — Opt in to Codex adversarial review (off by default)
-- `--codex-general` — Opt in to Codex general review only
-- `--codex-both` — Run both Codex general review and adversarial review
-- `--no-codex` — Force Codex off, overriding a natural-language Codex request
+- `--wd`: Force working directory mode, even on a PR branch
+- `--domain security,perf`: Override auto-detected domains
+- `-y` / `-f`: Publish without approval
+- `-g`: Generate Mermaid change-flow graph (PR mode only)
+- `-q` / `--quick`: Quick mode: single-pass, max 2 domains, Critical/Warning first
+- `--full-scan`: Include pre-existing out-of-diff issues in General Findings (PR mode only)
+- `-a` / `--all`: Bypass the Reporting Bar and report every confirmed finding, dropped ones included (audit mode)
+- `--codex`: Opt in to Codex adversarial review (off by default)
+- `--codex-general`: Opt in to Codex general review only
+- `--codex-both`: Run both Codex general review and adversarial review
+- `--no-codex`: Force Codex off, overriding a natural-language Codex request
 
 </details>
 
@@ -189,7 +189,7 @@ Codex is off by default. Pass `--codex` (or `--codex-general` / `--codex-both`) 
 
 </details>
 
-### `/handoff` — Session Handoff Prompt
+### `/handoff`: Session Handoff Prompt
 
 Generates a copy-ready handoff prompt that transfers work context to a new session. Built on a single principle: **write only what the next session cannot recover by reading the repo.** The next session is a capable agent that will explore the code itself, so the handoff carries only decisions and their reasons, abandoned approaches, user constraints, and the first action. Everything else is referenced by path.
 
@@ -202,21 +202,21 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 <details>
 <summary>Details</summary>
 
-**An order, not a briefing:** The output is a prompt you paste to put the next agent to work immediately, written in your own conversational voice — not a status report you then have to act on by writing a second message. Every handoff ends in an action; even an undecided direction becomes "look into X first and tell me how you'd go."
+**An order, not a briefing:** The output is a prompt you paste to put the next agent to work immediately, written in your own conversational voice: not a status report you then have to act on by writing a second message. Every handoff ends in an action; even an undecided direction becomes "look into X first and tell me how you'd go."
 
-**Structure:** A directive (what to do first, on which branch), up to 4 context bullets, and reference paths. 15 lines total, hard cap. Sections with nothing to say are omitted — an empty context section is a correct outcome.
+**Structure:** A directive (what to do first, on which branch), up to 4 context bullets, and reference paths. 15 lines total, hard cap. Sections with nothing to say are omitted: an empty context section is a correct outcome.
 
-**Git:** Branch name and whether uncommitted changes exist. Nothing more — no commit log, no diff stat, no file list. The next session runs `git status` itself.
+**Git:** Branch name and whether uncommitted changes exist. Nothing more: no commit log, no diff stat, no file list. The next session runs `git status` itself.
 
 **No skill names:** The handoff never suggests slash commands or plugin skills unless you explicitly ask for one. The next session may run in a different agent with different plugins installed, so it picks its own tools.
 
-**Output:** Terminal text optimized for `/copy`. Never repeats file content — references paths instead.
+**Output:** Terminal text optimized for `/copy`. Never repeats file content: references paths instead.
 
 </details>
 
-### `/explain-diff` — Understand a Diff
+### `/explain-diff`: Understand a Diff
 
-Generates a self-contained interactive HTML explainer for a diff, commit, branch, or PR — so you genuinely understand the change before sharing or merging it. Inspired by Geoffrey Litt's explain-diff: understanding, not correctness, is the bottleneck of agent-written code. The document walks through the change as a literate diff (prose + verbatim code excerpts), shows an annotated directory tree of everything touched, and ends with a 5-question quiz. Wrong answers get a hint pointing back to the relevant section — never the answer — and the hint is a one-click jump to that section, with a "back to quiz" chip to return. The completion gate opens only at 5/5.
+Generates a self-contained interactive HTML explainer for a diff, commit, branch, or PR, so you genuinely understand the change before sharing or merging it. Inspired by Geoffrey Litt's explain-diff: understanding, not correctness, is the bottleneck of agent-written code. The document walks through the change as a literate diff (prose + verbatim code excerpts), shows an annotated directory tree of everything touched, and ends with a 5-question quiz. Wrong answers get a hint pointing back to the relevant section: never the answer: and the hint is a one-click jump to that section, with a "back to quiz" chip to return. The completion gate opens only at 5/5.
 
 ```
 /explain-diff          # Explain the working diff
@@ -227,11 +227,11 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 <details>
 <summary>Details</summary>
 
-**Investigate first:** Before writing, the skill reads every hunk plus its enclosing function, extracts stated intent from commits/PR body, explores callers and tests, and groups hunks into narrative themes — the document explains behavior, not lines.
+**Investigate first:** Before writing, the skill reads every hunk plus its enclosing function, extracts stated intent from commits/PR body, explores callers and tests, and groups hunks into narrative themes: the document explains behavior, not lines.
 
 **Three-part structure:** Overview (background + directory tree + optional interactive figure), Changes (one card per theme: prose, an optional before/after flow figure when the theme changes call order or call count, the verbatim diff excerpt, and a key-takeaway card), and Comprehension check (risk pointers + quiz).
 
-**Honest by design:** Suspicions are framed as attention pointers, never verdicts; quoted code is verbatim only; the completion button states understanding — it never pretends to perform an action.
+**Honest by design:** Suspicions are framed as attention pointers, never verdicts; quoted code is verbatim only; the completion button states understanding: it never pretends to perform an action.
 
 **Reads naturally in Korean:** Titles are short noun phrases, not sentences (with `word-break: keep-all` so Korean wraps at word boundaries, never mid-word), and the output avoids em-dashes and stiff translation-ese that mark machine writing.
 
@@ -239,16 +239,16 @@ Generates a self-contained interactive HTML explainer for a diff, commit, branch
 
 </details>
 
-### `/micro-world` — Inhabit a Behavior
+### `/micro-world`: Inhabit a Behavior
 
-Builds a throwaway interactive HTML simulation of a specific behavior — a state machine, algorithm, data transform, or protocol flow — so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is disclosed in a footnote. Each world runs one guided scenario — a mission bar with goal chips, exactly one recommended action enabled at a time — with full step playback: snapshot-based back/forward controls where pressing the forward key from a fresh page walks the entire story (arrow keys and R to restart). Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it. The terminal pane stays dark in both.
+Builds a throwaway interactive HTML simulation of a specific behavior (a state machine, algorithm, data transform, or protocol flow), so you can feel how the code works by manipulating it (after Seymour Papert's "Mathland"). Sibling of `/explain-diff`: that one produces a consistent document; this one produces a bespoke one-off simulation sharing only the visual language. An applicability gate declines honestly when a sim adds nothing (config changes, renames, dependency bumps) and points you to `/explain-diff` instead. Every simulation models the actual code logic, and any simplification is disclosed in a footnote. Each world runs one guided scenario: a mission bar with goal chips, exactly one recommended action enabled at a time: with full step playback: snapshot-based back/forward controls where pressing the forward key from a fresh page walks the entire story (arrow keys and R to restart). Light and dark are both supported: the page follows the system setting, and a button in the top-right corner switches it. The terminal pane stays dark in both.
 
 ```
 /micro-world                          # Simulate a behavior from the current change
 /micro-world "retry logic in api.ts"  # Simulate a described behavior
 ```
 
-### `/visual-doc` — Turn Content into an On-Brand Document
+### `/visual-doc`: Turn Content into an On-Brand Document
 
 Generates a self-contained interactive HTML document from researched or analyzed content: a research brief, repo/code analysis, concept explainer, comparison, or design writeup. Sibling of `/explain-diff` and `/micro-world` (they share design tokens, never structure). Unlike `/explain-diff` it carries no quiz and no comprehension gate: it communicates, it doesn't test. Built in two layers: a locked layer (tokens, primitives, tone) keeps every document recognizably one family, while the composed layer builds a bespoke skeleton from a component palette (`components.html`) chosen by the content's kind and scale. When the content needs a block the palette lacks, a new one is authored from the same tokens (the palette is a cookbook of exemplars, not an exhaustive list). Long documents pick a navigation strategy by scale: top progress bar with a floating TOC, a slim chapter pager, or collapsible sections. Light and dark both supported: the page follows the system setting, and a button in the top-right corner switches it.
 
@@ -262,7 +262,7 @@ Generates a self-contained interactive HTML document from researched or analyzed
 
 **Output:** A single self-contained HTML file (no CDN, no webfonts) written to the repository root as `visual-doc-<slug>.html`. The absolute path is reported; nothing is auto-opened or committed.
 
-### `/eli5` — Explain It to an Outsider
+### `/eli5`: Explain It to an Outsider
 
 Produces a self-contained HTML page where **big hand-authored SVG diagrams carry the explanation and the prose is a short factual paragraph per picture**. The fourth sibling of `/explain-diff`, `/micro-world`, and `/visual-doc` (shared design tokens, never shared structure), separated from them by its reader: this one is for someone outside the domain entirely, and it succeeds only if the idea comes through from the drawings alone. The page is storyboarded as a sequence of beats before any HTML is written, following a problem → obvious fix → **the trap** → real fix → cost → rule arc, where the trap beat is the point of the page. Simplification is by omission, never by stating something false, and the cost beat is never dropped to make the story end happily. Drawings are concrete by default: the boxes are the real tables, endpoints and flags under their real names, each with one plain sub-line, while explanation, file paths and line numbers stay out of the picture. Every label is sized by arithmetic before it is drawn (per-character width estimates, box-from-label sizing, a row budget and a layout-plan comment inside each SVG), so text does not overlap or run past a border even when the page is never rendered. Titles and beat headings state a fact about the subject in its real names (a terse list is fine); metaphors and translated idioms are kept out of them. The page has no footer; provenance is a single source-and-date line above the title, and the file paths it was built from are reported in the terminal instead.
 
@@ -308,7 +308,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 
 ## Label System
 
-`/pr` and `/issue` share a unified label scheme. Labels are auto-created on first use — if a label already exists, it is left unchanged.
+`/pr` and `/issue` share a unified label scheme. Labels are auto-created on first use: if a label already exists, it is left unchanged.
 
 <details>
 <summary>Label reference</summary>
@@ -331,9 +331,9 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 | `medium` | 🟡 `fbca04` | Priority |
 | `low` | 🟢 `0e8a16` | Priority |
 
-- **No namespace prefix** — clean, simple names (`bug` instead of `type: bug`)
-- **GitHub-standard colors** — matches GitHub's default palette where applicable
-- **Conflict-safe** — `gh label create ... 2>/dev/null || true` (create if missing, skip if exists)
+- **No namespace prefix**: clean, simple names (`bug` instead of `type: bug`)
+- **GitHub-standard colors**: matches GitHub's default palette where applicable
+- **Conflict-safe**: `gh label create ... 2>/dev/null || true` (create if missing, skip if exists)
 
 </details>
 

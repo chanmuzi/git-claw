@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.22.0 (2026-10-23)
 
 **New**
 - HTML 문서 스킬 비교 배치 기준, 렌더 측정, 상태 캡션: 실제 산출물(File Search 쿼리 재작성 4축) 피드백 반영. (1) 코드·검색어·요청 본문을 좌우로 나란히 두면 칸 폭이 절반이 되어 양쪽 모두 가로 스크롤되던 문제. eli5 근거 카드(`.evs`)는 2열 자동 배치가 기본값이었다. 네 스킬(`/eli5`, `/explain-diff`, `/micro-world`, `/visual-doc`) 공유 디자인 규칙에 "비교는 행으로 쌓고, 좌우는 렌더된 페이지에서 어느 쪽도 가로로 넘치지 않을 때만"을 금지가 아닌 판단 기준으로 추가. eli5 `.evs` 기본값을 한 열로 바꾸고 짧은 카드끼리는 `.evs.pair`. eli5 SKILL.md의 "Two states side by side"를 같은 파일의 Static first와 맞게 "두 행"으로 수정. (2) 판단을 글자 수 추정이 아니라 렌더 측정으로: 네 스킬 폴더에 같은 `measure.html`을 두고, 페이지 사본에 붙여 `--dump-dom`으로 `data-sbs`(2열 grid 안 가로 넘침)와 `data-fit`(그림 라벨의 viewBox 이탈·상자 경계 걸침·라벨 겹침, 렌더된 글꼴로 측정)을 읽는다. 브라우저가 있으면 측정이 글자 폭 표보다 우선한다. 글자 폭 표 값도 Chrome 실측과 대조해 `.dg-l` 공백·구두점을 4 → 5px로 수정. (3) 상태 비교 그림에 행 캡션이 없던 문제. `figure labels (SHARED` 블록(eli5·visual-doc·explain-diff)에 선택 클래스 `.dg-pill`·`.dg-cap` 상태 캡션(행 위 머리줄)과 `.dg-q` 주인공 문자열을 추가. 캡션 글은 비교의 종류에 따른 추천 문구로 둔다: 이미 끝난 변경은 `BEFORE`/`AFTER`, 제안·예정인 변경은 `AS-IS`/`TO-BE`, 시간에 따른 변화가 아닌 비교는 행마다 참인 것을 주제의 말로 (금지 목록 없음). 색은 상태에 맞춘다(깨지는 쪽만 빨강). 새 규칙만 읽은 별도 에이전트로 eli5·visual-doc 예시를 생성해 두 테마 렌더와 측정을 확인했고, 그 과정에서 캡션 위치 모호함, 측정 스크립트의 배지 오탐과 `transform` 미반영, `.dg-q`의 `fill`이 `.dg-em` 파랑을 덮는 문제를 찾아 수정. 네 스킬의 `allowed-tools`에 측정과 렌더에 쓰는 `Bash(google-chrome *)`, `Bash(chromium *)`, `Bash(cat *)`를 추가 (eli5 Step 5의 Chrome 대체 명령도 이 목록에 없어 엄격한 호스트에서는 막혀 있었다). eli5 Step 5 다크 확인 플래그를 렌더 명령과 같은 `--force-dark-mode`로 통일. 배경과 근거: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23)

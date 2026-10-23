@@ -1,5 +1,13 @@
 # Change Log
 
+## Unreleased
+
+**Fixed**
+- 모든 스킬에서 em-dash, en-dash, 가운뎃점 제거: 실제 산출물 피드백 반영. dash 금지가 git 메시지와 HTML 스킬에만 있었고 가운뎃점은 어디서도 금지하지 않았다. 스킬 파일 자체에도 em-dash 약 400곳, 가운뎃점 약 130곳이 있어 지시문 문체가 산출물로 새어 나왔고, Hint 형식(`> **⚡ Amend** — ...`), code-review의 Codex 출처 태그(`— Codex`), 상태 줄 구분자(`critical · warnings`)는 결과물에 그대로 찍혔다. 텍스트 스킬 여섯 개(commit, pr, issue, review-reply, code-review, handoff)에 같은 `Writing rules` 소절(기계 문장 기호 금지, 원문 인용 예외, 자연스러운 한국어, 보내기 전 확인)을, HTML 스킬 네 개에 같은 `No machine-writing symbols` 항목을 넣었다. Hint는 `**{icon} {action}**: {reason}`, Codex 태그는 `(Codex)`/`(Codex Adv)`, 판정 줄은 `Recommendation: Accept, {이유}`로 바꿨다. 모든 SKILL.md, 템플릿, AGENTS.md, README에서 금지 문자를 걷어냈고, 기계 변환 뒤 콜론이 연달아 찍히는 63곳과 어색해진 한국어 나열을 손으로 고쳤다. 배경과 근거: docs/decisions/2026-10-machine-writing-symbols.md
+- HTML 문서 스킬 렌더 결함 정상화. (1) visual-doc `.wide` 표가 마지막 열의 긴 글 때문에 카드 밖으로 넘쳐 목차와 겹치던 문제: 첫 열만 고정하고 짧은 열은 `.nw`로 고정한다. (2) 측정이 그 넘침을 못 잡던 문제: `measure.html`에 `data-ovf`(상자 밖으로 넘치거나 잘리는 내용, 페이지 가로 넘침)를 추가했고, 이 측정으로 eli5 근거 카드의 강조 줄 배경이 가로 스크롤 시 끊기던 결함도 찾아 고쳤다. (3) 코드 칩이 `--`에서 갈라지던 문제: 네 템플릿에 공유 칩 줄바꿈 블록을 넣고 칩 좌우 여백을 3px로 줄여 조사가 띄어 보이지 않게 했으며, visual-doc 콜아웃과 표 안의 코드에도 칩 스타일을 적용했다. (4) explain-diff와 micro-world에 렌더 검증 단계가 없고 네 스킬 모두 Chrome, 스크린샷 자르기, grep이 `allowed-tools` 밖이던 문제: 네 SKILL.md에 같은 `Render check` 소절을 넣고 `allowed-tools`를 보강했다. 콜아웃 문장에 `text-wrap:pretty` 추가. 수정 전후를 Chrome 스크린샷으로 비교해 확인했다. 배경과 근거: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23 2차)
+- 한글 줄바꿈과 좁은 화면 정상화: visual-doc 본문과 표가 keep-all 없이 "모/드", "취급/해요", "companion/을"처럼 끊기던 문제를 `.wrap`에 `keep-all`과 `overflow-wrap:break-word`를 걸어 고쳤다 (2026-07-30 본문 예외를 되돌림, `anywhere`는 좁은 표의 영단어를 끊어서 쓰지 않음). 600px 이하에서 표는 카드 안에서 가로 스크롤하고, 코드 칩은 한 덩어리로 줄을 넘긴다. explain-diff 퀴즈 보기의 어절 중간 끊김, 리드와 takeaway 코드의 칩 스타일 누락, micro-world 해설 띠와 핵심 정리의 keep-all 누락을 고쳤다. explain-diff 흐름 그림 예시는 `BEFORE`/`AFTER` 상태 캡션으로 바꿨다. 측정은 `<body>` 태그만 읽고, 빈 결과는 실패로 보며, 좁은 폭은 headless Chrome의 최소 폭인 500px에서, micro-world는 `#steps=N`으로 단계를 넘겨 잰다. 스크린샷과 측정 사본은 실행마다 자기 디렉토리를 쓴다. 이모지 금지와 조사 grep에도 원문 인용 예외를 넣었다. 예시 페이지 세 개(visual-doc, explain-diff, micro-world)를 새 규칙으로 생성하고 수정 전후를 스크린샷으로 비교해 확인했다.
+- AGENTS.md 브랜치 테스트 레시피: `/reload-plugins`가 marketplace commit 이름으로 새 cache를 만들어도 `installPath`는 바뀌지 않아(2026-10-23 확인), 3단계가 밀려난 옛 cache를 비교해 "신버전 로드됨"으로 잘못 통과할 수 있었다. 3단계와 5단계가 `installPath`와 가장 최근 수정된 cache를 모두 확인하고 복원하도록 고쳤다. 확정은 스킬 실행 시 출력되는 Base directory로 한다.
+
 ## v1.22.0 (2026-10-23)
 
 **New**

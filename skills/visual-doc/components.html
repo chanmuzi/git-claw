@@ -124,6 +124,12 @@
     word-break:keep-all; overflow-wrap:anywhere;
   }
   .lede{ font-size:16.5px; color:var(--sub); margin:0 0 8px; text-wrap:pretty; }
+  /* 한글 줄바꿈: 본문, 표, 콜아웃 모두 어절 단위로만 줄을 바꾼다. 없으면 "모/드", "취급/해요"처럼
+     어절 중간이 끊기고, 영문이나 숫자 뒤 조사("companion을", "가지가")가 줄 첫머리로 떨어진다.
+     넘치는 긴 라틴 토큰만 마지막 수단으로 쪼갠다. anywhere가 아니라 break-word인 이유: anywhere는 표의 열 폭
+     계산에서 단어를 아무 데서나 자를 수 있다고 보게 해 좁은 표의 영단어가 "disabl/ed"처럼 끊긴다.
+     코드 블록과 칩은 자체 white-space 규칙을 쓴다. */
+  .wrap{ word-break:keep-all; overflow-wrap:break-word; }
 
   .group-label{ display:flex; align-items:center; gap:12px; margin:60px 4px 0; scroll-margin-top:20px; }
   .group-label .g-part{ font-family:var(--mono); font-size:13px; font-weight:700; color:var(--blue); letter-spacing:.06em; }
@@ -138,7 +144,7 @@
   h2{ font-size:19px; font-weight:700; letter-spacing:-0.02em; margin:0; }
   .prose{ font-size:15px; color:var(--sub); margin:12px 0 4px; text-wrap:pretty; }
   .prose b{ color:var(--ink); font-weight:700; }
-  .prose code, code.ic{ font-family:var(--mono); font-size:12.5px; background:color-mix(in srgb, var(--blue) 9%, transparent); color:var(--chip-ink); font-weight:500; border-radius:6px; padding:1px 6px; }
+  .prose code, code.ic, .callout code, .ctable code, .tldr code, .spec code{ font-family:var(--mono); font-size:12.5px; background:color-mix(in srgb, var(--blue) 9%, transparent); color:var(--chip-ink); font-weight:500; border-radius:6px; padding:1px 3px; }
 
   /* ── COMPONENT: TL;DR ── */
   .tldr{ background:var(--blue-soft); border-radius:var(--r-card); padding:22px 24px; }
@@ -148,7 +154,7 @@
 
   /* ── COMPONENT: stat row ──
      라벨 선행: 무엇의 수인지(.k) 먼저, 숫자(.n)는 아래 크게, 괄호 보충은 .d 부연 줄로.
-     단위는 자연스러운 것(개·곳·종)만. 억지 단위 명사("갈래" 등)와 번역투 압축 명사구 금지.
+     단위는 자연스러운 것(개, 곳, 종)만. 억지 단위 명사("갈래" 등)와 번역투 압축 명사구 금지.
      항목은 최대 4개. 더 많으면 .statchips로 전환한다. */
   .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   @media (max-width:640px){ .stats{ grid-template-columns:repeat(2,1fr); } }
@@ -180,6 +186,8 @@
 
   /* ── COMPONENT: comparison table ── */
   .ctable{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  /* 좁은 화면에서 표는 카드 안에서 가로로 스크롤한다. 칸을 억지로 줄이면 칩과 단어가 글자 단위로 끊긴다 */
+  @media (max-width:600px){ .card:has(> .ctable){ overflow-x:auto; } .ctable th, .ctable td{ min-width:5.5em; } }
   .ctable th, .ctable td{ text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); }
   .ctable th{ font-size:12px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.04em; }
   .ctable td{ color:var(--gray600); } .ctable td b{ color:var(--ink); }
@@ -197,6 +205,13 @@
   .tl-item .tl-desc{ font-size:13px; color:var(--gray600); line-height:1.6; }
 
   /* ── COMPONENT: annotated code ── */
+  /* ── inline code chip wrapping (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     A chip never breaks inside: a flag split at "--" reads as two tokens. Below 600px a chip moves to
+     the next line whole, and one longer than its line or table cell scrolls inside itself instead of
+     pushing the page sideways. */
+  :not(pre) > code{ white-space:nowrap; }
+  @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
+
   /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Syntax colors are spans the author wraps by hand (no highlighter script):
      sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
@@ -294,7 +309,7 @@
   .knob .k-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
   .knob .k-name{ font-size:13px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.04em; }
   .knob .k-out{ font-family:var(--mono); font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-0.02em; }
-  /* range 커스텀: 기본 위젯은 호스트마다 거칠어서 트랙·썸을 직접 그린다 */
+  /* range 커스텀: 기본 위젯은 호스트마다 거칠어서 트랙과 썸을 직접 그린다 */
   .knob input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:100px; background:var(--chipbg); outline:none; margin:8px 0; }
   .knob input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--blue); border:3px solid var(--card); box-shadow:0 1px 4px color-mix(in srgb, var(--blue) 40%, transparent); cursor:pointer; }
   .knob input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%; background:var(--blue); border:3px solid var(--card); cursor:pointer; }
@@ -306,14 +321,14 @@
   .knob .k-note b{ color:var(--ink); }
 
   /* ── COMPONENT: spec / key-value ── */
-  .spec{ display:grid; grid-template-columns:auto 1fr; gap:0 20px; }
+  .spec{ display:grid; grid-template-columns:auto 1fr; gap:0 20px; margin:0; }
   .spec dt{ font-size:13px; font-weight:700; color:var(--faint); padding:8px 0; border-bottom:1px solid var(--line); }
   .spec dd{ font-size:13.5px; color:var(--gray700); margin:0; padding:8px 0; border-bottom:1px solid var(--line); }
   .spec dt:last-of-type, .spec dd:last-of-type{ border-bottom:none; }
 
   /* ── COMPONENT: callout 변형 ──
      라벨 행(.co-head) = SVG 아이콘 + 범주 이름(참고/확인됨/주의/함정). 텍스트 글리프(i, ×)를
-     아이콘으로 쓰지 않는다: 폰트에 따라 얇은 막대·작은 점으로 렌더링된다. SVG는 아래 데모에서 복사.
+     아이콘으로 쓰지 않는다: 폰트에 따라 얇은 막대와 작은 점으로 렌더링된다. SVG는 아래 데모에서 복사.
      .group 항목 구조 = 제목 줄(.ci-t) + 본문(.co-b); 단일 콜아웃은 라벨 행이 제목 역할이라
      본문만 둔다. 본문이 한 줄에 들어가면 흐르는 한 줄 그대로 둔다
      (짧은 본문을 억지로 두 줄로 쪼개지 않는다). 한 줄을 넘길 때만 문장마다 .sent로 감싸
@@ -326,7 +341,7 @@
   .callout .ci-t{ font-size:13.5px; font-weight:700; color:var(--ink); word-break:keep-all; margin:0 0 3px; }
   .callout .co-b{ font-size:13.5px; line-height:1.65; color:var(--gray700); }
   .callout .co-b b{ color:var(--ink); }
-  .callout .sent{ display:block; }
+  .callout .sent{ display:block; text-wrap:pretty; }
   /* 라벨 텍스트는 --ink 고정(라이트 모드 soft 배경에서 변형 색 11px 텍스트는 AA 미달), 변형 색은 아이콘에만 */
   .callout.info{ background:var(--blue-soft); } .callout.info .co-icon{ color:var(--blue); }
   .callout.warn{ background:var(--amber-soft); } .callout.warn .co-icon{ color:var(--amber); }
@@ -364,7 +379,7 @@
   .takeaway ul{ margin:0; padding-left:20px; } .takeaway li{ font-size:13.5px; color:var(--gray600); line-height:1.7; margin-bottom:5px; }
 
   /* 블록 기본 간격 20px. .stack 내부와 .wrap 직속(최상위) 블록에 같은 리듬을 적용한다
-     — 간격 규칙이 .stack 안에만 있으면 섹션에 바로 놓인 블록끼리 간격 0으로 붙는다.
+    : 간격 규칙이 .stack 안에만 있으면 섹션에 바로 놓인 블록끼리 간격 0으로 붙는다.
      연속 콜아웃은 12px로 좁혀 관련 묶음으로 읽히게 하고,
      .demo-label 바로 다음 블록은 라벨과 밀착(라벨 자체 margin-bottom 10px)시킨다. */
   .wrap > .card, .wrap > .codeblock, .wrap > .callout, .wrap > .qa, .wrap > .pillars,
@@ -401,7 +416,7 @@
      mermaid는 SVG를 컨테이너 폭에 맞춰 통째로 축소하므로, 요소가 많은 다이어그램은
      본문 컬럼(800px) 안에서 글자가 작아진다. 두 층으로 대응한다:
      (1) .bleed: 다이어그램 카드만 본문 컬럼을 깨고 뷰포트 폭으로 확장
-     (2) .zoomable + .lightbox: 클릭하면 전체 화면에서 휠 줌·드래그 팬
+     (2) .zoomable + .lightbox: 클릭하면 전체 화면에서 휠 줌과 드래그 팬
      mermaid 소스가 하나라도 있으면 .lightbox 오버레이 마크업과 하단 라이트박스
      스크립트를 함께 복사한다 (Artifacts는 pre.mermaid를 네이티브 렌더링). */
   .bleed{ width:min(96vw, 1200px); margin-left:calc((100% - min(96vw, 1200px))/2); }
@@ -413,10 +428,10 @@
 
   /* ── COMPONENT: wide (오른쪽 단방향 확장) ──
      셀이 억지로 두 줄로 꺾이는 표, 4열 stat처럼 옆으로 긴 블록만 감싼다.
-     왼쪽 축은 본문 컬럼과 공유하고 오른쪽으로만 확장한다 — 양쪽 대칭 확장(.bleed 방식)을
-     본문 흐름 속 표에 쓰면 챕터 제목·산문과 왼쪽 축이 어긋나 어색해진다 (다이어그램은
+     왼쪽 축은 본문 컬럼과 공유하고 오른쪽으로만 확장한다: 양쪽 대칭 확장(.bleed 방식)을
+     본문 흐름 속 표에 쓰면 챕터 제목, 산문과 왼쪽 축이 어긋나 어색해진다 (다이어그램은
      "그림"으로 읽혀 예외). 블록에 소제목이 딸려 있으면 래퍼 안에 함께 넣어 같은 축에
-     정렬한다. 산문·콜아웃·TL;DR은 기본 폭을 유지한다. */
+     정렬한다. 산문, 콜아웃, TL;DR은 기본 폭을 유지한다. */
   .wide{ width:min(1000px, calc(50vw + 352px), calc(100vw - 48px)); }
   @media (min-width:1280px){
     /* TOC rail(우측 고정) 직전까지만 확장 */
@@ -425,9 +440,9 @@
   .wide > :first-child{ margin-top:0; }
   .wide > * + *{ margin-top:12px; }
   @media (min-width:800px){
-    /* 좁은 뷰포트에서는 nowrap을 풀어 표가 카드 밖으로 넘치지 않게 한다 */
-    .wide .ctable th:first-child, .wide .ctable td:first-child,
-    .wide .ctable th:last-child, .wide .ctable td:last-child{ white-space:nowrap; }
+    /* 첫 열(행 라벨)만 한 줄로 고정한다. 링크처럼 짧은 열은 그 열의 셀에 .nw를 붙여 고정한다.
+       긴 글이 든 열을 고정하면 표가 카드 밖으로 넘친다. 좁은 뷰포트에서는 고정을 모두 푼다 */
+    .wide .ctable th:first-child, .wide .ctable td:first-child, .wide .ctable .nw{ white-space:nowrap; }
   }
   .lightbox{
     position:fixed; inset:0; z-index:100; display:none;
@@ -484,7 +499,7 @@
 
   <main class="wrap">
     <header class="top">
-      <span class="eyebrow">visual-doc · 컴포넌트 카탈로그</span>
+      <span class="eyebrow">visual-doc, 컴포넌트 카탈로그</span>
       <h1>스타일은 고정, 구조는 콘텐츠가 결정하는 문서 컴포넌트 팔레트</h1>
       <p class="lede">visual-doc가 문서를 조립할 때 고를 수 있는 블록들의 카탈로그예요. 이 페이지 자체가 긴 문서라서, 상단 진행바와 오른쪽 플로팅 목차로 <b>무한 스크롤을 견디게</b> 만든 예시이기도 해요. 다크모드는 시스템 설정을 따르고, 오른쪽 위 버튼으로 바꿀 수 있어요.</p>
     </header>
@@ -497,7 +512,7 @@
       <table class="ctable">
         <thead><tr><th>전략</th><th>적합한 분량</th><th>강점</th><th>비용</th></tr></thead>
         <tbody>
-          <tr><td><b>단일 스크롤 + 진행바·TOC</b></td><td>중 (5~12 섹션)</td><td class="yes">맥락 유지, 구현 단순</td><td>매우 길면 피로</td></tr>
+          <tr><td><b>단일 스크롤 + 진행바와 TOC</b></td><td>중 (5~12 섹션)</td><td class="yes">맥락 유지, 구현 단순</td><td>매우 길면 피로</td></tr>
           <tr><td><b>챕터 페이저</b></td><td>대 (문서가 장으로 나뉨)</td><td class="yes">각 장 집중</td><td>전체 조망 약화</td></tr>
           <tr><td><b>접이식 섹션</b></td><td>참조형 (FAQ, 스펙)</td><td class="yes">스캔 빠름</td><td>순차 독해엔 부적합</td></tr>
         </tbody>
@@ -512,25 +527,25 @@
     <div class="tldr">
       <div class="tl-label">한눈에 요약</div>
       <p class="tl-core">각 컴포넌트는 같은 토큰을 공유해서 어떻게 조합해도 한 문서처럼 보여요.</p>
-      <ul><li>색·간격·라운드·그림자가 전부 CSS 변수라 미감이 잠겨요.</li><li>순서·개수·선택은 내용이 정해요.</li></ul>
+      <ul><li>색, 간격, 라운드, 그림자가 전부 CSS 변수라 미감이 잠겨요.</li><li>순서, 개수, 선택은 내용이 정해요.</li></ul>
     </div>
 
-    <div class="demo-label">지표 행 (stat row · 최대 4개, 라벨 먼저)</div>
+    <div class="demo-label">지표 행 (stat row, 최대 4개, 라벨 먼저)</div>
     <div class="stats">
       <div class="stat"><div class="k">컴포넌트</div><div class="n">18<span class="u">종</span></div><div class="d">팔레트 기준</div></div>
       <div class="stat"><div class="k">컬러 모드</div><div class="n">2<span class="u">개</span></div><div class="d">라이트, 다크</div></div>
-      <div class="stat"><div class="k">외부 리소스</div><div class="n">0<span class="u">개</span></div><div class="d">CDN·웹폰트 없음</div></div>
+      <div class="stat"><div class="k">외부 리소스</div><div class="n">0<span class="u">개</span></div><div class="d">CDN, 웹폰트 없음</div></div>
       <div class="stat"><div class="k">출력 파일</div><div class="n">1<span class="u">개</span></div><div class="d">self-contained</div></div>
     </div>
 
-    <div class="demo-label">지표 칩 (statchips · 5개 이상일 때)</div>
+    <div class="demo-label">지표 칩 (statchips, 5개 이상일 때)</div>
     <div class="statchips">
       <span class="chip"><span class="k">컴포넌트</span><span class="n">18<span class="u">종</span></span></span>
       <span class="chip"><span class="k">콜아웃 변형</span><span class="n">4<span class="u">종</span></span></span>
       <span class="chip"><span class="k">컬러 모드</span><span class="n">2<span class="u">개</span></span></span>
       <span class="chip"><span class="k">외부 리소스</span><span class="n">0<span class="u">개</span></span></span>
       <span class="chip"><span class="k">출력 파일</span><span class="n">1<span class="u">개</span></span></span>
-      <span class="foot">컴포넌트 수는 팔레트 기준 · 출력은 self-contained HTML 1개</span>
+      <span class="foot">컴포넌트 수는 팔레트 기준, 출력은 self-contained HTML 1개</span>
     </div>
 
     <div class="group-label" id="s-data"><span class="g-part">Part C</span><span class="g-name">데이터 & 비교 블록</span></div>
@@ -546,20 +561,20 @@
     <div class="demo-label">스펙 표 (key-value)</div>
     <div class="card"><dl class="spec">
       <dt>배포물</dt><dd>components.html (토큰 + 프리스타일 블록)</dd>
-      <dt>구조 결정</dt><dd>콘텐츠 유형·분량에 따라 AI가 조립</dd>
+      <dt>구조 결정</dt><dd>콘텐츠 유형과 분량에 따라 AI가 조립</dd>
       <dt>검증</dt><dd>Playwright 스크린샷으로 렌더 확인</dd>
       <dt>언어</dt><dd>AGENTS.md 설정 우선, 해요체</dd>
     </dl></div>
 
-    <div class="demo-label">폭이 필요한 표 (.wide · 오른쪽 단방향 확장, 첫 열·링크 열 nowrap) — 소제목은 래퍼 안에</div>
+    <div class="demo-label">폭이 필요한 표 (.wide, 오른쪽 단방향 확장, 첫 열과 .nw 링크 열 nowrap): 소제목은 래퍼 안에</div>
     <div class="wide">
     <h2>.wide 설계 결정</h2>
     <div class="card">
       <table class="ctable">
-        <thead><tr><th>결정</th><th>무엇을 정했나</th><th>문서</th></tr></thead>
+        <thead><tr><th>결정</th><th>무엇을 정했나</th><th class="nw">문서</th></tr></thead>
         <tbody>
-          <tr><td><b>확장 방향</b></td><td>왼쪽 축은 본문 컬럼에 고정하고 오른쪽으로만 확장해요. 축이 두 개가 되면 챕터 제목과 어긋나 보여요</td><td><a href="#s-data">.wide 규칙</a></td></tr>
-          <tr><td><b>적용 대상</b></td><td>셀이 억지로 두 줄이 되는 표, 옆으로 긴 grid만. 산문·콜아웃은 기본 폭 유지</td><td><a href="#s-data">SKILL.md</a></td></tr>
+          <tr><td><b>확장 방향</b></td><td>왼쪽 축은 본문 컬럼에 고정하고 오른쪽으로만 확장해요. 축이 두 개가 되면 챕터 제목과 어긋나 보여요</td><td class="nw"><a href="#s-data">.wide 규칙</a></td></tr>
+          <tr><td><b>적용 대상</b></td><td>셀이 억지로 두 줄이 되는 표, 옆으로 긴 grid만. 산문과 콜아웃은 기본 폭 유지</td><td class="nw"><a href="#s-data">SKILL.md</a></td></tr>
         </tbody>
       </table>
     </div>
@@ -568,15 +583,15 @@
     <div class="demo-label">pros / cons</div>
     <div class="proscons">
       <div class="pc pro"><div class="pc-h">장점</div><ul><li>미감 일관성 자동</li><li>구조 자유도 높음</li><li>단일 HTML 배포</li></ul></div>
-      <div class="pc con"><div class="pc-h">한계</div><ul><li>팔레트 밖 요구는 즉흥 설계 필요</li><li>표·차트는 폭 좁으면 스크롤</li></ul></div>
+      <div class="pc con"><div class="pc-h">한계</div><ul><li>팔레트 밖 요구는 즉흥 설계 필요</li><li>표와 차트는 폭 좁으면 스크롤</li></ul></div>
     </div>
 
     <div class="group-label" id="s-narr"><span class="g-part">Part D</span><span class="g-name">서술 & 근거 블록</span></div>
 
     <div class="demo-label">타임라인</div>
     <div class="card"><div class="timeline">
-      <div class="tl-item"><div class="tl-when">STEP 1</div><div class="tl-what">콘텐츠 수집</div><div class="tl-desc">리서치·코드·레포를 읽고 사실을 확보해요.</div></div>
-      <div class="tl-item"><div class="tl-when">STEP 2</div><div class="tl-what">골격 설계</div><div class="tl-desc">분량·유형을 보고 컴포넌트와 네비 전략을 골라요.</div></div>
+      <div class="tl-item"><div class="tl-when">STEP 1</div><div class="tl-what">콘텐츠 수집</div><div class="tl-desc">리서치, 코드, 레포를 읽고 사실을 확보해요.</div></div>
+      <div class="tl-item"><div class="tl-when">STEP 2</div><div class="tl-what">골격 설계</div><div class="tl-desc">분량과 유형을 보고 컴포넌트와 네비 전략을 골라요.</div></div>
       <div class="tl-item"><div class="tl-when">STEP 3</div><div class="tl-what">조립 + 검증</div><div class="tl-desc">팔레트로 채우고 스크린샷으로 렌더를 확인해요.</div></div>
     </div></div>
 
@@ -588,7 +603,7 @@
 
     <div class="demo-label">주석 달린 코드 (공통 들여쓰기 제거, 토큰 span, 생략 줄, 강조 줄)</div>
     <div class="codeblock">
-      <div class="cb-head"><span class="file">skills/visual-doc/components.html · theme toggle</span><span>JavaScript</span></div>
+      <div class="cb-head"><span class="file">skills/visual-doc/components.html, theme toggle</span><span>JavaScript</span></div>
       <div class="cb-body"><pre><span class="ln"><span class="sx-k">var</span> root = document.documentElement, KEY = <span class="sx-s">"git-claw-doc-theme"</span>;</span><span class="ln"><span class="sx-k">function</span> <span class="sx-f">isDark</span>(){</span><span class="ln gap">  … 3줄 생략</span><span class="ln">}</span><span class="ln"><span class="sx-k">try</span>{</span><span class="ln hl">  <span class="sx-k">var</span> saved = localStorage.<span class="sx-f">getItem</span>(KEY);  <span class="note">← 저장소가 막힌 창에서는 여기서 예외</span></span><span class="ln">  <span class="sx-k">if</span> (saved === <span class="sx-s">"light"</span> || saved === <span class="sx-s">"dark"</span>) root.<span class="sx-f">setAttribute</span>(<span class="sx-s">"data-theme"</span>, saved);</span><span class="ln">}<span class="sx-k">catch</span>(e){}</span></pre></div>
     </div>
 
@@ -616,8 +631,8 @@
     <div class="callout warn group">
       <div class="co-head"><svg class="co-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 14.6 13.4H1.4Z"/><line x1="8" y1="6.6" x2="8" y2="9.6"/><circle cx="8" cy="11.7" r="0.4" fill="currentColor" stroke="none"/></svg>주의</div>
       <!-- 본문이 한 줄에 들어가면 흐르는 한 줄(위 두 항목), 넘기면 .sent로 문장별 줄바꿈(마지막 항목) -->
-      <div class="co-item"><p class="ci-t">토큰 재정의 금지</p><div class="co-b">색·간격을 바꾸면 통일성이 깨져요. 새 블록이 필요하면 같은 토큰으로 조립해요.</div></div>
-      <div class="co-item"><p class="ci-t">외부 리소스 금지</p><div class="co-b">CDN·웹폰트를 넣으면 오프라인에서 깨져요. 출력은 self-contained 한 파일이어야 해요.</div></div>
+      <div class="co-item"><p class="ci-t">토큰 재정의 금지</p><div class="co-b">색과 간격을 바꾸면 통일성이 깨져요. 새 블록이 필요하면 같은 토큰으로 조립해요.</div></div>
+      <div class="co-item"><p class="ci-t">외부 리소스 금지</p><div class="co-b">CDN, 웹폰트를 넣으면 오프라인에서 깨져요. 출력은 self-contained 한 파일이어야 해요.</div></div>
       <div class="co-item"><p class="ci-t">샘플 카피 잔존</p><div class="co-b"><span class="sent">git-claw 예시 문구가 산출물에 남으면 실제 분석 내용처럼 읽혀서 문서 신뢰를 해쳐요.</span><span class="sent">출력 직전에 grep으로 남은 샘플 문자열을 찾아 있으면 지우고 다시 확인해요.</span></div></div>
     </div>
 
@@ -625,7 +640,7 @@
 
     <div class="demo-label">기둥 카드 (pillar)</div>
     <div class="pillars">
-      <div class="pillar"><div class="p-n">01</div><div class="p-h">토큰 고정</div><div class="p-b">색·간격이 변수라 미감이 안 흔들려요.</div></div>
+      <div class="pillar"><div class="p-n">01</div><div class="p-h">토큰 고정</div><div class="p-b">색과 간격이 변수라 미감이 안 흔들려요.</div></div>
       <div class="pillar"><div class="p-n">02</div><div class="p-h">조립 자유</div><div class="p-b">섹션 구성은 내용이 결정해요.</div></div>
       <div class="pillar"><div class="p-n">03</div><div class="p-h">단일 파일</div><div class="p-b">외부 의존 없이 그대로 열려요.</div></div>
     </div>
@@ -638,7 +653,7 @@
     </div>
 
     <div class="group-label" id="s-gen"><span class="g-part">Part F</span><span class="g-name">인터랙티브 & 생성형 (팔레트 밖)</span></div>
-    <p class="prose">아래 선 그래프·도넛·노브 셋은 <b>원래 카탈로그에 없던 블록</b>이에요. 콘텐츠가 요구해서 같은 토큰으로 즉석에서 만들었어요. 여기가 "구조 자유"가 실제로 작동하는 지점이고, 그래도 스타일 일관성은 유지돼요.</p>
+    <p class="prose">아래 선 그래프, 도넛, 노브 셋은 <b>원래 카탈로그에 없던 블록</b>이에요. 콘텐츠가 요구해서 같은 토큰으로 즉석에서 만들었어요. 여기가 "구조 자유"가 실제로 작동하는 지점이고, 그래도 스타일 일관성은 유지돼요.</p>
 
     <div class="demo-label">선 그래프 (인라인 SVG)</div>
     <div class="card">
@@ -664,7 +679,7 @@
       </svg>
       <div class="donut-legend">
         <div class="dl-row"><span class="sw" style="background:var(--blue)"></span><span class="dl-name">git 워크플로 스킬</span><span class="dl-val">68%</span></div>
-        <div class="dl-row"><span class="sw" style="background:var(--gray200)"></span><span class="dl-name">이해·문서 스킬</span><span class="dl-val">32%</span></div>
+        <div class="dl-row"><span class="sw" style="background:var(--gray200)"></span><span class="dl-name">이해와 문서 스킬</span><span class="dl-val">32%</span></div>
       </div>
     </div></div>
 
@@ -676,11 +691,11 @@
       <div class="k-note" id="knobNote">동시성 캡은 <b>min(16, 코어−2)</b>예요. 값을 올리면 대기 큐가 줄지만 컨텍스트 비용이 늘어요.</div>
     </div>
 
-    <div class="demo-label">다이어그램 (인라인 SVG · 기본)</div>
-    <p class="prose">흐름·순서·구조 그림은 손으로 쓴 SVG로 그려요. 문서 토큰을 그대로 쓰므로 테마 전환을 따르고, 강조할 요소 하나에만 <code>--blue</code>를 써요. 아래 그림은 예시이고, 그림은 문서마다 새로 그려요.</p>
+    <div class="demo-label">다이어그램 (인라인 SVG, 기본)</div>
+    <p class="prose">흐름, 순서, 구조 그림은 손으로 쓴 SVG로 그려요. 문서 토큰을 그대로 쓰므로 테마 전환을 따르고, 강조할 요소 하나에만 <code>--blue</code>를 써요. 아래 그림은 예시이고, 그림은 문서마다 새로 그려요.</p>
     <div class="card"><figure class="fig">
       <svg viewBox="0 0 750 142" role="img" aria-label="에이전트가 SKILL.md를 읽고 git commit을 실행해요">
-        <!-- W=750 · row1 y=40 h=62: [40..200] gap80 [280..460] gap80 [540..720] -->
+        <!-- W=750 | row1 y=40 h=62: [40..200] gap80 [280..460] gap80 [540..720] -->
         <defs>
           <marker id="vf1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="currentColor"/></marker>
         </defs>
@@ -697,8 +712,8 @@
       </svg>
     </figure></div>
 
-    <div class="demo-label">다이어그램 (mermaid · 큰 다이어그램용 대체 수단, full-bleed + 클릭 확대)</div>
-    <p class="prose">손으로 배치하기 어려운 큰 다이어그램에만 써요. 다이어그램 카드는 본문 컬럼을 깨고 넓게 렌더되고(<code>.bleed</code>), 클릭하면 라이트박스에서 휠 줌·드래그 팬이 돼요(<code>.zoomable</code>). Artifacts 환경은 <code>pre.mermaid</code>를 네이티브 렌더링해요 (이 파일을 로컬 브라우저로 열면 소스 텍스트로 보여요).</p>
+    <div class="demo-label">다이어그램 (mermaid, 큰 다이어그램용 대체 수단, full-bleed + 클릭 확대)</div>
+    <p class="prose">손으로 배치하기 어려운 큰 다이어그램에만 써요. 다이어그램 카드는 본문 컬럼을 깨고 넓게 렌더되고(<code>.bleed</code>), 클릭하면 라이트박스에서 휠 줌과 드래그 팬이 돼요(<code>.zoomable</code>). Artifacts 환경은 <code>pre.mermaid</code>를 네이티브 렌더링해요 (이 파일을 로컬 브라우저로 열면 소스 텍스트로 보여요).</p>
     <div class="bleed"><div class="card zoomable" role="button" tabindex="0" aria-label="다이어그램 확대">
       <pre class="mermaid">sequenceDiagram
     participant A as 클라이언트
@@ -713,7 +728,7 @@
     <div class="takeaway">
       <div class="tk-label">이 카탈로그의 요지</div>
       <p class="tk-core">visual-doc는 '빈칸 템플릿'이 아니라 '조립 팔레트'예요.</p>
-      <ul><li>여기 18종은 시작점일 뿐, AI가 필요하면 같은 토큰으로 새 블록을 만들어요.</li><li>긴 문서는 진행바·TOC·페이저·접이식을 분량에 맞게 골라 써요.</li></ul>
+      <ul><li>여기 18종은 시작점일 뿐, AI가 필요하면 같은 토큰으로 새 블록을 만들어요.</li><li>긴 문서는 진행바, TOC, 페이저, 접이식을 분량에 맞게 골라 써요.</li></ul>
     </div>
 
     <div class="demo-label">챕터 페이저 (긴 문서 이동)</div>
@@ -725,13 +740,13 @@
 
   <aside class="toc-rail">
     <div class="tr-label">목차</div>
-    <a href="#s-nav">A · 네비게이션 전략</a>
-    <a href="#s-hero">B · 헤드 & 요약</a>
-    <a href="#s-data">C · 데이터 & 비교</a>
-    <a href="#s-narr">D · 서술 & 근거</a>
-    <a href="#s-struct">E · 구조 & 참조</a>
-    <a href="#s-gen">F · 인터랙티브 & 생성형</a>
-    <a href="#s-close">G · 마무리 & 이동</a>
+    <a href="#s-nav">A, 네비게이션 전략</a>
+    <a href="#s-hero">B, 헤드 & 요약</a>
+    <a href="#s-data">C, 데이터 & 비교</a>
+    <a href="#s-narr">D, 서술 & 근거</a>
+    <a href="#s-struct">E, 구조 & 참조</a>
+    <a href="#s-gen">F, 인터랙티브 & 생성형</a>
+    <a href="#s-close">G, 마무리 & 이동</a>
   </aside>
 
 </div>
@@ -776,7 +791,7 @@
     window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
   });
 
-  /* 인터랙티브 노브: 값 → 출력·바·설명 실시간 재계산 (입력이 결과를 바꾼다) */
+  /* 인터랙티브 노브: 값 → 출력, 바, 설명 실시간 재계산 (입력이 결과를 바꾼다) */
   var knob = document.getElementById("knob");
   if (knob){
     var out = document.getElementById("knobOut");
@@ -795,7 +810,7 @@
 
 <script>
 /* 라이트박스: mermaid 다이어그램이 있을 때만 오버레이 마크업과 함께 복사한다.
-   휠 줌은 스크롤 양 비례 지수 배율(트랙패드·마우스 공통), 드래그 후 발생하는
+   휠 줌은 스크롤 양 비례 지수 배율(트랙패드와 마우스 공통), 드래그 후 발생하는
    click은 이동량(moved)으로 걸러 "바깥 클릭 닫기"가 오작동하지 않게 한다. */
 (function(){
   var lightbox = document.getElementById("lightbox");

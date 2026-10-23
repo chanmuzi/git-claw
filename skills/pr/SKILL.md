@@ -49,15 +49,15 @@ Do NOT ask for user confirmation. Instead, briefly state which base branch was s
 ## Gather Context
 
 Run the following commands using the resolved `{base-branch}`:
-1. `git log --oneline {base-branch}..HEAD 2>/dev/null || git log --oneline -10` — list commits on this branch
-2. `git diff {base-branch}...HEAD --stat 2>/dev/null || echo "Could not determine diff"` — list changed files
+1. `git log --oneline {base-branch}..HEAD 2>/dev/null || git log --oneline -10`: list commits on this branch
+2. `git diff {base-branch}...HEAD --stat 2>/dev/null || echo "Could not determine diff"`: list changed files
 
 ### Graph Analysis (when `-g` flag is set)
 
 Additionally build a **change-flow graph** for the PR description:
 
 1. **Trace relationships**: For each changed file, identify imports, exports, function calls, and data flow to/from other changed files using Grep.
-2. **Map edges**: Record directional relationships — code-level (`imports`, `calls`, `extends`, `emits/consumes`) and conceptual (`references`, `shared logic`, `configures`).
+2. **Map edges**: Record directional relationships, both code-level (`imports`, `calls`, `extends`, `emits/consumes`) and conceptual (`references`, `shared logic`, `configures`).
 3. **Group by module**: If changed files exceed 7, group by parent directory into logical modules (subgraph nodes). Individual files become child nodes.
 4. **Construct Mermaid source**: Build a `flowchart LR` diagram. Nodes = changed files (or module groups). Edges = relationships found in step 2, labeled with relationship type.
 
@@ -66,7 +66,7 @@ Additionally build a **change-flow graph** for the PR description:
 Graph rules:
 - Mermaid direction: `flowchart LR` (left-to-right).
 - Node labels: filename only (no full path). Use `[filename.ext]` format (basename + extension).
-- Edge labels: relationship type — code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
+- Edge labels: the relationship type, code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
 - Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 
 ## Determine PR Type
@@ -81,7 +81,7 @@ Parse `$ARGUMENTS`:
 
 Format: `{Type}: {description}`
 
-### Type Prefixes (capitalize first letter — differs from commit messages)
+### Type Prefixes (capitalize first letter: differs from commit messages)
 
 | Type | Purpose |
 |------|---------|
@@ -98,6 +98,13 @@ Format: `{Type}: {description}`
 
 Write the description in the language configured in the project's AGENTS.md (or CLAUDE.md as fallback).
 If no language is configured, follow the user's conversational language.
+
+### Writing rules (shared across commit, pr, issue, review-reply, code-review, handoff)
+
+- **No machine-writing symbols.** Never write the em-dash (`—`), the en-dash (`–`), or the middle dot (`·`) in anything this skill produces: titles, bodies, comments, replies, hints, tables, summaries. They mark text as machine-written. A dash becomes a colon, parentheses, a comma, or a second sentence. A middle dot between items becomes a comma or a Korean connective (`설치와 로그인`, `제목, 본문, 라벨`). A range is written with `~` (`1~3`). Text carried over from elsewhere (an earlier commit subject, a merged PR title, your summary of a reviewer's point) is normalized the same way.
+- **Verbatim quotes stay verbatim.** Code, file contents, and a reviewer's comment quoted inside a code block, a diff block, or a blockquote presented as a quote keep their characters exactly as the source has them. Outside such a quote the rule above has no exception.
+- **Natural Korean.** When the output language is Korean, write it the way you would say it to a colleague. Attach particles to the word before them, also after English or code (`API를`, `` `config`가 ``). Cut filler nouns that add nothing (`처리`, `진행`, `수행`): `캐시 삭제 처리 진행` is `캐시 삭제`. No literal translation of idioms and no metaphor (`~의 여정`, `숨은 비용`, `한눈에 보는 ~`). Write counts as numbers (`3곳`, `2회`). Read the title or subject line aloud once; if it sounds like a translated caption, rewrite it.
+- **Check before you send.** Before committing, creating, or posting, reread the drafted text for `—`, `–`, and `·`. When the text is in a file, `grep -nP '[—–·]' <file>` must print nothing outside verbatim quotes.
 
 ---
 
@@ -120,7 +127,7 @@ Assign a type label to the PR based on its title prefix. This label scheme is sh
 | `hotfix` | `b60205` | `Hotfix:` |
 | `release` | `1d76db` | `Release:` |
 
-### Priority Labels (optional — assign only if the user specifies)
+### Priority Labels (optional: assign only if the user specifies)
 
 | Label | Color |
 |-------|-------|
@@ -145,9 +152,9 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 - Prefer bullet points over prose paragraphs. Each bullet should be one clear, concise statement.
 - Keep "개요" to 1-2 sentences.
 - For single-concern PRs, use a flat bullet list under "변경 사항" without sub-headings.
-- Do NOT put commit SHAs, PR numbers, or other references in heading lines (`###`). Place them as body text below the heading — headings should contain only descriptive titles.
+- Do NOT put commit SHAs, PR numbers, or other references in heading lines (`###`). Place them as body text below the heading: headings should contain only descriptive titles.
 - **Bullet management**: When a category exceeds 5 bullets, consolidate related items into fewer, broader bullets. Combine closely related changes with commas (e.g., "해커톤 필터 개선, 검색 위치 조정, 캘린더 네비게이션 수정"). Aim for ≤5 bullets per category.
-- **Reference labeling**: Always qualify per-category references with the type — use `관련 커밋:` for commit SHAs, `관련 PR:` for PR numbers. Never use bare `관련:`.
+- **Reference labeling**: Always qualify per-category references with the type: use `관련 커밋:` for commit SHAs, `관련 PR:` for PR numbers. Never use bare `관련:`.
 
 ```markdown
 ## 개요
@@ -271,8 +278,8 @@ flowchart LR
 4. Push the branch if not already pushed: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry the push. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 5. Ensure the type label exists: `gh label create "{type_label}" --color "{hex}" 2>/dev/null || true`
 6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags **and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed**. Follow the session's tool permission settings for approval.
-7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "AGENTS.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
-8. Offer an understanding explainer (opt-in, never blocking): after the URL, ask exactly one line — "원하시면 /explain-diff로 이 PR의 이해용 설명 문서를 만들어 드릴까요?". If the user declines or does not answer, do nothing and never re-ask in this session. If they accept, invoke the explain-diff skill with this PR's number. Skip the offer entirely when the explain-diff skill is not available in this host, or when an explainer for this same diff was already generated in this session.
+7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** ({reason}) (e.g., "AGENTS.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
+8. Offer an understanding explainer (opt-in, never blocking): after the URL, ask exactly one line: "원하시면 /explain-diff로 이 PR의 이해용 설명 문서를 만들어 드릴까요?". If the user declines or does not answer, do nothing and never re-ask in this session. If they accept, invoke the explain-diff skill with this PR's number. Skip the offer entirely when the explain-diff skill is not available in this host, or when an explainer for this same diff was already generated in this session.
 
 ### If Release PR:
 
@@ -299,7 +306,7 @@ flowchart LR
 6. Push the branch: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 7. Ensure the type label exists: `gh label create "release" --color "1d76db" 2>/dev/null || true`
 8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags **and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed**. Follow the session's tool permission settings for approval.
-9. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason}. Also provide **post-merge guidance** — list the following as next steps the user should perform after merging:
+9. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** ({reason}). Also provide **post-merge guidance**: list the following as next steps the user should perform after merging:
    - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`
    - Sync the source branch back with the base branch (e.g., `git checkout {default-base} && git merge {release-base} && git push origin {default-base}`)
@@ -312,5 +319,5 @@ flowchart LR
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
 - **Assignee / Label**: Always include `--assignee @me` and `--label "{type_label}"` in `gh pr create`. If either flag fails due to insufficient permissions, retry without the failing flag(s) and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed.
-- **Dash characters**: Do not use em-dash (—) or en-dash (–) in the PR title or body. Replace with a colon, parentheses, or comma. Titles or text carried over from commit logs or imported (merged) PR titles must be normalized the same way. Before running `gh pr create`, self-check the drafted title and body: if either contains an em-dash or en-dash, replace it before creating the PR.
+- **Writing rules**: the title and body follow the Writing rules above (no `—`, `–`, `·`; natural Korean). Titles or text carried over from commit logs or imported (merged) PR titles are normalized the same way. Before running `gh pr create`, check the drafted title and body against them.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.

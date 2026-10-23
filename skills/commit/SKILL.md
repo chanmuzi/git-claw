@@ -12,8 +12,8 @@ allowed-tools: Bash(git *), Read, Grep, Glob
 
 If the current changes are already known from the conversation context (e.g., you just edited the files), skip these commands.
 Otherwise, run them to understand the current state:
-1. `git status` — check current status and untracked files
-2. `git diff HEAD` — review all changes
+1. `git status`: check current status and untracked files
+2. `git diff HEAD`: review all changes
 
 ## Flag Detection
 
@@ -31,7 +31,7 @@ Parse `$ARGUMENTS` for flags before proceeding. Natural language equivalents: "a
 
 When `--amend` is set, amend the last commit with the current changes.
 
-**Step 1 — Check push status:**
+**Step 1: Check push status:**
 
 ```bash
 git log @{u}..HEAD --oneline 2>/dev/null
@@ -40,19 +40,19 @@ git log @{u}..HEAD --oneline 2>/dev/null
 # - Empty output: already pushed → force push required after amend
 ```
 
-**Step 2 — Execute amend:**
+**Step 2: Execute amend:**
 
 - Stage the relevant files and run `git commit --amend`.
-  - Use `--no-edit` if the change is a minor fix within the same intent AND the existing message contains no em-dash (—) or en-dash (–). If the existing message contains either, amend with an edited message that replaces them (colon, parentheses, or comma) instead of `--no-edit`.
+  - Use `--no-edit` if the change is a minor fix within the same intent AND the existing message contains none of the symbols the Writing rules ban (`—`, `–`, `·`). If it contains any, amend with an edited message that replaces them instead of `--no-edit`.
   - Update the commit message if the scope or meaning has changed.
 
 - **NOT pushed** → amend directly and display:
 
-> **⚡ Amend** — `--amend` flag detected
+> **⚡ Amend**: `--amend` flag detected
 
 - **Already pushed** → display a warning and ask for confirmation before proceeding:
 
-> **⚠️ Amend + force push** — the last commit has already been pushed. Proceed?
+> **⚠️ Amend + force push**: the last commit has already been pushed. Proceed?
 
   - If confirmed: amend and run `git push --force-with-lease`, then display:
 
@@ -66,13 +66,13 @@ git log @{u}..HEAD --oneline 2>/dev/null
 
 ## Intent Classification
 
-> Run this BEFORE drafting any commit message. The output of this step is the source of truth for the commit plan — it cannot be inferred silently in your head.
+> Run this BEFORE drafting any commit message. The output of this step is the source of truth for the commit plan: it cannot be inferred silently in your head.
 
-### Step 1 — Enumerate every changed file
+### Step 1: Enumerate every changed file
 
 List every changed file (staged + unstaged + untracked) using `git status --porcelain`. Do not summarize; every path must appear in the next step.
 
-### Step 2 — Map each file to exactly one Intent Category
+### Step 2: Map each file to exactly one Intent Category
 
 Output the mapping as a markdown list. **You MUST emit this list explicitly, even when there is only one file or only one category.** This is non-optional and non-conditional. Skipping it is the most common cause of misgrouping.
 
@@ -89,18 +89,18 @@ Use the file's role in the project, not its filename or directory alone, to assi
 
 **Categories:**
 
-- `infra-deploy`   — deployment configs, environment templates, ops/setup/teardown/health/seed scripts
-- `agent-meta`     — agent instructions, hooks, permission/secret guards (AGENTS.md, CLAUDE.md, .claude/, .codex/, secret-related .gitignore patterns)
-- `app-runtime`    — production code implementing one feature or fix
-- `build-tooling`  — build/lint/format/type-check configs, dependency manifests
-- `docs`           — documentation-only changes (README, docs/, ops runbooks, inline doc-only edits)
-- `test`           — test-only additions or updates
+- `infra-deploy`  : deployment configs, environment templates, ops/setup/teardown/health/seed scripts
+- `agent-meta`    : agent instructions, hooks, permission/secret guards (AGENTS.md, CLAUDE.md, .claude/, .codex/, secret-related .gitignore patterns)
+- `app-runtime`   : production code implementing one feature or fix
+- `build-tooling` : build/lint/format/type-check configs, dependency manifests
+- `docs`          : documentation-only changes (README, docs/, ops runbooks, inline doc-only edits)
+- `test`          : test-only additions or updates
 
 If a file genuinely fits two roles, pick the category matching its primary effect at runtime, and note the ambiguity inline (e.g., `web/CLAUDE.md → agent-meta (also touches docs)`).
 
-### Step 3 — Produce the Commit Plan
+### Step 3: Produce the Commit Plan
 
-Build the **Commit Plan** — the canonical, ordered list of commit units this invocation will create. Every downstream guard (Pre-commit invariant, Post-commit self-check) compares against this plan, not against the raw category count.
+Build the **Commit Plan**: the canonical, ordered list of commit units this invocation will create. Every downstream guard (Pre-commit invariant, Post-commit self-check) compares against this plan, not against the raw category count.
 
 Construction (apply in order):
 
@@ -116,9 +116,9 @@ Display the plan:
 
 ```
 **Commit Plan**
-1. {type}({scope}): {subject} — N files [category]
+1. {type}({scope}): {subject} (N files) [category]
    - file1, file2, ...
-2. {type}({scope}): {subject} — M files [category]
+2. {type}({scope}): {subject} (M files) [category]
    - file3, file4, ...
 ```
 
@@ -132,7 +132,7 @@ Merging files from different categories into one commit is allowed ONLY when one
 
 If your justification is not literally on this list, **split**.
 
-### Anti-patterns (NOT exceptions — these mean SPLIT)
+### Anti-patterns (NOT exceptions: these mean SPLIT)
 
 When you catch yourself reasoning along any of these lines, treat it as positive evidence to split, not to merge. These are the most common failure modes of this skill:
 
@@ -162,25 +162,25 @@ Do not split purely along layer boundaries (frontend vs. backend) when both are 
 
 These cases show that **commit count can differ from raw category count** depending on exceptions and tie-breaking. Always derive guards and self-checks from the Commit Plan, never from category count alone.
 
-**Example A — straightforward split**
+**Example A: straightforward split**
 
 Files: `src/api.ts` (app-runtime), `README.md` (docs).
 Categories: 2. Exceptions: none. Tie-breaking: none.
 Commit Plan: 2 units → 2 commits.
 
-**Example B — Same-intent exception merges categories (commits < categories)**
+**Example B: Same-intent exception merges categories (commits < categories)**
 
 Files: `src/auth.ts` (app-runtime), `tests/auth.test.ts` (test).
 Categories: 2. Exception #3 (production code + validating tests) applies.
 Commit Plan: 1 unit (app-runtime ⊕ test) → 1 commit.
 
-**Example C — Tie-breaking expands one category (commits > categories)**
+**Example C: Tie-breaking expands one category (commits > categories)**
 
-Files: `src/feature_x.ts`, `src/feature_y.ts` — both `app-runtime`, unrelated motivations.
+Files: `src/feature_x.ts`, `src/feature_y.ts` (both `app-runtime`, unrelated motivations).
 Categories: 1. Tie-breaking: 2 independently revertible units.
 Commit Plan: 2 units → 2 commits.
 
-**Example D — combined**
+**Example D: combined**
 
 Files: `src/auth.ts`, `tests/auth.test.ts`, `src/feature_x.ts`, `README.md`.
 Categories: 3 (app-runtime, test, docs). Exception #3 merges (`auth.ts` ⊕ `auth.test.ts`); `feature_x.ts` and `README.md` stay separate.
@@ -217,7 +217,14 @@ Add scope in parentheses when the change targets a specific module or component:
 - Keep the subject line concise (aim for under 50 characters).
 - Use natural, fluent phrasing. Do not force-translate well-known technical terms. For example, write `source_map` as-is rather than translating it.
 - Focus on WHAT changed and WHY, not HOW.
-- Do not use em-dash (—) or en-dash (–) in the subject or body. Replace with a colon, parentheses, or comma.
+- Follow the Writing rules below.
+
+### Writing rules (shared across commit, pr, issue, review-reply, code-review, handoff)
+
+- **No machine-writing symbols.** Never write the em-dash (`—`), the en-dash (`–`), or the middle dot (`·`) in anything this skill produces: titles, bodies, comments, replies, hints, tables, summaries. They mark text as machine-written. A dash becomes a colon, parentheses, a comma, or a second sentence. A middle dot between items becomes a comma or a Korean connective (`설치와 로그인`, `제목, 본문, 라벨`). A range is written with `~` (`1~3`). Text carried over from elsewhere (an earlier commit subject, a merged PR title, your summary of a reviewer's point) is normalized the same way.
+- **Verbatim quotes stay verbatim.** Code, file contents, and a reviewer's comment quoted inside a code block, a diff block, or a blockquote presented as a quote keep their characters exactly as the source has them. Outside such a quote the rule above has no exception.
+- **Natural Korean.** When the output language is Korean, write it the way you would say it to a colleague. Attach particles to the word before them, also after English or code (`API를`, `` `config`가 ``). Cut filler nouns that add nothing (`처리`, `진행`, `수행`): `캐시 삭제 처리 진행` is `캐시 삭제`. No literal translation of idioms and no metaphor (`~의 여정`, `숨은 비용`, `한눈에 보는 ~`). Write counts as numbers (`3곳`, `2회`). Read the title or subject line aloud once; if it sounds like a translated caption, rewrite it.
+- **Check before you send.** Before committing, creating, or posting, reread the drafted text for `—`, `–`, and `·`. When the text is in a file, `grep -nP '[—–·]' <file>` must print nothing outside verbatim quotes.
 
 ### Multi-line Body (for complex changes)
 
@@ -231,7 +238,7 @@ When the diff involves multiple files or logical units, add a body after a blank
 - {detail 3}
 ```
 
-Pass a multi-line message with `-m` wrapping a heredoc via command substitution (same pattern as the `pr`/`issue` skills' `--body`). Never use `-F`/`--file` — it reads the message from a file and bypasses this skill's message-generation logic:
+Pass a multi-line message with `-m` wrapping a heredoc via command substitution (same pattern as the `pr`/`issue` skills' `--body`). Never use `-F`/`--file`: it reads the message from a file and bypasses this skill's message-generation logic:
 
 ```bash
 git commit -m "$(cat <<'EOF'
@@ -286,13 +293,13 @@ For each commit unit produced by Intent Classification:
 
 1. **Stage**: add only the files mapped to this unit. Stage them by name; never use `git add -A` or `git add .`.
 
-2. **Pre-commit invariant** — verify staged files match the current commit unit in the Commit Plan:
+2. **Pre-commit invariant**: verify staged files match the current commit unit in the Commit Plan:
 
    ```bash
    git diff --staged --name-only
    ```
 
-   The staged set MUST equal the file list of the unit being processed. Extra or missing files mean re-stage (`git restore --staged <wrong-files>` and re-add). For units formed by a Same-intent exception, the staged set may legitimately span multiple categories — the invariant is plan-unit equality, not category singularity. Do not commit until the staged set matches the current unit exactly.
+   The staged set MUST equal the file list of the unit being processed. Extra or missing files mean re-stage (`git restore --staged <wrong-files>` and re-add). For units formed by a Same-intent exception, the staged set may legitimately span multiple categories: the invariant is plan-unit equality, not category singularity. Do not commit until the staged set matches the current unit exactly.
 
 3. **Compose the message** per the Convention section above. Use a multi-line body when 3+ files are involved or the reasoning is non-obvious.
 
@@ -300,12 +307,12 @@ For each commit unit produced by Intent Classification:
 
 After all units are committed:
 
-5. **Self-check**: confirm the number of new commits equals the number of units in the Commit Plan from Step 3. Use the final plan after Same-intent exceptions and tie-breaking — never compare against the raw category count, which can over- or under-state the expected commit count. If they don't match, report the mismatch explicitly and stop — do not silently continue to subsequent steps such as PR creation. Recovery options:
+5. **Self-check**: confirm the number of new commits equals the number of units in the Commit Plan from Step 3. Use the final plan after Same-intent exceptions and tie-breaking: never compare against the raw category count, which can over- or under-state the expected commit count. If they don't match, report the mismatch explicitly and stop: do not silently continue to subsequent steps such as PR creation. Recovery options:
    - If unpushed: `git reset --soft HEAD~N` and re-run from Intent Classification.
    - If pushed: warn the user and ask for confirmation before history rewriting + `git push --force-with-lease`, mirroring the Amend section's confirmation pattern.
 
 **Important:**
-- Never use `git add -A` or `git add .` — stage specific files by name.
-- Never use `git commit -F`/`--file` — pass the message via `-m` (heredoc-into-`-m` for multi-line).
+- Never use `git add -A` or `git add .`: stage specific files by name.
+- Never use `git commit -F`/`--file`: pass the message via `-m` (heredoc-into-`-m` for multi-line).
 - Never include files that may contain secrets (`.env`, credentials, tokens, etc.).
-- When multiple commit units were planned, do NOT stop after the first commit — handle all units within this single skill invocation.
+- When multiple commit units were planned, do NOT stop after the first commit: handle all units within this single skill invocation.

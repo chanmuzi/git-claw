@@ -157,18 +157,9 @@
   }
 
   /* 그룹 계층: 카드 묶음 사이의 파트 라벨 */
-  .group-label{
-    display:flex; align-items:center; gap:12px;
-    margin:44px 4px 0; scroll-margin-top:24px;
-  }
-  .group-label .g-part{
-    font-family:var(--mono); font-size:11px; font-weight:600; color:var(--blue);
-    letter-spacing:.06em;
-  }
-  .group-label .g-name{
-    font-size:13.5px; font-weight:700; color:var(--ink); letter-spacing:-0.01em;
-  }
-  .group-label::after{ content:""; flex:1; height:1px; background:var(--gray200); }
+  /* Part 머리: 가로선과 번호 줄은 공유 블록(.sec-top, .sec-no)이 그리고, 여기서는 제목 글자만 정한다 */
+  .group-label{ margin:0 4px; scroll-margin-top:24px; }
+  .group-label .g-name{ font-size:18.5px; font-weight:800; letter-spacing:-0.02em; color:var(--ink); word-break:keep-all; margin:0; }
 
   .toc-group{
     font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
@@ -178,12 +169,10 @@
   .toc-group .g-part{ color:var(--blue); font-family:var(--mono); margin-right:8px; }
 
   .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
-  .list-header .num{
-    width:22px; height:22px; border-radius:7px; flex:none;
-    display:grid; place-items:center;
-    background:var(--blue-soft); color:var(--blue); font-size:11.5px; font-weight:700;
-  }
   .list-header h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; margin:0; }
+  /* 섹션 카드 머리: 공유 .sub-h(왼쪽 막대)와 .sub-no(카드 번호, 목차의 .idx와 같은 수) */
+  .card > .sub-h{ margin:0 0 8px; }
+  .sub-h h2{ font-size:18.5px; font-weight:700; letter-spacing:-0.02em; word-break:keep-all; }
   .prose{ font-size:15px; color:var(--sub); max-width:62ch; margin:10px 0 18px; }
   .prose b{ color:var(--ink); font-weight:700; }
   .prose code, .top .lede code, .tk-core code{ font-family:var(--mono); font-size:12.5px; background:var(--gray25); border-radius:6px; padding:1px 3px; }
@@ -361,6 +350,29 @@
      카드 안에 테두리 없이 놓는다. 좁은 화면에서는 글자를 줄이지 않고 가로로 스크롤한다. */
   .fig{ margin:6px 0 18px; overflow-x:auto; }
   .fig svg{ display:block; width:100%; min-width:520px; height:auto; color:var(--ink); }
+  /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
+     with the scroll ratio (no text on it), one inline .outline right after the hero lists every
+     section once, each top-level section opens with a rule and a number line (`01 / 08`), and a
+     sub-section opens with a short left bar and its number (`01.1`). Numbers live in these lines,
+     never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
+  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
+  .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
+  .sec-no b{ color:var(--blue); font-weight:700; }
+  .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
+  .sub-h > *{ margin:0; }
+  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--blue); margin:0 0 4px; }
+  .outline{ margin:22px 0 0; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-el); }
+  .outline .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--faint); margin-bottom:8px; }
+  .outline ol{ list-style:none; margin:0; padding:0; }
+  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14px; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:2px; }
+  .outline li.sub{ padding-left:22px; font-size:13.5px; color:var(--sub); }
+  .outline li.sub b{ color:var(--faint); }
+  .outline a{ color:inherit; text-decoration:none; border-bottom:none; }
+  .outline a:hover{ color:var(--blue); }
+
   /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
      Text inside a hand-authored SVG figure uses only these classes. */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
@@ -519,6 +531,7 @@
 <button type="button" class="theme-btn" aria-label="라이트/다크 전환" title="라이트/다크 전환">
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
 </button>
+<div class="progress" id="progress"></div>
 <div class="wrap">
 
   <header class="top">
@@ -536,27 +549,27 @@
   <!-- 목차: 그룹 헤더 포함, 각 행 = 해당 섹션의 한 줄 요약 -->
   <section class="card">
     <div class="list-header"><h2>이 문서에서 다뤄요</h2></div>
-    <div class="toc-group"><span class="g-part">Part 1</span>개요</div>
+    <div class="toc-group"><span class="g-part">01</span>개요</div>
     <a class="toc-row" href="#sec1"><span class="idx">1</span><span>배경<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
     <a class="toc-row" href="#sec2"><span class="idx">2</span><span>구조 한눈에 보기<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
-    <div class="toc-group"><span class="g-part">Part 2</span>변경 사항</div>
+    <div class="toc-group"><span class="g-part">02</span>변경 사항</div>
     <!-- REPEAT: one row per theme section (sec3..secK) -->
     <a class="toc-row" href="#sec3"><span class="idx">3</span><span>{{THEME_TITLE}}<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
-    <div class="toc-group"><span class="g-part">Part 3</span>이해 점검</div>
+    <div class="toc-group"><span class="g-part">03</span>이해 점검</div>
     <a class="toc-row" href="#risks"><span class="idx">{{K+1}}</span><span>주의해서 볼 지점<span class="desc">{{RISK_SUMMARY}}</span></span><span class="chev">›</span></a>
     <a class="toc-row" href="#quiz"><span class="idx">{{K+2}}</span><span>이해도 퀴즈<span class="desc">5문항, 전부 맞혀야 이해 완료, 틀리면 힌트 보고 다시 풀 수 있어요</span></span><span class="chev">›</span></a>
   </section>
 
-  <div class="group-label"><span class="g-part">Part 1</span><span class="g-name">개요</span></div>
+  <div class="group-label sec-top" id="part1"><div class="sec-no"><b>01</b><span>/ 03</span></div><h2 class="g-name">개요</h2></div>
 
   <section class="card" id="sec1">
-    <div class="list-header"><span class="num">1</span><h2>배경</h2></div>
+    <div class="sub-h"><div class="sub-no">1</div><h2>배경</h2></div>
     <p class="prose">{{WHY_THIS_CHANGE: before-state and its cost}}</p>
     <p class="prose">{{AFTER_STATE: what the change achieves, behavior-level}}</p>
   </section>
 
   <section class="card" id="sec2">
-    <div class="list-header"><span class="num">2</span><h2>구조 한눈에 보기</h2></div>
+    <div class="sub-h"><div class="sub-no">2</div><h2>구조 한눈에 보기</h2></div>
     <p class="prose">이 변경이 디렉토리 전체에서 어디를 건드렸는지예요.</p>
 
     <div class="tree">
@@ -597,11 +610,11 @@
          page. Delete this slot otherwise. -->
   </section>
 
-  <div class="group-label"><span class="g-part">Part 2</span><span class="g-name">변경 사항</span></div>
+  <div class="group-label sec-top" id="part2"><div class="sec-no"><b>02</b><span>/ 03</span></div><h2 class="g-name">변경 사항</h2></div>
 
   <!-- REPEAT: one card per theme, ordered by importance (sec3..secK) -->
   <section class="card" id="sec3">
-    <div class="list-header"><span class="num">3</span><h2>{{THEME_TITLE}}</h2></div>
+    <div class="sub-h"><div class="sub-no">3</div><h2>{{THEME_TITLE}}</h2></div>
     <p class="prose">{{WHAT_AND_WHY: behavior meaning, not line narration}}</p>
     <!-- FLOW FIGURE SLOT (optional): keep ONLY when this theme changes who calls what,
          in what order, or how many times (SKILL.md "Flow figure"). Two rows of the same
@@ -656,10 +669,10 @@
     </div>
   </section>
 
-  <div class="group-label"><span class="g-part">Part 3</span><span class="g-name">이해 점검</span></div>
+  <div class="group-label sec-top" id="part3"><div class="sec-no"><b>03</b><span>/ 03</span></div><h2 class="g-name">이해 점검</h2></div>
 
   <section class="card" id="risks">
-    <div class="list-header"><span class="num">{{K+1}}</span><h2>주의해서 볼 지점이에요</h2></div>
+    <div class="sub-h"><div class="sub-no">{{K+1}}</div><h2>주의해서 볼 지점이에요</h2></div>
     <!-- REPEAT: one row per risk. Use badge.watch or badge.crit.
          Frame as attention pointers, never as confirmed bugs. -->
     <div class="risk-row">
@@ -673,7 +686,7 @@
   </section>
 
   <section class="card" id="quiz">
-    <div class="list-header"><span class="num">{{K+2}}</span><h2>얼마나 이해했는지 확인해 보세요</h2></div>
+    <div class="sub-h"><div class="sub-no">{{K+2}}</div><h2>얼마나 이해했는지 확인해 보세요</h2></div>
     <p class="prose" style="margin-top:2px;">5문항이에요. 틀리면 정답 대신 <b>힌트</b>가 나오고, 해당 섹션을 다시 본 뒤 다시 풀 수 있어요. 전부 맞혀야 이해 완료예요.</p>
 
     <!-- REPEAT: exactly 5 .q blocks by default.
@@ -955,6 +968,28 @@
 
   /* FIGURE SLOT JS: if the optional interactive figure was included in Part 1,
      inline its bespoke logic here. Keep it data-driven and outcome-changing. */
+})();
+</script>
+<script>
+/* section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world):
+   the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
+(function(){
+  var bar = document.getElementById("progress");
+  function onScroll(){
+    if (!bar) return;
+    var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+  }
+  document.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('.outline a[href^="#"]');
+    if (!a) return;
+    var el = document.getElementById(a.getAttribute("href").slice(1));
+    if (!el) return;
+    e.preventDefault();
+    window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+  });
 })();
 </script>
 </body>

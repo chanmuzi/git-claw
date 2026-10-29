@@ -85,6 +85,7 @@ The reader skims first and reads second. Prose that runs on defeats both.
 ### Natural Korean (do not read like machine translation)
 
 - **No metaphor, no implied meaning, no translationese in titles and labels.** A heading, a chip, a row caption, a sub-line, a tooltip states the fact in the subject's own words (`vector_store_file 1행`, `호출 최대 N회`, `원본 테이블`), terse 개조식 welcome. Not `장부`, `선반`, `고리를 돈다`, `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `마법은 없다`. A phrase that would sound odd said aloud to a colleague is cut; a phrase that could head a page about a different subject is too abstract.
+- **Headings are answers, not frames; plan them in the output language.** (shared across eli5, explain-diff, micro-world, visual-doc) Write the section plan in the language the page will be in, with the final heading text, before any HTML: a heading drafted in English and translated comes out as `시험을 어떻게 내는가` or `점수 읽는 법`. The patterns below are the tells, and each is replaced by the fact it was hiding. A question (`~하는가`, `~인가`, `~일까`, `왜 ~인가`) becomes its answer: `점수를 어떻게 읽는가` is `점수 세 종류: pass@1, 승률, 시간 지평`. A classification noun (`N축`, `~한 축`, `차원`, `관점`, `레이어`, `측면`) becomes the names of the things: `평가의 4축` is `채점 방식 3가지: 테스트, 루브릭, 사람 비교`. A method noun (`~하는 법`, `~읽는 법`, `~하려면`) becomes the subject and its values. A bare `A vs B` becomes the value that differs: `pass@1 vs pass^k` is `pass@1은 1회 성공, pass^k는 k회 연속 성공`. An emphasis frame (`핵심은`, `결국`, `본질적으로`, `진짜`, `단순히 ~가 아니다`, `~에 불과`) is deleted. A count is counted after the items exist, never chosen first and padded (`세 가지`). A metaphor that frames the whole subject (`모의고사`, `시험지`, `장부`) stays out of every heading and out of the plan. None of these words is banned in body prose, where `A vs B` or `~하려면` can be the plain sentence: the rule is about headings, captions, outline lines, and the plan, which is why the Render check's heading grep reads only heading tags and reports a reading list, not failures.
 
 The document must read as if a Korean engineer wrote it, not as if English or a raw code term were transliterated. Translation-ese and coined 한자어 are the loudest "AI wrote this" tell: remove them.
 
@@ -95,13 +96,15 @@ The document must read as if a Korean engineer wrote it, not as if English or a 
 
 ### Section titles
 
+(이 문단은 산출물의 문장을 정하는 자리라서 산출물 언어로 쓴다.) Step 2에서 테마를 묶을 때 각 테마의 제목을 **최종 글 그대로, 산출물 언어로** 적는다. 영어로 `why the old path broke`라고 세운 뒤 옮기면 `왜 옛 경로는 깨졌는가`가 된다. 제목은 사실을 쓴 명사구다: `sweep이 놓친 3곳`, `모델명 prefix 버그와 수정 방향`. 질문형, `N축`, `~하는 법`, `~하려면`, 단독 `A vs B`, `핵심은`과 `결국` 같은 강조 틀은 제목과 TOC 줄에 쓰지 않는다 (아래 `Headings are answers` 항목).
+
 All titles (the hero title included) are **short noun phrases (개조식/명사형), not sentences.** Match the built-in ones (`배경`, `구조 한눈에 보기`, `주의해서 볼 지점`). Aim for 12 Korean characters or fewer per theme title.
 
 A title is not just a heading: it is reused verbatim inside the TOC and inside the quiz hint button (`{title} 섹션 →`). A sentence-shaped title like `한 번의 sweep으로 끝나지 않았어요` makes that button eat an entire line, and a long title wraps mid-word in the hero. Write `sweep이 놓친 3곳` instead.
 
 Structure is fixed at three parts:
 
-**Top + TOC.** The hero title is a **noun phrase naming the change topic**, not an action sentence: write `모델명 prefix 버그와 수정 방향`, not `모델명에 upstage/ 접두가 붙어 채팅이 막혔어요`. Keep it to ~20 Korean characters so it holds one line; the lede (2-3 sentences) carries the what/why, so the title does not need to. Metabar: target, commit range, file count, +/- totals, date. Each TOC row's description is that section's **one-line takeaway** so reading only the TOC summarizes the whole change; keep it a short phrase, no dash. Keep the Part group headers.
+**Top + TOC.** The template carries the position marks shared with eli5, micro-world, and visual-doc (the `section hierarchy (SHARED` CSS block and the script at the end of `<body>`): the 3px `.progress` bar after the theme button (no text on it), the three Part heads as top-level sections (`sec-top` rule, `.sec-no` line `01 / 03`, the Part name as h2), and every section card opening with a `.sub-h` left bar whose `.sub-no` is the card's number, the same number as its TOC `.idx`. The TOC card is this page's outline (it carries the one-line takeaways, so the generic `.outline` stays unused), and its group headers show the Part numbers `01`, `02`, `03`. Numbers live in those lines, never in the heading text; no rail, no sticky header. The hero title is a **noun phrase naming the change topic**, not an action sentence: write `모델명 prefix 버그와 수정 방향`, not `모델명에 upstage/ 접두가 붙어 채팅이 막혔어요`. Keep it to ~20 Korean characters so it holds one line; the lede (2-3 sentences) carries the what/why, so the title does not need to. Metabar: target, commit range, file count, +/- totals, date. Each TOC row's description is that section's **one-line takeaway** so reading only the TOC summarizes the whole change; keep it a short phrase, no dash. Keep the Part group headers.
 
 **Part 1: 개요.**
 - `배경`: the before-state and its cost, then what the change achieves. Behavior level, not file level.
@@ -222,8 +225,9 @@ The rules are the first defense; looking at the rendered page is the second, and
    If Pillow is not installed, look at the full screenshots and say in the report that the check was at thumbnail size.
 3. **Measure.** Run `measure.html` from this skill's base directory (the command is in its header comment) at the reading width and again at `--window-size=500,2000` (headless Chrome does not go narrower than 500px, so a 420px request silently measures 500). The `<body>` tag must carry `data-sbs`, `data-fit`, and `data-ovf`, all `none`; a body tag without them means the measurement never ran, which is a failure, not a pass.
 4. **Text.** `grep -nP '[—–·]'` and the particle grep from the design rules print nothing outside verbatim source.
+5. **Headings.** `grep -nP '<(h[1-3]|span class="dg-cap")[^>]*>[^<]*(는가|인가|일까|나요|\?|[0-9]축|한 축|하는 법|읽는 법|하려면|핵심|본질|결국| vs )' <file>` lists the headings and figure captions that match a translation tell. This is a reading list, not a failure: read each hit aloud, rewrite it only when it reads as a frame rather than a fact, and name in the report each hit you kept and why. Body prose is not searched.
 
-Fix and repeat until all four pass. Only when no browser exists at all, say plainly that the page was not visually verified. Screenshots, crops, and the measurement copy live in `D`, are not part of the output, and are deleted when you finish.
+Fix and repeat until the first four pass and the fifth has been read. Only when no browser exists at all, say plainly that the page was not visually verified. Screenshots, crops, and the measurement copy live in `D`, are not part of the output, and are deleted when you finish.
 
 Then check: every quiz option reveals its explanation and the gate opens; the diff lines keep their `+`/`-` signs; the tree collapses past 20 rows; dark mode holds.
 

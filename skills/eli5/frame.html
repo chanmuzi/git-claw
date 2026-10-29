@@ -4,7 +4,8 @@
 
   Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
     (.hero, .beat, .fig, .notes, .say, .numbers, .close, the optional .ev evidence card and
-    .ctl controls, the .m / .dg-m badges) plus the SVG label classes.
+    .ctl controls, the .m / .dg-m badges), the section hierarchy block (.progress, .outline,
+    .sec-top, .sec-no, and its script at the end of <body>) plus the SVG label classes.
     Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
     micro-world, and visual-doc.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
@@ -262,6 +263,29 @@
   .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; text-wrap:balance; line-height:1.5; }
   .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; text-wrap:pretty; }
 
+  /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
+     with the scroll ratio (no text on it), one inline .outline right after the hero lists every
+     section once, each top-level section opens with a rule and a number line (`01 / 08`), and a
+     sub-section opens with a short left bar and its number (`01.1`). Numbers live in these lines,
+     never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
+  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
+  .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
+  .sec-no b{ color:var(--blue); font-weight:700; }
+  .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
+  .sub-h > *{ margin:0; }
+  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--blue); margin:0 0 4px; }
+  .outline{ margin:22px 0 0; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-el); }
+  .outline .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--faint); margin-bottom:8px; }
+  .outline ol{ list-style:none; margin:0; padding:0; }
+  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14px; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:2px; }
+  .outline li.sub{ padding-left:22px; font-size:13.5px; color:var(--sub); }
+  .outline li.sub b{ color:var(--faint); }
+  .outline a{ color:inherit; text-decoration:none; border-bottom:none; }
+  .outline a:hover{ color:var(--blue); }
+
   /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
      Text inside a hand-authored SVG figure uses only these classes. */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
@@ -366,16 +390,27 @@
 <button type="button" class="theme-btn" aria-label="라이트/다크 전환" title="라이트/다크 전환">
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
 </button>
+<div class="progress" id="progress"></div>
 <div class="shell">
 
   <div class="hero">
     <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
     <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
+    <!-- 차례: beat마다 한 줄, h2와 같은 글. 마지막 .close 카드는 제목이 없으므로 넣지 않는다 -->
+    <nav class="outline" aria-label="차례">
+      <div class="k">차례</div>
+      <ol>
+        <li><b>01</b><a href="#b1">{BEAT 1의 h2와 같은 글}</a></li>
+        <li><b>02</b><a href="#b2">{BEAT 2의 h2와 같은 글}</a></li>
+      </ol>
+    </nav>
   </div>
 
-  <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다. -->
-  <div class="beat">
+  <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다.
+       beat마다 id, 위에 가로선(.sec-top), 번호 줄(.sec-no: 번호 / 전체 beat 수). 제목 글자에는 숫자를 넣지 않는다 -->
+  <div class="beat sec-top" id="b1">
+    <div class="sec-no"><b>01</b><span>/ {전체 beat 수}</span></div>
     <h2>{이 그림이 보여주는 사실 한 가지. 개조식 가능}</h2>
     <figure class="fig">
       <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
@@ -468,7 +503,8 @@
   <!-- 선택: 조작할 수 있는 그림 (SKILL.md "An interactive figure"). 값이 움직여야 요점이 보이는 주제에만, 페이지당 1개.
        두 상태 비교(전/후, 켬/끔)는 조작 요소 없이 한 그림의 두 줄로 그린다.
        정적 그림과 같은 .beat 구조에 .ctl 한 줄을 더하고, 스크립트가 g#fig-live 안을 다시 그린다.
-  <div class="beat">
+  <div class="beat sec-top" id="b3">
+    <div class="sec-no"><b>03</b><span>/ {전체 beat 수}</span></div>
     <h2>{입력과 결과의 관계를 말하는 사실 한 가지}</h2>
     <div class="ctl">
       <div class="field">
@@ -507,7 +543,8 @@
   -->
 
   <!-- BEAT 5: 대가. 숫자는 여기 한 번만, 4개 이하, 하나는 반드시 비용. -->
-  <div class="beat">
+  <div class="beat sec-top" id="b5">
+    <div class="sec-no"><b>05</b><span>/ {전체 beat 수}</span></div>
     <h2>{드는 비용을 숫자로. 예: 마이그레이션 0건, LLM 호출 1회}</h2>
     <div class="numbers">
       <div class="num">
@@ -532,5 +569,27 @@
   </div>
 
 </div>
+<script>
+/* section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world):
+   the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
+(function(){
+  var bar = document.getElementById("progress");
+  function onScroll(){
+    if (!bar) return;
+    var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+  }
+  document.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('.outline a[href^="#"]');
+    if (!a) return;
+    var el = document.getElementById(a.getAttribute("href").slice(1));
+    if (!el) return;
+    e.preventDefault();
+    window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+  });
+})();
+</script>
 </body>
 </html>

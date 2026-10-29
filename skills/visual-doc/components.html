@@ -95,22 +95,7 @@
   a{ color:var(--chip-ink); text-decoration:none; border-bottom:1px solid color-mix(in srgb, var(--chip-ink) 35%, transparent); }
   a:hover{ border-bottom-color:var(--chip-ink); }
 
-  /* ── 긴 문서 네비 A: 상단 진행바 ── */
-  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
-
   .shell{ max-width:800px; margin:0 auto; padding:0 24px 140px; }
-  @media (max-width:1279px){ .toc-rail{ display:none; } }
-
-  /* ── 긴 문서 네비 B: 플로팅 TOC 레일 ── */
-  .toc-rail{ position:fixed; top:96px; right:28px; width:196px; max-height:calc(100vh - 132px); overflow-y:auto; }
-  .toc-rail .tr-label{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin:0 0 12px 12px; }
-  .toc-rail a{
-    display:block; font-size:13px; font-weight:600; color:var(--gray500);
-    text-decoration:none; border-bottom:none; padding:6px 12px; border-left:2px solid var(--line); line-height:1.5;
-    transition:color .15s ease, border-color .15s ease;
-  }
-  .toc-rail a:hover{ color:var(--blue); }
-  .toc-rail a.on{ color:var(--ink); border-left-color:var(--blue); }
 
   .top{ padding:56px 4px 8px; }
   .eyebrow{
@@ -131,16 +116,15 @@
      코드 블록과 칩은 자체 white-space 규칙을 쓴다. */
   .wrap{ word-break:keep-all; overflow-wrap:break-word; }
 
-  .group-label{ display:flex; align-items:center; gap:12px; margin:60px 4px 0; scroll-margin-top:20px; }
-  .group-label .g-part{ font-family:var(--mono); font-size:13px; font-weight:700; color:var(--blue); letter-spacing:.06em; }
-  .group-label .g-name{ font-size:19.5px; font-weight:800; letter-spacing:-0.025em; color:var(--ink); word-break:keep-all; }
-  .group-label::after{ content:""; flex:1; height:1px; background:var(--gray200); }
+  /* 상위 섹션 머리: 가로선과 번호 줄은 공유 블록(.sec-top, .sec-no)이 그리고, 여기서는 제목 글자만 정한다 */
+  .group-label{ margin:0 4px; scroll-margin-top:20px; }
+  .group-label .g-name{ font-size:19.5px; font-weight:800; letter-spacing:-0.025em; color:var(--ink); word-break:keep-all; margin:0; }
+  .sub-h h3{ font-size:16.5px; font-weight:700; letter-spacing:-0.015em; color:var(--ink); word-break:keep-all; }
 
   .demo-label{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); margin:26px 4px 10px; }
 
   .card{ background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow); padding:24px 26px; }
   .list-header{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
-  .list-header .num{ width:22px; height:22px; border-radius:7px; flex:none; display:grid; place-items:center; background:var(--blue-soft); color:var(--blue); font-size:11.5px; font-weight:700; }
   h2{ font-size:19px; font-weight:700; letter-spacing:-0.02em; margin:0; }
   .prose{ font-size:15px; color:var(--sub); margin:12px 0 4px; text-wrap:pretty; }
   .prose b{ color:var(--ink); font-weight:700; }
@@ -394,6 +378,29 @@
      좁은 화면에서는 글자를 줄이지 않고 가로로 스크롤한다. */
   .fig{ margin:0; overflow-x:auto; }
   .fig svg{ display:block; width:100%; min-width:520px; height:auto; color:var(--ink); }
+  /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
+     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
+     with the scroll ratio (no text on it), one inline .outline right after the hero lists every
+     section once, each top-level section opens with a rule and a number line (`01 / 08`), and a
+     sub-section opens with a short left bar and its number (`01.1`). Numbers live in these lines,
+     never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
+  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
+  .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
+  .sec-no b{ color:var(--blue); font-weight:700; }
+  .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
+  .sub-h > *{ margin:0; }
+  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--blue); margin:0 0 4px; }
+  .outline{ margin:22px 0 0; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-el); }
+  .outline .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--faint); margin-bottom:8px; }
+  .outline ol{ list-style:none; margin:0; padding:0; }
+  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14px; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:2px; }
+  .outline li.sub{ padding-left:22px; font-size:13.5px; color:var(--sub); }
+  .outline li.sub b{ color:var(--faint); }
+  .outline a{ color:inherit; text-decoration:none; border-bottom:none; }
+  .outline a:hover{ color:var(--blue); }
+
   /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
      Text inside a hand-authored SVG figure uses only these classes. */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
@@ -421,7 +428,7 @@
      스크립트를 함께 복사한다 (Artifacts는 pre.mermaid를 네이티브 렌더링). */
   .bleed{ width:min(96vw, 1200px); margin-left:calc((100% - min(96vw, 1200px))/2); }
   @media (min-width:1280px){
-    /* TOC rail(우측 고정)과 겹치지 않게 좌우 240px씩 비워둔다 */
+    /* 넓은 화면에서는 좌우 240px씩 비워 본문 축과 너무 멀어지지 않게 한다 */
     .bleed{ width:min(calc(100vw - 480px), 1200px); margin-left:calc((100% - min(calc(100vw - 480px), 1200px))/2); }
   }
   .zoomable{ cursor:zoom-in; }
@@ -434,7 +441,7 @@
      정렬한다. 산문, 콜아웃, TL;DR은 기본 폭을 유지한다. */
   .wide{ width:min(1000px, calc(50vw + 352px), calc(100vw - 48px)); }
   @media (min-width:1280px){
-    /* TOC rail(우측 고정) 직전까지만 확장 */
+    /* 넓은 화면에서는 1000px까지만 오른쪽으로 확장 */
     .wide{ width:min(1000px, calc(50vw + 136px)); }
   }
   .wide > :first-child{ margin-top:0; }
@@ -501,27 +508,46 @@
     <header class="top">
       <span class="eyebrow">visual-doc, 컴포넌트 카탈로그</span>
       <h1>스타일은 고정, 구조는 콘텐츠가 결정하는 문서 컴포넌트 팔레트</h1>
-      <p class="lede">visual-doc가 문서를 조립할 때 고를 수 있는 블록들의 카탈로그예요. 이 페이지 자체가 긴 문서라서, 상단 진행바와 오른쪽 플로팅 목차로 <b>무한 스크롤을 견디게</b> 만든 예시이기도 해요. 다크모드는 시스템 설정을 따르고, 오른쪽 위 버튼으로 바꿀 수 있어요.</p>
+      <p class="lede">visual-doc가 문서를 조립할 때 고를 수 있는 블록들의 카탈로그예요. 이 페이지 자체가 긴 문서라서, 상단 진행바, 머리의 차례, 섹션마다 붙는 번호 줄로 <b>지금 어디를 읽는지 보이게</b> 만든 예시이기도 해요. 다크모드는 시스템 설정을 따르고, 오른쪽 위 버튼으로 바꿀 수 있어요.</p>
     </header>
 
-    <div class="group-label" id="s-nav"><span class="g-part">Part A</span><span class="g-name">긴 문서 네비게이션 전략</span></div>
-    <p class="prose">문서가 길어지면 AI가 세 가지 중 하나(또는 조합)를 골라요. <code>.progress</code> 진행바나 <code class="ic">.toc-rail</code>처럼 분량과 성격을 보고 판단해요.</p>
+    <!-- 차례: 상위 섹션마다 한 줄(h2와 같은 글), 하위 섹션은 .sub로 들여 쓴다. 머리 바로 아래 한 번만 -->
+    <nav class="outline" aria-label="차례">
+      <div class="k">차례</div>
+      <ol>
+        <li><b>01</b><a href="#s-nav">긴 문서 네비게이션 전략</a></li>
+        <li class="sub"><b>01.1</b><a href="#s-nav-1">하위 섹션 제목은 이렇게</a></li>
+        <li><b>02</b><a href="#s-hero">헤드 & 요약 블록</a></li>
+        <li><b>03</b><a href="#s-data">데이터 & 비교 블록</a></li>
+        <li><b>04</b><a href="#s-narr">서술 & 근거 블록</a></li>
+        <li><b>05</b><a href="#s-struct">구조 & 참조 블록</a></li>
+        <li><b>06</b><a href="#s-gen">인터랙티브 & 생성형 (팔레트 밖)</a></li>
+        <li><b>07</b><a href="#s-close">마무리 & 이동</a></li>
+      </ol>
+    </nav>
+
+    <div class="group-label sec-top" id="s-nav"><div class="sec-no"><b>01</b><span>/ 07</span></div><h2 class="g-name">긴 문서 네비게이션 전략</h2></div>
+    <p class="prose">문서가 길어지면 AI가 세 가지 중 하나(또는 조합)를 골라요. 진행바(<code>.progress</code>), 머리의 차례(<code class="ic">.outline</code>), 섹션 번호 줄(<code class="ic">.sec-no</code>)은 분량과 상관없이 늘 들어가고, 옆에 떠 있는 목차나 섹션 이름이 붙은 고정 머리는 두지 않아요.</p>
 
     <div class="demo-label">전략 비교</div>
     <div class="card">
       <table class="ctable">
         <thead><tr><th>전략</th><th>적합한 분량</th><th>강점</th><th>비용</th></tr></thead>
         <tbody>
-          <tr><td><b>단일 스크롤 + 진행바와 TOC</b></td><td>중 (5~12 섹션)</td><td class="yes">맥락 유지, 구현 단순</td><td>매우 길면 피로</td></tr>
+          <tr><td><b>단일 스크롤 + 진행바와 차례</b></td><td>중 (5~12 섹션)</td><td class="yes">맥락 유지, 구현 단순</td><td>매우 길면 피로</td></tr>
           <tr><td><b>챕터 페이저</b></td><td>대 (문서가 장으로 나뉨)</td><td class="yes">각 장 집중</td><td>전체 조망 약화</td></tr>
           <tr><td><b>접이식 섹션</b></td><td>참조형 (FAQ, 스펙)</td><td class="yes">스캔 빠름</td><td>순차 독해엔 부적합</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="demo-label">이 페이지에 적용된 것: 진행바(상단) + 플로팅 TOC(우측) + 챕터 페이저(아래)</div>
+    <div class="demo-label">이 페이지에 적용된 것: 진행바(상단) + 차례(머리) + 번호 줄(섹션마다) + 챕터 페이저(아래)</div>
 
-    <div class="group-label" id="s-hero"><span class="g-part">Part B</span><span class="g-name">헤드 & 요약 블록</span></div>
+    <div class="demo-label">하위 섹션 머리 (.sub-h: 왼쪽 막대와 번호, 상위 번호를 이어받아 01.1)</div>
+    <div class="sub-h" id="s-nav-1"><div class="sub-no">01.1</div><h3>하위 섹션 제목은 이렇게</h3></div>
+    <p class="prose">상위 섹션은 가로선과 <code>01 / 07</code> 번호 줄로, 하위 섹션은 왼쪽 막대와 <code>01.1</code>로 열어요. 번호는 이 줄에만 있고 제목 글자에는 넣지 않아요.</p>
+
+    <div class="group-label sec-top" id="s-hero"><div class="sec-no"><b>02</b><span>/ 07</span></div><h2 class="g-name">헤드 & 요약 블록</h2></div>
 
     <div class="demo-label">TL;DR 하이라이트</div>
     <div class="tldr">
@@ -548,7 +574,7 @@
       <span class="foot">컴포넌트 수는 팔레트 기준, 출력은 self-contained HTML 1개</span>
     </div>
 
-    <div class="group-label" id="s-data"><span class="g-part">Part C</span><span class="g-name">데이터 & 비교 블록</span></div>
+    <div class="group-label sec-top" id="s-data"><div class="sec-no"><b>03</b><span>/ 07</span></div><h2 class="g-name">데이터 & 비교 블록</h2></div>
 
     <div class="demo-label">막대 차트 (순수 CSS)</div>
     <div class="card"><div class="chart">
@@ -586,7 +612,7 @@
       <div class="pc con"><div class="pc-h">한계</div><ul><li>팔레트 밖 요구는 즉흥 설계 필요</li><li>표와 차트는 폭 좁으면 스크롤</li></ul></div>
     </div>
 
-    <div class="group-label" id="s-narr"><span class="g-part">Part D</span><span class="g-name">서술 & 근거 블록</span></div>
+    <div class="group-label sec-top" id="s-narr"><div class="sec-no"><b>04</b><span>/ 07</span></div><h2 class="g-name">서술 & 근거 블록</h2></div>
 
     <div class="demo-label">타임라인</div>
     <div class="card"><div class="timeline">
@@ -636,7 +662,7 @@
       <div class="co-item"><p class="ci-t">샘플 카피 잔존</p><div class="co-b"><span class="sent">git-claw 예시 문구가 산출물에 남으면 실제 분석 내용처럼 읽혀서 문서 신뢰를 해쳐요.</span><span class="sent">출력 직전에 grep으로 남은 샘플 문자열을 찾아 있으면 지우고 다시 확인해요.</span></div></div>
     </div>
 
-    <div class="group-label" id="s-struct"><span class="g-part">Part E</span><span class="g-name">구조 & 참조 블록</span></div>
+    <div class="group-label sec-top" id="s-struct"><div class="sec-no"><b>05</b><span>/ 07</span></div><h2 class="g-name">구조 & 참조 블록</h2></div>
 
     <div class="demo-label">기둥 카드 (pillar)</div>
     <div class="pillars">
@@ -652,7 +678,7 @@
       <details><summary>표가 모바일에서 깨지지 않나요?</summary><div class="qa-body">가로 스크롤 컨테이너로 감싸서 폭이 좁아도 안전해요.</div></details>
     </div>
 
-    <div class="group-label" id="s-gen"><span class="g-part">Part F</span><span class="g-name">인터랙티브 & 생성형 (팔레트 밖)</span></div>
+    <div class="group-label sec-top" id="s-gen"><div class="sec-no"><b>06</b><span>/ 07</span></div><h2 class="g-name">인터랙티브 & 생성형 (팔레트 밖)</h2></div>
     <p class="prose">아래 선 그래프, 도넛, 노브 셋은 <b>원래 카탈로그에 없던 블록</b>이에요. 콘텐츠가 요구해서 같은 토큰으로 즉석에서 만들었어요. 여기가 "구조 자유"가 실제로 작동하는 지점이고, 그래도 스타일 일관성은 유지돼요.</p>
 
     <div class="demo-label">선 그래프 (인라인 SVG)</div>
@@ -722,13 +748,13 @@
     B-->>A: 응답</pre>
     </div></div>
 
-    <div class="group-label" id="s-close"><span class="g-part">Part G</span><span class="g-name">마무리 & 이동</span></div>
+    <div class="group-label sec-top" id="s-close"><div class="sec-no"><b>07</b><span>/ 07</span></div><h2 class="g-name">마무리 & 이동</h2></div>
 
     <div class="demo-label">핵심 정리 (takeaway)</div>
     <div class="takeaway">
       <div class="tk-label">이 카탈로그의 요지</div>
       <p class="tk-core">visual-doc는 '빈칸 템플릿'이 아니라 '조립 팔레트'예요.</p>
-      <ul><li>여기 18종은 시작점일 뿐, AI가 필요하면 같은 토큰으로 새 블록을 만들어요.</li><li>긴 문서는 진행바, TOC, 페이저, 접이식을 분량에 맞게 골라 써요.</li></ul>
+      <ul><li>여기 18종은 시작점일 뿐, AI가 필요하면 같은 토큰으로 새 블록을 만들어요.</li><li>긴 문서는 진행바와 차례는 늘 두고, 페이저와 접이식을 분량에 맞게 골라 써요.</li></ul>
     </div>
 
     <div class="demo-label">챕터 페이저 (긴 문서 이동)</div>
@@ -738,16 +764,6 @@
     </div>
   </main>
 
-  <aside class="toc-rail">
-    <div class="tr-label">목차</div>
-    <a href="#s-nav">A, 네비게이션 전략</a>
-    <a href="#s-hero">B, 헤드 & 요약</a>
-    <a href="#s-data">C, 데이터 & 비교</a>
-    <a href="#s-narr">D, 서술 & 근거</a>
-    <a href="#s-struct">E, 구조 & 참조</a>
-    <a href="#s-gen">F, 인터랙티브 & 생성형</a>
-    <a href="#s-close">G, 마무리 & 이동</a>
-  </aside>
 
 </div>
 
@@ -766,22 +782,30 @@
 </div>
 
 <script>
+/* section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world):
+   the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
 (function(){
   var bar = document.getElementById("progress");
-  var links = Array.prototype.slice.call(document.querySelectorAll(".toc-rail a"));
-  var secs = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
-
   function onScroll(){
-    var h = document.documentElement;
-    var max = h.scrollHeight - h.clientHeight;
+    if (!bar) return;
+    var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
     bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
-    var y = h.scrollTop + 120, cur = 0;
-    for (var i = 0; i < secs.length; i++){ if (secs[i] && secs[i].offsetTop <= y) cur = i; }
-    links.forEach(function(a, i){ a.classList.toggle("on", i === cur); });
   }
   document.addEventListener("scroll", onScroll, { passive:true });
   onScroll();
-
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('.outline a[href^="#"]');
+    if (!a) return;
+    var el = document.getElementById(a.getAttribute("href").slice(1));
+    if (!el) return;
+    e.preventDefault();
+    window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+  });
+})();
+</script>
+<script>
+(function(){
+  /* 페이저 등 본문의 # 링크는 부드럽게 이동 (진행바와 차례 링크는 공유 스크립트가 맡는다) */
   document.addEventListener("click", function(e){
     var a = e.target.closest && e.target.closest('a[href^="#"]');
     if (!a) return;

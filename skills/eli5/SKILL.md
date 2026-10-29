@@ -59,32 +59,45 @@ Before drawing anything, write down three things for yourself:
 
 If you cannot state the one idea in a sentence, you do not understand the subject well enough to simplify it yet. Go read more.
 
-## Step 2: Storyboard Before You Draw
+## Step 2: 그림의 순서를 먼저 정한다 (storyboard)
 
-Plan the page as **a sequence of pictures**, each with a one-line heading, before writing any HTML. Five to eight beats is the usual range; fewer is fine, more usually means two pages.
+(이 절과 다음 절은 산출물의 문장을 정하는 자리라서 산출물 언어로 쓴다. 지시문을 영어로 읽고 한글로 옮기는 단계에서 번역투 제목이 생기기 때문이다.)
 
-The default arc, which fits most technical subjects:
+HTML을 쓰기 전에 페이지를 **그림의 순서**로 계획한다. 그림마다 제목 한 줄. 보통 5~8개 beat이고, 더 적어도 되며, 더 많으면 대개 두 페이지다.
 
-1. **The problem**: draw the thing failing or blocked. Start here, never with the solution.
-2. **The obvious fix**: the naive approach a reasonable person would try.
-3. **The trap**: why the obvious fix breaks. **This beat is the point of the whole page.** It is also the beat most likely to be buried in one line of a table in the source material, so dig for it.
-4. **The real fix**: the mechanism actually chosen, drawn as a mechanism.
-5. **The cost**: what it takes in time, money, or complexity. Never omit.
-6. **The rule**: the one thing a reader should remember about when this applies. On the page this is the `.close` card at the very end, with no heading above it: the statement is the heading, and a heading plus a card title would say the same thing twice.
+**구성안은 처음부터 산출물 언어로, 최종 제목 그대로 쓴다.** 구성안의 제목이 그대로 페이지의 h2가 된다. 역할을 영어로 세운 뒤 한글로 옮기지 않는다: `how scores are read`를 옮기면 `점수 읽는 법`이 되고, `why the obvious fix breaks`를 옮기면 `왜 안 되는가`가 된다. 채팅에 구성안을 보여줄 때도 그 제목들이 아래 "제목은 그림이 무엇인지 말한다"의 기준을 통과해야 한다. 구성안에서 걸리면 그 자리에서 고친다.
 
-Adapt the arc when the subject is not a change (a "how does X work" page may go: what goes in, what happens to it, what comes out, what breaks). Keep the failure beat wherever it exists.
+기본 흐름. 대부분의 기술 주제에 맞는다. 굵은 글씨는 beat의 **역할**이고, `예:` 뒤는 그 역할에서 나온 제목의 **모양**이다. 역할 이름은 제목이 아니다.
 
-**One picture, one claim.** If a drawing needs two headings, it is two drawings.
+1. **막히는 장면**: 실패하거나 막히는 모습부터 그린다. 해법으로 시작하지 않는다. 예: `쿼리 1개에 LLM 호출 4회, 응답 6초`
+2. **처음 떠오르는 해법**: 합리적인 사람이 먼저 해 볼 방법. 예: `캐시 추가: 같은 쿼리는 호출 0회`
+3. **그 해법이 깨지는 조건**: **이 beat가 페이지의 요점이다.** 원문에서는 표의 한 줄에 묻혀 있기 쉬우니 찾아낸다. 예: `쿼리 글자 하나만 달라도 캐시 미스, 적중률 3%`
+4. **실제로 택한 방식**: 기계적인 동작으로 그린다. 예: `정규화 후 캐시: 공백과 대소문자 무시, 적중률 41%`
+5. **대가**: 시간, 돈, 복잡도. 절대 빼지 않는다. 예: `정규화 코드 120줄, 오탐 0.8%`
+6. **기억할 한 문장**: 이 방식이 언제 적용되는지. 페이지에서는 맨 끝 `.close` 카드이고 위에 제목을 두지 않는다. 문장 자체가 제목이고, 제목과 카드 제목이 있으면 같은 말을 두 번 하게 된다.
 
-### Titles say what the picture is of
+주제가 변경이 아니면 흐름을 바꾼다. "X는 어떻게 동작하나" 페이지는 들어오는 것, 거기에 일어나는 일, 나오는 것, 깨지는 곳 순서가 된다. 실패 beat는 있는 한 남긴다.
 
-The arc above (problem, obvious fix, trap, real fix, cost, rule) names the **role** of each beat for you. It is not the heading. Headings, the hero title, row captions, and sub-lines are **facts about the subject, stated plainly**. 개조식 is welcome.
+**그림 하나, 주장 하나.** 그림 하나에 제목이 둘 필요하면 그림이 둘이다.
 
-- **Hero title**: the subject by its real name, as a noun phrase. `vector_store 테이블 10개의 구조`, `파일 업로드가 청크가 되기까지`. Not `세 줄로 읽는 벡터 저장소`, not `보이지 않는 선반`.
-- **Beat heading**: the fact the picture shows. `장부 테이블 3개, 내용물 테이블 1개`, `standard 모드: LLM 호출 1회`, `description이 비어 있는 경로 3곳`. Never a tease (`함정`), a rhetorical question, or a metaphor (`마법은 없다`).
-- **Row captions and sub-lines**: the literal word first (`원본 테이블`, `장부`, `본문과 벡터`). A metaphor may appear once per page, in a `.say` line, when it carries a meaning the literal word cannot; it never becomes a heading.
-- **No translated idiom.** `~의 여정`, `숨은 영웅`, `마법처럼`, `~를 만나다`, `한눈에 보는 ~` are machine-translation tells. If a phrase would sound odd said aloud to a colleague, cut it.
-- **The portability test**: if a heading could sit unchanged on a page about a different subject, it is too abstract. `문제`, `진짜 해법`, `드는 것과 안 드는 것` all fail; `마이그레이션 0건, 새 엔드포인트 1개` passes.
+### 제목은 그림이 무엇인지 말한다
+
+위 흐름의 역할 이름(막히는 장면, 처음 떠오르는 해법, 깨지는 조건, 실제 방식, 대가, 한 문장)은 beat의 **역할**이지 제목이 아니다. 제목, hero 제목, 행 캡션, 부제는 **주제에 대한 사실을 그대로** 쓴다. 개조식 환영.
+
+- **hero 제목**: 주제의 실제 이름이 든 명사구. `vector_store 테이블 10개의 구조`, `파일 업로드가 청크가 되기까지`. `세 줄로 읽는 벡터 저장소`도, `보이지 않는 선반`도 아니다.
+- **beat 제목**: 그림이 보여주는 사실. `장부 테이블 3개, 내용물 테이블 1개`, `standard 모드: LLM 호출 1회`, `description이 비어 있는 경로 3곳`. 예고(`함정`), 질문, 비유(`마법은 없다`)는 쓰지 않는다.
+- **행 캡션과 부제**: 글자 그대로의 말이 먼저다 (`원본 테이블`, `장부`, `본문과 벡터`). 비유는 페이지에 한 번, `.say` 줄 안에서, 글자 그대로의 말이 담지 못하는 뜻을 실을 때만 쓴다. 제목이 되지는 않는다.
+- **번역투 금지.** `~의 여정`, `숨은 영웅`, `마법처럼`, `~를 만나다`, `한눈에 보는 ~`는 기계 번역의 표지다. 동료에게 소리 내어 말하면 어색한 구절은 지운다.
+- **이식 검사**: 다른 주제의 페이지에 그대로 옮겨도 말이 되는 제목은 너무 추상적이다. `문제`, `진짜 해법`, `드는 것과 안 드는 것`은 모두 탈락이고, `마이그레이션 0건, 새 엔드포인트 1개`는 통과다.
+- **제목은 답이지 틀이 아니다.** 아래 패턴은 사실을 가리는 틀이다. 각각 가리고 있던 사실로 바꾼다.
+  - 질문형 (`~하는가`, `~인가`, `~일까`, `왜 ~인가`): 답을 쓴다. `시험을 어떻게 내는가`는 `벤치마크 구성: 과제 묶음, 채점 규칙, 점수판`.
+  - 분류 틀 명사 (`N축`, `~한 축`, `차원`, `관점`, `레이어`, `측면`): 축의 이름을 직접 쓴다. `평가의 4축`은 `채점 방식 3가지: 테스트, 루브릭, 사람 비교`.
+  - 방법 명사화 (`~하는 법`, `~읽는 법`, `~하려면`): 대상과 값을 쓴다. `점수 읽는 법`은 `점수 세 종류: pass@1, 승률, 시간 지평`.
+  - 단독 `A vs B`: 갈리는 값을 쓴다. `pass@1 vs pass^k`는 `pass@1은 1회 성공, pass^k는 k회 연속 성공`.
+  - 강조 틀 (`핵심은`, `결국`, `본질적으로`, `진짜`, `단순히 ~가 아니다`, `~에 불과`): 지우고 사실만 남긴다.
+  - 개수를 먼저 정하기 (`세 가지`를 먼저 세고 셋째를 채워 넣기): 항목이 먼저고 개수는 세어서 적는다.
+  - 주제 전체를 감싸는 비유 (`모의고사`, `시험지`, `장부`): 제목과 구성안에 쓰지 않는다. `.say` 한 줄의 예외는 그대로다.
+  - 본문에서는 `A vs B`나 `~하려면`이 평범한 문장일 수 있다. 이 규칙은 제목, 캡션, 구성안에 대한 것이다. Render check의 제목 grep은 그래서 제목 태그 안만 보고, 걸린 줄은 소리 내어 읽고 판단할 목록이지 실패가 아니다.
 
 ## Step 3: Draw the Mechanism
 
@@ -104,7 +117,7 @@ The drawings are hand-authored inline SVG, one per beat.
 - **Comparing options? Draw the difference.** Two states as two rows of the same path, with the one edge that changes between them. Separate labeled boxes with nothing connecting them is a restated list, not a comparison.
 - **Label the arrows.** An unlabeled arrow means "related somehow". `writes`, `20장씩`, `19배 압축` is information.
 - **Concrete by default.** Draw the specific things, not categories of things: eight named tables in their three rows beats three ovals labeled 입력 / 처리 / 저장. If you catch yourself drawing "data flows to storage", name the data and name the storage. Abstract shapes are for subjects that have no artifacts (a concept, a policy), not a shortcut for subjects that do.
-- **Real names, plain sub-line.** When the subject is a system, a box is the real thing under its real name: the table `vector_store_file`, the endpoint `POST /files`, the flag `use_doc_chunking`. Under the name, one sub-line says what it is for an outsider (`장부 1줄`, `실제 본문과 벡터`). The sub-line is literal too; the one place a metaphor may appear is a `.say` line (see "Titles say what the picture is of"). What stays out of the drawing is **explanation**: the why, the mechanism in prose, file paths, line numbers. Those go in `.say` or your report.
+- **Real names, plain sub-line.** When the subject is a system, a box is the real thing under its real name: the table `vector_store_file`, the endpoint `POST /files`, the flag `use_doc_chunking`. Under the name, one sub-line says what it is for an outsider (`장부 1줄`, `실제 본문과 벡터`). The sub-line is literal too; the one place a metaphor may appear is a `.say` line (see "제목은 그림이 무엇인지 말한다"). What stays out of the drawing is **explanation**: the why, the mechanism in prose, file paths, line numbers. Those go in `.say` or your report.
 - **Size by `viewBox`** (`viewBox="0 0 W H"`, CSS `width:100%; height:auto`), pick W and H for the content, and align shapes to a shared grid. Eyeballed offsets read as noise.
 - **Theme with `currentColor`.** Strokes and text inherit the page's foreground so both themes work. Reserve `var(--blue)` for the one element carrying the point of that picture and `var(--red)` for the thing that breaks. Two accent colors per drawing at most.
 - **Text stays at the two label sizes** (`.dg-l` 13px, `.dg-s` 11px mono) plus at most one `.dg-b` big number per drawing (and the optional `.dg-q` focal string below). A box holds its real name and **at most one sub-line**, never a sentence. The sub-line is either the one fact the reader needs (`statement_timeout 2000ms`) or one example (`"보험약관 암보험 보장 내역"`), never both, and never a list of fields from the source (`filters eq, tool_choice`, `failed_stores [vs_…]`): detail of that kind goes to the notes under the figure or to an evidence card. (A schema box in an ERD-style drawing is the exception: its lines are the columns.) Fit every line to its box with the arithmetic in "Fit the text before you draw" below.
@@ -193,7 +206,9 @@ Cards stack one per row (`.evs`). Two cards go side by side (`.evs.pair`) only w
 
 ## Step 4: Build the Page
 
-Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.notes`/`.note` and `.notes.plain`, `.say` with `.lab`, `.numbers`, `.close`), the `.m`/`.dg-m` badges and the `.dg-grp` group outline, the optional `.ev` evidence card (badges in its `.rail`) and `.ctl` controls for an interactive figure, and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
+Read `frame.html` from this skill's base directory. It carries the locked design tokens (shared with `explain-diff`, `micro-world`, `visual-doc`), the page frame, the beat primitives (`.hero`, `.beat`, `.fig`, `.notes`/`.note` and `.notes.plain`, `.say` with `.lab`, `.numbers`, `.close`), the `.m`/`.dg-m` badges and the `.dg-grp` group outline, the optional `.ev` evidence card (badges in its `.rail`) and `.ctl` controls for an interactive figure, the section hierarchy block, and the SVG label classes with a worked example drawing. **Copy the tokens and primitives verbatim, author the drawings bespoke.** Every page has different pictures; that is the whole point.
+
+**Where the reader is on the page.** (shared across eli5, explain-diff, micro-world, visual-doc; the CSS block starts with the `section hierarchy (SHARED` comment and the script at the end of `<body>` is copied with it) Three marks, all inside the column: the 3px `.progress` bar right after the theme button fills with the scroll ratio and carries no text; the `.outline` card at the end of the hero lists every beat once, each line the same text as its h2; and every `.beat` carries `sec-top` (the rule above it), an `id`, and a `.sec-no` line before the h2 (`01 / 08`: this beat's number and the beat count). The h2 text never carries the number. The `.close` card has no heading and stays out of the outline. Nothing floats beside or above the column: no side rail, no sticky header with the section name. An eli5 page has no sub-sections, so `.sub-h` and `.sub-no` stay unused here.
 
 The type scale is part of what is locked: title 24-30px, beat heading 18px, lede 15.5px, `.say` 15px regular in the secondary text color (the same as visual-doc body prose; bold or the cost color on one phrase at most), number-strip values 16px bold (they are often words, not numbers, so they do not get a display size). Do not enlarge anything to make it "pop", and do not give the lede or `.say` a `max-width`; both run the full column width, the same as the figure card. The page ends at the `.close` card.
 
@@ -203,7 +218,7 @@ Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase
 
 ### Design rules (shared across eli5, explain-diff, micro-world, visual-doc)
 
-- **Title never wraps mid-word.** `word-break: keep-all` stays on titles and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Titles are short noun phrases that state a fact about the subject (see "Titles say what the picture is of").
+- **Title never wraps mid-word.** `word-break: keep-all` stays on titles and narrative text so a Korean particle (`로`, `를`, `이`) can never fall to the start of a line. Titles are short noun phrases that state a fact about the subject (see "제목은 그림이 무엇인지 말한다").
 - **No decorative gradients.** Backgrounds are solid tokens. A gradient is allowed only when functional (a fade scrim), never as panel decoration.
 - **No machine-writing symbols anywhere in the output.** (shared across eli5, explain-diff, micro-world, visual-doc) No em-dash (`—`), en-dash (`–`), or middle dot (`·`) in titles, prose, captions, labels, SVG text, TOC descriptions, hints, quiz text, eyebrows, or code-block headers. They are machine-writing tells. A dash becomes a colon, parentheses, a comma, or two sentences: write `옵션 1만 vs 옵션 1+2: 권장안과 근거`, never the same with a dash. A middle dot between items becomes a comma or `와`/`과` (`설치와 로그인`, `제목, 소제목, 라벨`); a dot used as a separator in a label becomes a comma or a line break. A range is `~` (`1~3`). The one exception is source quoted verbatim in a code block or an evidence card, which keeps its characters exactly; in a prose quote (`.quote2`, an inline quote) quote a shorter span that does not contain one, and never rewrite a quote to remove it. Before finishing, `grep -nP '[—–·]' <file>` must print nothing except lines of such verbatim source.
 - **Color must survive its background.** A mark carrying meaning (a legend swatch, a status dot, an emphasized stroke) must contrast with the surface under it in both themes.
@@ -212,6 +227,7 @@ Output is a single self-contained HTML file. Fill `<title>`: a short noun phrase
 - **Code blocks: one shared component.** Show code only inside the template's `.codeblock` (`.cb-head` with the location on the left (`파일, 함수`) and the language on the right, then `.cb-body > pre`, one `.ln` span per line). Copy its CSS block verbatim; it is identical in all four templates. Strip the indentation common to every quoted line and keep the relative indentation; nothing else in the text changes. Replace skipped lines with one `<span class="ln gap">… N줄 생략</span>`, indented to the depth of the code it replaces (in an evidence card the gap line is `<span class="ln gap"><span class="t">… N줄 생략</span></span>` and still counts toward the rail index). Color syntax by wrapping tokens yourself, never with a highlighter script or CDN: `sx-k` keywords (`if`, `and`, `return`, `function`), `sx-f` function names where called or defined, `sx-s` string literals, `sx-n` numbers and language constants (`True`, `None`, `null`), `sx-c` comments. Leave variables, operators, and punctuation unwrapped, and HTML-escape `<`, `>`, `&`. Never hard-wrap a long line or set `pre-wrap`: the block scrolls sideways with an always-visible scrollbar. On this page there is no standalone `.codeblock`: quoted source lines go in the file form of the evidence card (`.ev`, see "Evidence card" above), which reuses only the `sx-*` classes and the strip-indent and `… N줄 생략` rules from this item, and appears only when the drawing cannot say it.
 - **Natural Korean, not machine translation.** Do not coin stiff 한자어 Koreans do not say; keep a code identifier verbatim rather than force-translate it. Read every heading and `.say` aloud once: if it sounds like a translated subtitle, rewrite it plainer.
 - **No metaphor, no implied meaning, no translationese in titles and labels.** A heading, a chip, a row caption, a sub-line, a tooltip states the fact in the subject's own words (`vector_store_file 1행`, `호출 최대 N회`, `원본 테이블`), terse 개조식 welcome. Not `장부`, `선반`, `고리를 돈다`, `~의 여정`, `한눈에 보는 ~`, `숨은 비용`, `마법은 없다`. A phrase that would sound odd said aloud to a colleague is cut; a phrase that could head a page about a different subject is too abstract.
+- **Headings are answers, not frames; plan them in the output language.** (shared across eli5, explain-diff, micro-world, visual-doc) Write the section plan in the language the page will be in, with the final heading text, before any HTML: a heading drafted in English and translated comes out as `시험을 어떻게 내는가` or `점수 읽는 법`. The patterns below are the tells, and each is replaced by the fact it was hiding. A question (`~하는가`, `~인가`, `~일까`, `왜 ~인가`) becomes its answer: `점수를 어떻게 읽는가` is `점수 세 종류: pass@1, 승률, 시간 지평`. A classification noun (`N축`, `~한 축`, `차원`, `관점`, `레이어`, `측면`) becomes the names of the things: `평가의 4축` is `채점 방식 3가지: 테스트, 루브릭, 사람 비교`. A method noun (`~하는 법`, `~읽는 법`, `~하려면`) becomes the subject and its values. A bare `A vs B` becomes the value that differs: `pass@1 vs pass^k` is `pass@1은 1회 성공, pass^k는 k회 연속 성공`. An emphasis frame (`핵심은`, `결국`, `본질적으로`, `진짜`, `단순히 ~가 아니다`, `~에 불과`) is deleted. A count is counted after the items exist, never chosen first and padded (`세 가지`). A metaphor that frames the whole subject (`모의고사`, `시험지`, `장부`) stays out of every heading and out of the plan. None of these words is banned in body prose, where `A vs B` or `~하려면` can be the plain sentence: the rule is about headings, captions, outline lines, and the plan, which is why the Render check's heading grep reads only heading tags and reports a reading list, not failures.
 
 ## Step 5: Verify the Render
 
@@ -231,16 +247,18 @@ The rules are the first defense; looking at the rendered page is the second, and
    If Pillow is not installed, look at the full screenshots and say in the report that the check was at thumbnail size.
 3. **Measure.** Run `measure.html` from this skill's base directory (the command is in its header comment) at the reading width and again at `--window-size=500,2000` (headless Chrome does not go narrower than 500px, so a 420px request silently measures 500). The `<body>` tag must carry `data-sbs`, `data-fit`, and `data-ovf`, all `none`; a body tag without them means the measurement never ran, which is a failure, not a pass.
 4. **Text.** `grep -nP '[—–·]'` and the particle grep from the design rules print nothing outside verbatim source.
+5. **Headings.** `grep -nP '<(h[1-3]|span class="dg-cap")[^>]*>[^<]*(는가|인가|일까|나요|\?|[0-9]축|한 축|하는 법|읽는 법|하려면|핵심|본질|결국| vs )' <file>` lists the headings and figure captions that match a translation tell. This is a reading list, not a failure: read each hit aloud, rewrite it only when it reads as a frame rather than a fact, and name in the report each hit you kept and why. Body prose is not searched.
 
-Fix and repeat until all four pass. Only when no browser exists at all, say plainly that the page was not visually verified. Screenshots, crops, and the measurement copy live in `D`, are not part of the output, and are deleted when you finish.
+Fix and repeat until the first four pass and the fifth has been read. Only when no browser exists at all, say plainly that the page was not visually verified. Screenshots, crops, and the measurement copy live in `D`, are not part of the output, and are deleted when you finish.
 
 Then check, in this order:
 
 1. **The pictures-only pass.** Look at the drawings and ignore every sentence. Does the idea still come through? This is the skill's actual success criterion, and it is the one check that cannot be skipped.
 2. No drawing is cut off, overlapping, or scaled into illegibility (the Render check's measurement prints `none`). If you cannot render, redo the "Fit the text before you draw" arithmetic for every row and every free-standing label instead; a label estimate that exceeds its box, or a row that exceeds W-40, is a defect even if you cannot see it.
 3. Titles do not wrap mid-word; no machine-writing symbol survived (`grep -nP '[—–·]'` the file prints nothing outside verbatim source); no placeholder token or authoring comment survived (`grep -n '{[가-힣]\|eli5 frame'` the file must print nothing: every frame.html placeholder is a Korean phrase in braces); no footer or source list crept back in (`grep 'class="foot"'` the file).
-4. Dark mode holds (the dark screenshot).
-5. If the page has an interactive figure: the state at load passes check 1 on its own, and the drawing holds at the smallest and the largest input (move the control, or redo the fit arithmetic for both ends).
+4. The position marks survived: `grep -c 'id="progress"'` prints 1, `grep -c '<li><b>'` (outline lines) equals `grep -c 'class="beat sec-top"'` (beats), every beat has a `.sec-no` line whose second number is that beat count, and no h2 text starts with a digit followed by a space or a period.
+5. Dark mode holds (the dark screenshot).
+6. If the page has an interactive figure: the state at load passes check 1 on its own, and the drawing holds at the smallest and the largest input (move the control, or redo the fit arithmetic for both ends).
 
 Fix and re-render until clean. If no browser is available, still do check 1 by reading your own SVG, and say the render was not visually verified.
 

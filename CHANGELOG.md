@@ -1,5 +1,13 @@
 # Change Log
 
+## Unreleased
+
+**Added**
+- HTML 스킬 네 개(eli5, visual-doc, explain-diff, micro-world)에 위치 표시 공유 블록 추가: 상단 3px 진행바(글자 없음), 머리 바로 아래 차례(`.outline`), 상위 섹션의 가로선과 번호 줄(`01 / 07`), 하위 섹션의 왼쪽 막대와 번호(`01.1`). 번호는 제목 글자에 넣지 않는다. 긴 문서에서 지금 어디를 읽는지, 이 내용이 하위 항목인지 알 수 없다는 피드백 반영. visual-doc의 우측 TOC rail과 카드의 `.num` 배지는 제거했고, explain-diff는 Part를 상위, 섹션 카드를 하위로 표시한다. 배경과 근거: docs/decisions/2026-10-heading-hierarchy.md
+
+**Changed**
+- 제목 규칙 보강과 구성안의 언어: 질문형 제목(`~하는가`, `왜 ~인가`), 분류 틀 명사(`N축`, `~한 축`), 방법 명사화(`~하는 법`, `~하려면`), 단독 `A vs B`, 강조 틀(`핵심은`, `결국`), 주제를 감싸는 비유를 제목, 캡션, 구성안에서 쓰지 않고 가리고 있던 사실을 쓴다. 본문은 대상이 아니며 Render check의 제목 grep은 제목 태그만 보고 읽을 목록으로 보고한다. 산출물 문장을 정하는 절(eli5 Step 2와 "제목은 그림이 무엇인지 말한다", visual-doc "구성안은 산출물 언어로", explain-diff "Section titles" 첫 문단, micro-world 제목 줄)은 SKILL.md 안에서 한글로 써서 영어 역할 이름을 옮기는 단계를 없앴다. 텍스트 스킬 여섯 개의 `Writing rules`에는 같은 내용의 `Titles are answers` 항목을 넣었다. 배경과 근거: docs/decisions/2026-10-heading-hierarchy.md
+
 ## v1.22.1 (2026-10-23)
 
 **Fixed**

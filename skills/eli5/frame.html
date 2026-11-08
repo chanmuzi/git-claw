@@ -122,6 +122,15 @@
     word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0;
   }
 
+  /* ── grouped page (optional; SKILL.md "Where the reader is on the page"): a top-level section (.sec-top) holds
+     its name in h2 and its beats below, each beat opening with .sub-h (number line + h3). A top-level
+     section with one beat has no .sub-h: the section is the beat. */
+  .sec-top > h2{ font-size:20px; font-weight:800; letter-spacing:-0.02em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
+  .sec-top .beat{ margin-top:34px; }
+  .sec-top.single .beat{ margin-top:18px; }
+  .sub-h h3{ font-size:18px; font-weight:700; letter-spacing:-0.02em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; }
+  .sub-h{ margin-bottom:14px; }
+
   /* ── beat: one picture, one claim ── */
   .beat{ margin-top:48px; }
   .beat h2{
@@ -161,7 +170,11 @@
   .note b{ font-weight:600; color:var(--ink); }
   .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list: no badges, the row title in bold leads */
 
-  /* ── numbered badge: the same shape in the drawing (.dg-m), the evidence card and the notes (.m) ── */
+  /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
+     Numbers live in the drawing only; a card repeats the drawing's badge in its head. Color is meaning
+     (blue the point, red what breaks, gray a state replaced or a path not taken); look is kind: a filled
+     circle is a note only, a chip badge (.code: light fill, colored border and number, the same look as the
+     inline code chip; a <rect rx=4> in SVG) says an evidence card with code follows. */
   .m{
     display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%;
     background:var(--blue); color:var(--card); font-family:var(--mono); font-size:11px; font-weight:700;
@@ -169,21 +182,37 @@
   }
   .m.bad{ background:var(--red); }
   .m.dim{ background:var(--gray400); }
+  .m.code{ border-radius:4px; width:auto; min-width:22px; padding:0 5px; background:var(--blue-soft); color:var(--chip-ink); border:1px solid var(--blue); }
+  .m.code.bad{ background:var(--red-soft); color:var(--red); border-color:var(--red); }
+  .m.code.dim{ background:var(--gray100); color:var(--gray600); border-color:var(--gray400); }
   .dg-m circle{ fill:var(--blue); }
   .dg-m.bad circle{ fill:var(--red); }
   .dg-m.dim circle{ fill:var(--gray400); }
+  .dg-m.code rect{ fill:var(--blue-soft); stroke:var(--blue); stroke-width:1.2; }
+  .dg-m.code.bad rect{ fill:var(--red-soft); stroke:var(--red); }
+  .dg-m.code.dim rect{ fill:var(--gray100); stroke:var(--gray400); }
+  .dg-m.code text{ fill:var(--chip-ink); }
+  .dg-m.code.bad text{ fill:var(--red); }
+  .dg-m.code.dim text{ fill:var(--gray600); }
   .dg-m text{ fill:var(--card); font-family:var(--mono); font-size:11px; font-weight:700; text-anchor:middle; }
   /* group outline: one note about several boxes gets one dashed outline and one badge on its corner (SKILL.md "The word budget") */
   .dg-grp{ fill:none; stroke:var(--blue); stroke-width:1.2; stroke-dasharray:4 4; opacity:.7; }
   .dg-grp.bad{ stroke:var(--red); }
+  /* system box and sequence lanes (SKILL.md "Draw the behavior with these shapes": steps inside one system, a request across systems) */
+  .dg-sys{ fill:var(--chipbg); stroke:var(--gray300); stroke-width:1.2; }   /* the boundary of one system; the steps inside sit on it with fill var(--card) */
+  .dg-life{ stroke:var(--gray300); stroke-width:1.2; stroke-dasharray:3 4; } /* a lane's lifeline under its head box */
+  .dg-dim{ opacity:.45; }                                                    /* a message or label that is history, not the point */
 
   /* ── evidence card (optional; SKILL.md "Evidence card") ──
      The real file or table, verbatim, between the figure and the notes. Dashed border and the
      chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's.
-     Badges of the file form sit on the card's left border (.rail), outside the scrolling body, so the
-     code keeps its full width; the grid's padding-left makes room for the half that sticks out.
+     The card's head carries the badge of the drawing box it backs (the same number, .code shape), then a
+     kind word and the file; lines inside carry no badge. Line color means what badge color means: .hi blue
+     for the line that is the point, .hi.bad red for the line that breaks, .ghost for a line that should be
+     there and is not. A change at one place is one card in diff form: .del red minus, .add green plus,
+     context lines plain (the same colors as explain-diff's diff lines).
      Cards stack one per row by default; .evs.pair puts two short cards side by side (SKILL.md "Rows by default"). */
-  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:16px; margin-top:14px; padding-left:10px; }
+  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:14px; margin-top:14px; }
   .evs.pair{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
   .ev{
     /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
@@ -195,26 +224,37 @@
     position:relative; border:1px dashed var(--gray200); border-radius:var(--r-el); background:var(--chipbg); min-width:0;
   }
   .ev-head{
-    display:flex; align-items:center; gap:8px; height:32px; padding:0 12px; border-bottom:1px dashed var(--gray200);
-    font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0;
+    display:flex; align-items:center; gap:10px; min-height:36px; padding:6px 12px; border-bottom:1px dashed var(--gray200);
+    font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0; flex-wrap:wrap;
   }
+  .ev-head .m{ flex:none; }
   .ev-head .kind{ font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }
-  .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ev-head .kind.em{ color:var(--blue); }
+  .ev-head .kind.bad{ color:var(--red); }
+  .ev-head .kind.add{ color:var(--green); text-transform:none; }  /* `PR #12 diff`: the number must not be upper-cased */
+  .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   .ev-body{ overflow-x:auto; border-radius:0 0 var(--r-el) var(--r-el); }
   .ev-body pre{ width:max-content; min-width:100%; margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
-  /* lines are exactly 19px tall: the rail places each badge by line index (top = head 32 + pre padding 8 + i*19 − half the 20px badge) */
   .ev .ln{ display:flex; align-items:center; padding:0 12px; white-space:pre; height:19px; }
   .ev .ln .t{ flex:none; }
-  .ev .rail{ position:absolute; left:-10px; top:0; width:20px; height:100%; pointer-events:none; }
-  .ev .rail .m{ position:absolute; left:0; top:calc(39.5px + var(--i) * 19px); box-shadow:0 0 0 2px var(--bg); }
-  .ev .ln.hi{ background:var(--blue-soft); color:var(--ink); }
+  .ev .ln.hi{ background:var(--blue-soft); color:var(--ink); box-shadow:inset 3px 0 0 var(--blue); }
+  .ev .ln.hi.bad{ background:var(--red-soft); box-shadow:inset 3px 0 0 var(--red); }
   .ev .ln.ghost{ color:var(--faint); }
-  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--gray300); border-radius:4px; padding:0 6px; margin:1px 0; }
+  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--red); border-radius:4px; padding:0 6px; margin:1px 0; color:var(--red); opacity:.85; }
   .ev .ln.ghost .sx-f, .ev .ln.ghost .sx-s, .ev .ln.ghost .sx-n, .ev .ln.ghost .sx-k{ color:inherit; }
   .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:14px; }  /* right after the text, never pushed to the edge */
   .ev .ln.hi .tag{ color:var(--chip-ink); }
-  .ev .ln.ghost .tag{ color:var(--red); }
-  /* table form: every .col keeps the badge slot (.g), since a column row has no scrolling body */
+  .ev .ln.hi.bad .tag, .ev .ln.ghost .tag{ color:var(--red); font-weight:600; }
+  /* diff form: every line starts with a .sign (`-`, `+`, or a space for context) so the columns align */
+  .ev .ln .sign{ flex:none; width:14px; font-weight:700; color:transparent; }
+  .ev .ln.add{ background:var(--green-soft); color:var(--ink); }
+  .ev .ln.add .sign{ color:var(--green); }
+  .ev .ln.del{ background:var(--red-soft); color:var(--gray500); }
+  .ev .ln.del .sign{ color:var(--red); }
+  .ev .ln.del .sx-k, .ev .ln.del .sx-f, .ev .ln.del .sx-s, .ev .ln.del .sx-n{ color:inherit; }
+  .ev .ln.add .tag{ color:var(--green); font-weight:600; }
+  .ev .ln.del .tag{ color:var(--red); font-weight:600; }
+  /* table form: every .col keeps the badge slot (.g); a table card has no head badge because its badges sit on the columns */
   .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
   .erd{ display:grid; grid-template-columns:1fr auto 1fr; align-items:start; padding:12px; gap:0; }
   @media (max-width:600px){ .erd{ grid-template-columns:1fr; } .erd .rel{ transform:rotate(90deg); height:40px; } }
@@ -399,7 +439,11 @@
     <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
     <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
     <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
-    <!-- 차례: beat마다 한 줄, h2와 같은 글. 마지막 .close 카드는 제목이 없으므로 넣지 않는다 -->
+    <!-- 차례: beat마다 한 줄, h2와 같은 글. 마지막 .close 카드는 제목이 없으므로 넣지 않는다.
+         beat가 5개 이상이고 두세 묶음으로 나뉘면(배경, 원인, 변경, 현황처럼) 상위 줄 아래에 li.sub로 beat를 들여 쓴다:
+           <li><b>01</b><a href="#g1">{상위 섹션의 h2}</a></li>
+           <li class="sub"><b>01.1</b><a href="#b1">{그 안 beat의 h3}</a></li>
+         beat가 하나뿐인 상위 섹션은 하위 줄 없이 그 줄이 beat다 -->
     <nav class="outline" aria-label="차례">
       <div class="k">차례</div>
       <ol>
@@ -410,7 +454,17 @@
   </div>
 
   <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다.
-       beat마다 id, 위에 가로선(.sec-top), 번호 줄(.sec-no: 번호 / 전체 beat 수). 제목 글자에는 숫자를 넣지 않는다 -->
+       beat마다 id, 위에 가로선(.sec-top), 번호 줄(.sec-no: 번호 / 전체 beat 수). 제목 글자에는 숫자를 넣지 않는다.
+       묶음이 있는 페이지는 상위 섹션이 가로선과 번호 줄, h2를 갖고 beat는 그 안에서 .sub-h로 연다 (h2 대신 h3):
+         <section class="sec-top" id="g1">
+           <div class="sec-no"><b>01</b><span>/ {상위 섹션 수}</span></div>
+           <h2>{상위 섹션의 사실 한 가지}</h2>
+           <div class="beat" id="b1">
+             <div class="sub-h"><div class="sub-no">01.1</div><h3>{이 그림이 보여주는 사실 한 가지}</h3></div>
+             <figure class="fig">…</figure> …
+           </div>
+         </section>
+       beat가 하나뿐인 상위 섹션은 class="sec-top single"이고 .sub-h가 없다 -->
   <div class="beat sec-top" id="b1">
     <div class="sec-no"><b>01</b><span>/ {전체 beat 수}</span></div>
     <h2>{이 그림이 보여주는 사실 한 가지. 개조식 가능}</h2>
@@ -454,20 +508,25 @@
              the boxes filled with var(--card) so they sit on top, and the one badge on the group's corner:
              <rect class="dg-grp" x="327" y="48" width="166" height="104" rx="10"/>  (bad for a red group) -->
         <!-- badges last of all: on the top-left corner of the box (or group outline) they number, in reading order, same number as the note below.
-             Not every box gets one: only the ones whose note adds what the label cannot. A drawing that is itself a list gets none (.notes.plain) -->
+             Not every box gets one: only the ones whose note adds what the label cannot. A drawing that is itself a list gets none (.notes.plain).
+             A badge whose beat has an evidence card for that box is a chip badge (class code, <rect x="-11" y="-10" width="22" height="20" rx="4"/> instead of <circle>); the card head repeats it -->
         <g class="dg-m" transform="translate(40,56)"><circle r="10"/><text y="4">1</text></g>
-        <g class="dg-m" transform="translate(335,56)"><circle r="10"/><text y="4">2</text></g>
+        <g class="dg-m code" transform="translate(335,56)"><rect x="-11" y="-10" width="22" height="20" rx="4"/><text y="4">2</text></g>
         <g class="dg-m bad" transform="translate(590,56)"><circle r="10"/><text y="4">3</text></g>
       </svg>
     </figure>
-    <!-- 선택: 그림이 말할 수 없는 사실(파일에 그 줄이 없음, 테이블의 컬럼, 요청에 그 필드가 없음)일 때만 (SKILL.md "Evidence card").
-         배지가 가리키는 줄은 .hi, 있어야 하는데 없는 줄은 .ghost. 파일 형태의 배지는 줄 안이 아니라 카드 왼쪽 테두리의 .rail에,
-         줄 index(0부터, 생략 줄 포함)를 --i로 적어 둔다. 꼬리표(.tag)는 글자 바로 뒤에 붙는다
+    <!-- 선택: 그림이 말할 수 없는 사실일 때만 (SKILL.md "Evidence card": 있어야 할 줄이 없음, 문구 자체가 변경점, 그림이 상자로 추상화한 한 줄).
+         카드 머리에 그 상자의 배지(같은 번호, code 모양)와 종류 한 마디, 파일 이름. 줄 안에는 배지가 없다.
+         요점 줄은 .hi(파랑), 깨지는 줄은 .hi.bad(빨강), 있어야 하는데 없는 줄은 .ghost. 꼬리표(.tag)는 글자 바로 뒤에 붙는다.
+         같은 자리의 변경은 카드 하나에 diff로: 줄마다 .sign(- + 공백), 빠진 줄 .del, 생긴 줄 .add, 머리에는 전과 후 배지 둘
     <div class="evs">
       <div class="ev">
-        <div class="rail"><span class="m" style="--i:1">2</span></div>
-        <div class="ev-head"><span class="kind">설정</span><span class="loc">{config/config.yaml}</span></div>
+        <div class="ev-head"><span class="m code">2</span><span class="kind">설정</span><span class="loc">{config/config.yaml}</span></div>
         <div class="ev-body"><pre><span class="ln"><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi"><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
+      </div>
+      <div class="ev">
+        <div class="ev-head"><span class="m dim code">1</span><span class="m code">2</span><span class="kind add">PR #{n} diff</span><span class="loc">{app/titler/prompt.py}</span></div>
+        <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">SYSTEM_PROMPT = (</span></span><span class="ln del"><span class="sign">-</span><span class="t">    <span class="sx-s">"At most 4 words."</span></span><span class="tag">{빠진 규칙 한 마디}</span></span><span class="ln add"><span class="sign">+</span><span class="t">    <span class="sx-s">"A concise noun phrase. No word limit."</span></span><span class="tag">{생긴 규칙 한 마디}</span></span><span class="ln gap"><span class="sign"> </span><span class="t">    … {N}줄 생략</span></span><span class="ln"><span class="sign"> </span><span class="t">)</span></span></pre></div>
       </div>
       <div class="ev">
         <div class="ev-head"><span class="kind">테이블</span><span class="loc">{후보 1행 → 청크 1행}</span></div>
@@ -491,7 +550,7 @@
          그림이 세로 목록 그 자체(결정 3줄 등)라 배지가 없으면 .notes.plain: 배지 없이 행 제목(굵게)으로 시작, 행과 같은 순서 -->
     <div class="notes">
       <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
-      <div class="note"><span class="m">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장.}</div></div>
+      <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 code 모양.}</div></div>
       <div class="note"><span class="m bad">3</span><div><b>{못 닿는 곳}</b>{에 왜 못 닿는지.}</div></div>
     </div>
     <!-- 결론 한 줄. 라벨 한 단어만 색, 상자 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->

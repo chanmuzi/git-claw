@@ -353,13 +353,13 @@
   /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
      with the scroll ratio (no text on it), one inline .outline right after the hero lists every
-     section once, each top-level section opens with a rule and a number line (`01 / 08`), and a
-     sub-section opens with a short left bar and its number (`01.1`). Numbers live in these lines,
+     section once, each top-level section opens with a rule and a number line (`1 / 8`), and a
+     sub-section opens with a short left bar and its number (`1-1`). Numbers live in these lines,
      never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
   .hero + .sec-top, .outline + .sec-top{ margin-top:28px; }  /* the first section sits close under the outline: the rule, not empty space, separates them */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
   .sec-no b{ color:var(--blue); font-weight:700; }
   .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
   .sub-h > *{ margin:0; }
@@ -551,18 +551,18 @@
   <!-- 목차: 그룹 헤더 포함, 각 행 = 해당 섹션의 한 줄 요약 -->
   <section class="card">
     <div class="list-header"><h2>이 문서에서 다뤄요</h2></div>
-    <div class="toc-group"><span class="g-part">01</span>개요</div>
+    <div class="toc-group"><span class="g-part">1</span>개요</div>
     <a class="toc-row" href="#sec1"><span class="idx">1</span><span>배경<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
     <a class="toc-row" href="#sec2"><span class="idx">2</span><span>구조 한눈에 보기<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
-    <div class="toc-group"><span class="g-part">02</span>변경 사항</div>
+    <div class="toc-group"><span class="g-part">2</span>변경 사항</div>
     <!-- REPEAT: one row per theme section (sec3..secK) -->
     <a class="toc-row" href="#sec3"><span class="idx">3</span><span>{{THEME_TITLE}}<span class="desc">{{ONE_LINE_TAKEAWAY}}</span></span><span class="chev">›</span></a>
-    <div class="toc-group"><span class="g-part">03</span>이해 점검</div>
+    <div class="toc-group"><span class="g-part">3</span>이해 점검</div>
     <a class="toc-row" href="#risks"><span class="idx">{{K+1}}</span><span>주의해서 볼 지점<span class="desc">{{RISK_SUMMARY}}</span></span><span class="chev">›</span></a>
     <a class="toc-row" href="#quiz"><span class="idx">{{K+2}}</span><span>이해도 퀴즈<span class="desc">5문항, 전부 맞혀야 이해 완료, 틀리면 힌트 보고 다시 풀 수 있어요</span></span><span class="chev">›</span></a>
   </section>
 
-  <div class="group-label sec-top" id="part1"><div class="sec-no"><b>01</b><span>/ 03</span></div><h2 class="g-name">개요</h2></div>
+  <div class="group-label sec-top" id="part1"><div class="sec-no"><b>1</b><span>/ 3</span></div><h2 class="g-name">개요</h2></div>
 
   <section class="card" id="sec1">
     <div class="sub-h"><div class="sub-no">1</div><h2>배경</h2></div>
@@ -612,7 +612,7 @@
          page. Delete this slot otherwise. -->
   </section>
 
-  <div class="group-label sec-top" id="part2"><div class="sec-no"><b>02</b><span>/ 03</span></div><h2 class="g-name">변경 사항</h2></div>
+  <div class="group-label sec-top" id="part2"><div class="sec-no"><b>2</b><span>/ 3</span></div><h2 class="g-name">변경 사항</h2></div>
 
   <!-- REPEAT: one card per theme, ordered by importance (sec3..secK) -->
   <section class="card" id="sec3">
@@ -671,7 +671,7 @@
     </div>
   </section>
 
-  <div class="group-label sec-top" id="part3"><div class="sec-no"><b>03</b><span>/ 03</span></div><h2 class="g-name">이해 점검</h2></div>
+  <div class="group-label sec-top" id="part3"><div class="sec-no"><b>3</b><span>/ 3</span></div><h2 class="g-name">이해 점검</h2></div>
 
   <section class="card" id="risks">
     <div class="sub-h"><div class="sub-no">{{K+1}}</div><h2>주의해서 볼 지점이에요</h2></div>

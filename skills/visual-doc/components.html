@@ -381,13 +381,13 @@
   /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
      Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
      with the scroll ratio (no text on it), one inline .outline right after the hero lists every
-     section once, each top-level section opens with a rule and a number line (`01 / 08`), and a
-     sub-section opens with a short left bar and its number (`01.1`). Numbers live in these lines,
+     section once, each top-level section opens with a rule and a number line (`1 / 8`), and a
+     sub-section opens with a short left bar and its number (`1-1`). Numbers live in these lines,
      never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
   .hero + .sec-top, .outline + .sec-top{ margin-top:28px; }  /* the first section sits close under the outline: the rule, not empty space, separates them */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
   .sec-no b{ color:var(--blue); font-weight:700; }
   .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
   .sub-h > *{ margin:0; }
@@ -517,18 +517,18 @@
     <nav class="outline" aria-label="차례">
       <div class="k">차례</div>
       <ol>
-        <li><b>01</b><a href="#s-nav">긴 문서 네비게이션 전략</a></li>
-        <li class="sub"><b>01.1</b><a href="#s-nav-1">하위 섹션 제목은 이렇게</a></li>
-        <li><b>02</b><a href="#s-hero">헤드 & 요약 블록</a></li>
-        <li><b>03</b><a href="#s-data">데이터 & 비교 블록</a></li>
-        <li><b>04</b><a href="#s-narr">서술 & 근거 블록</a></li>
-        <li><b>05</b><a href="#s-struct">구조 & 참조 블록</a></li>
-        <li><b>06</b><a href="#s-gen">인터랙티브 & 생성형 (팔레트 밖)</a></li>
-        <li><b>07</b><a href="#s-close">마무리 & 이동</a></li>
+        <li><b>1</b><a href="#s-nav">긴 문서 네비게이션 전략</a></li>
+        <li class="sub"><b>1-1</b><a href="#s-nav-1">하위 섹션 제목은 이렇게</a></li>
+        <li><b>2</b><a href="#s-hero">헤드 & 요약 블록</a></li>
+        <li><b>3</b><a href="#s-data">데이터 & 비교 블록</a></li>
+        <li><b>4</b><a href="#s-narr">서술 & 근거 블록</a></li>
+        <li><b>5</b><a href="#s-struct">구조 & 참조 블록</a></li>
+        <li><b>6</b><a href="#s-gen">인터랙티브 & 생성형 (팔레트 밖)</a></li>
+        <li><b>7</b><a href="#s-close">마무리 & 이동</a></li>
       </ol>
     </nav>
 
-    <div class="group-label sec-top" id="s-nav"><div class="sec-no"><b>01</b><span>/ 07</span></div><h2 class="g-name">긴 문서 네비게이션 전략</h2></div>
+    <div class="group-label sec-top" id="s-nav"><div class="sec-no"><b>1</b><span>/ 7</span></div><h2 class="g-name">긴 문서 네비게이션 전략</h2></div>
     <p class="prose">문서가 길어지면 AI가 세 가지 중 하나(또는 조합)를 골라요. 진행바(<code>.progress</code>), 머리의 차례(<code class="ic">.outline</code>), 섹션 번호 줄(<code class="ic">.sec-no</code>)은 분량과 상관없이 늘 들어가고, 옆에 떠 있는 목차나 섹션 이름이 붙은 고정 머리는 두지 않아요.</p>
 
     <div class="demo-label">전략 비교</div>
@@ -545,11 +545,11 @@
 
     <div class="demo-label">이 페이지에 적용된 것: 진행바(상단) + 차례(머리) + 번호 줄(섹션마다) + 챕터 페이저(아래)</div>
 
-    <div class="demo-label">하위 섹션 머리 (.sub-h: 왼쪽 막대와 번호, 상위 번호를 이어받아 01.1)</div>
-    <div class="sub-h" id="s-nav-1"><div class="sub-no">01.1</div><h3>하위 섹션 제목은 이렇게</h3></div>
-    <p class="prose">상위 섹션은 가로선과 <code>01 / 07</code> 번호 줄로, 하위 섹션은 왼쪽 막대와 <code>01.1</code>로 열어요. 번호는 이 줄에만 있고 제목 글자에는 넣지 않아요.</p>
+    <div class="demo-label">하위 섹션 머리 (.sub-h: 왼쪽 막대와 번호, 상위 번호를 이어받아 1-1)</div>
+    <div class="sub-h" id="s-nav-1"><div class="sub-no">1-1</div><h3>하위 섹션 제목은 이렇게</h3></div>
+    <p class="prose">상위 섹션은 가로선과 <code>1 / 7</code> 번호 줄로, 하위 섹션은 왼쪽 막대와 <code>1-1</code>로 열어요. 번호는 이 줄에만 있고 제목 글자에는 넣지 않아요.</p>
 
-    <div class="group-label sec-top" id="s-hero"><div class="sec-no"><b>02</b><span>/ 07</span></div><h2 class="g-name">헤드 & 요약 블록</h2></div>
+    <div class="group-label sec-top" id="s-hero"><div class="sec-no"><b>2</b><span>/ 7</span></div><h2 class="g-name">헤드 & 요약 블록</h2></div>
 
     <div class="demo-label">TL;DR 하이라이트</div>
     <div class="tldr">
@@ -576,7 +576,7 @@
       <span class="foot">컴포넌트 수는 팔레트 기준, 출력은 self-contained HTML 1개</span>
     </div>
 
-    <div class="group-label sec-top" id="s-data"><div class="sec-no"><b>03</b><span>/ 07</span></div><h2 class="g-name">데이터 & 비교 블록</h2></div>
+    <div class="group-label sec-top" id="s-data"><div class="sec-no"><b>3</b><span>/ 7</span></div><h2 class="g-name">데이터 & 비교 블록</h2></div>
 
     <div class="demo-label">막대 차트 (순수 CSS)</div>
     <div class="card"><div class="chart">
@@ -614,7 +614,7 @@
       <div class="pc con"><div class="pc-h">한계</div><ul><li>팔레트 밖 요구는 즉흥 설계 필요</li><li>표와 차트는 폭 좁으면 스크롤</li></ul></div>
     </div>
 
-    <div class="group-label sec-top" id="s-narr"><div class="sec-no"><b>04</b><span>/ 07</span></div><h2 class="g-name">서술 & 근거 블록</h2></div>
+    <div class="group-label sec-top" id="s-narr"><div class="sec-no"><b>4</b><span>/ 7</span></div><h2 class="g-name">서술 & 근거 블록</h2></div>
 
     <div class="demo-label">타임라인</div>
     <div class="card"><div class="timeline">
@@ -664,7 +664,7 @@
       <div class="co-item"><p class="ci-t">샘플 카피 잔존</p><div class="co-b"><span class="sent">git-claw 예시 문구가 산출물에 남으면 실제 분석 내용처럼 읽혀서 문서 신뢰를 해쳐요.</span><span class="sent">출력 직전에 grep으로 남은 샘플 문자열을 찾아 있으면 지우고 다시 확인해요.</span></div></div>
     </div>
 
-    <div class="group-label sec-top" id="s-struct"><div class="sec-no"><b>05</b><span>/ 07</span></div><h2 class="g-name">구조 & 참조 블록</h2></div>
+    <div class="group-label sec-top" id="s-struct"><div class="sec-no"><b>5</b><span>/ 7</span></div><h2 class="g-name">구조 & 참조 블록</h2></div>
 
     <div class="demo-label">기둥 카드 (pillar)</div>
     <div class="pillars">
@@ -680,7 +680,7 @@
       <details><summary>표가 모바일에서 깨지지 않나요?</summary><div class="qa-body">가로 스크롤 컨테이너로 감싸서 폭이 좁아도 안전해요.</div></details>
     </div>
 
-    <div class="group-label sec-top" id="s-gen"><div class="sec-no"><b>06</b><span>/ 07</span></div><h2 class="g-name">인터랙티브 & 생성형 (팔레트 밖)</h2></div>
+    <div class="group-label sec-top" id="s-gen"><div class="sec-no"><b>6</b><span>/ 7</span></div><h2 class="g-name">인터랙티브 & 생성형 (팔레트 밖)</h2></div>
     <p class="prose">아래 선 그래프, 도넛, 노브 셋은 <b>원래 카탈로그에 없던 블록</b>이에요. 콘텐츠가 요구해서 같은 토큰으로 즉석에서 만들었어요. 여기가 "구조 자유"가 실제로 작동하는 지점이고, 그래도 스타일 일관성은 유지돼요.</p>
 
     <div class="demo-label">선 그래프 (인라인 SVG)</div>
@@ -750,7 +750,7 @@
     B-->>A: 응답</pre>
     </div></div>
 
-    <div class="group-label sec-top" id="s-close"><div class="sec-no"><b>07</b><span>/ 07</span></div><h2 class="g-name">마무리 & 이동</h2></div>
+    <div class="group-label sec-top" id="s-close"><div class="sec-no"><b>7</b><span>/ 7</span></div><h2 class="g-name">마무리 & 이동</h2></div>
 
     <div class="demo-label">핵심 정리 (takeaway)</div>
     <div class="takeaway">

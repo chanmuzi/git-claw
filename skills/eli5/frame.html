@@ -271,6 +271,7 @@
      never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
+  .hero + .sec-top, .outline + .sec-top{ margin-top:28px; }  /* the first section sits close under the outline: the rule, not empty space, separates them */
   .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--faint); }
   .sec-no b{ color:var(--blue); font-weight:700; }
   .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
@@ -279,10 +280,11 @@
   .outline{ margin:22px 0 0; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-el); }
   .outline .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--faint); margin-bottom:8px; }
   .outline ol{ list-style:none; margin:0; padding:0; }
-  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14px; line-height:1.5; word-break:keep-all; }
-  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:2px; }
-  .outline li.sub{ padding-left:22px; font-size:13.5px; color:var(--sub); }
-  .outline li.sub b{ color:var(--faint); }
+  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14.5px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:3px; }
+  .outline li + li:not(.sub){ margin-top:6px; }  /* top-level lines group their sub lines under them */
+  .outline li.sub{ padding:2px 0 2px 22px; grid-template-columns:40px minmax(0,1fr); font-size:13.5px; font-weight:400; color:var(--sub); }
+  .outline li.sub b{ color:var(--faint); font-weight:600; }
   .outline a{ color:inherit; text-decoration:none; border-bottom:none; }
   .outline a:hover{ color:var(--blue); }
 

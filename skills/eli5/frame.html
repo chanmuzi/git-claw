@@ -288,9 +288,9 @@
   .dg-em{ fill:var(--brand); }                              /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
   .dg-q{ font-size:14px; font-weight:600; }                 /* with .dg-l: the one string the figure is about; one per figure, a row of variants stays .dg-l */
-  .dg-pill{ fill:var(--n200); }                             /* state caption pill: rect h=20 rx=10, width = text + 16 */
-  .dg-pill.bad{ fill:var(--red-soft); }
-  .dg-pill.em{ fill:var(--brand-50); }
+  .dg-pill{ fill:var(--n200); stroke:var(--n300); stroke-width:1; }  /* state caption pill: rect h=20 rx=10, width = text + 16; the hairline separates it from the panel (fill vs panel is under 1.1:1) */
+  .dg-pill.bad{ fill:var(--red-soft); stroke:var(--red); stroke-opacity:.3; }
+  .dg-pill.em{ fill:var(--brand-50); stroke:var(--brand); stroke-opacity:.35; }
   .dg-cap{ font-size:11.5px; font-weight:700; fill:var(--sub); }  /* state caption text on the pill, baseline y = pill y + 14 */
   .dg-cap.bad{ fill:var(--red); }
   .dg-cap.em{ fill:var(--brand-ink); }

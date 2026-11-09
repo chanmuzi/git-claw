@@ -1,415 +1,291 @@
 <!doctype html>
 <!--
-  eli5 frame.
+  eli5 frame (Lift skin, 2026-11-09).
 
-  Layer 1 (LOCKED): the :root tokens, the base primitives, and the beat blocks below
-    (.hero, .beat, .fig, .notes, .say, .numbers, .close, the optional .ev evidence card and
-    .ctl controls, the .m / .dg-m badges), the section hierarchy block (.progress, .outline,
-    .sec-top, .sec-no, and its script at the end of <body>) plus the SVG label classes.
-    Copy them verbatim. They are what makes an eli5 page a sibling of explain-diff,
-    micro-world, and visual-doc.
-  Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars
-    showing the conventions (viewBox sizing, currentColor strokes, labeled arrows,
-    one accent per picture, the layout-plan comment as the first child of <svg>,
-    a two-line box via <tspan>). Author your own drawings per subject. Never reuse these.
+  Layer 1 (LOCKED): the :root tokens (Upstage Lift neutral + brand, both themes, plus the legacy aliases),
+    the base primitives, and the blocks below (.band/.hero/.outline cover, .beat, .fig, .notes, .say,
+    .close, the optional .ev evidence card and .ctl controls, the .m / .dg-m badges, the .dg-bar bars),
+    the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
+    plus the SVG label classes. Copy them verbatim.
+  Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
+    (viewBox sizing, currentColor strokes, labeled arrows, one accent per picture, the layout-plan comment as
+    the first child of <svg>, a two-line box via <tspan>, a to-scale bar pair). Author your own drawings per
+    subject. Never reuse these.
 
-  The sample copy is placeholder illustrating each block. Replace it with real content
-  and delete this comment in the output.
+  The sample copy is placeholder illustrating each block. Replace it with real content and delete this
+  comment in the output.
 -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{주제 이름}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap">
 <style>
+  /* ── tokens (LOCKED). Lift 1.1.0: neutral = zinc-leaning gray, brand-500 = #5B52FF, highlight = #D2FF95.
+     Page = white ground, one 880px column; the cover (hero + outline) sits on a brand-tint band; figures
+     are neutral-50 panels; nothing else is a card. */
   :root{
-    --gray900:#191F28; --gray700:#333D4B; --gray600:#4E5968; --gray500:#6B7684;
-    --gray400:#8B95A1; --gray300:#B0B8C1; --gray200:#D1D6DB; --gray100:#E5E8EB;
-    --gray50:#F2F4F6;  --gray25:#F9FAFB;
-    --blue:#3182F6; --blue-dark:#1B64DA; --blue-soft:#E8F3FF;
-    --chip-ink:#1659C9;
-    --red:#F04452; --red-soft:#FDEDEE;
-    --green:#0CA678; --green-soft:#E6F6F0;
-    --amber:#B76E00; --amber-soft:#FFF4DE;
-    --violet:#7C4DFF; --violet-soft:#EEE9FF;
-    --bg:var(--gray50); --card:#ffffff;
-    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
-    --line:var(--gray100); --chipbg:var(--gray25);
-    --r-card:20px; --r-el:14px;
-    --shadow:0 1px 2px rgba(25,31,40,.03), 0 8px 24px rgba(25,31,40,.06);
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --n0:#FFFFFF; --n50:#F9F9FC; --n100:#F3F3F7; --n200:#E3E3E8; --n300:#D0D0D7; --n400:#A0A0AB;
+    --n500:#71717A; --n600:#52525B; --n700:#3F3F46; --n800:#27272A; --n900:#18181B;
+    --brand:#5B52FF; --brand-ink:#3723A9; --brand-50:#EBF0FF; --brand-100:#DDE3FF; --tint:#F4F2FF;
+    --hl:#D2FF95; --hl-ink:#0D0D12;
+    --red:#E60026; --red-soft:#FFF0F1; --green:#00AD82; --green-soft:#EFFDF8; --cost:#8A5A00;
+    --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
+    --sans:"Geist","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;
+    --mono:"Geist Mono",ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --r:8px; --r-lg:12px;
+    /* legacy aliases: pages built before this skin reference these names in inline SVG fills. Keep them so an
+       old page can be re-skinned by swapping this <style> only. New drawings use the names above. */
+    --card:var(--panel); --chipbg:var(--n100); --blue:var(--brand); --blue-soft:var(--brand-50); --chip-ink:var(--brand-ink);
+    --amber:var(--cost); --amber-soft:#FFF8E6; --violet:#7C4DFF;
+    --gray900:var(--n900); --gray700:var(--n700); --gray600:var(--n600); --gray500:var(--n500); --gray400:var(--n400);
+    --gray300:var(--n300); --gray200:var(--n200); --gray100:var(--n100); --gray50:var(--n50); --gray25:var(--n50);
   }
-  /* Dark tokens appear twice on purpose: once for "follow the system" and once for
-     the toggle. Keep the two blocks identical. */
+  /* Dark tokens appear twice on purpose: once for "follow the system" and once for the toggle. Keep the two blocks identical. */
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
-      --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
-      --gray50:#222831; --gray25:#1E242C;
-      --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
-      --chip-ink:#7FB4FF;
-      --red:#F4636F; --red-soft:#3A2226;
-      --green:#2BB88A; --green-soft:#173029;
-      --amber:#E0A44A; --amber-soft:#33291A;
-      --violet:#9A79FF; --violet-soft:#241E3A;
-      --bg:#171B21; --card:#1E242C;
-      --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
-      --line:#2A313A; --chipbg:#242B34;
-      --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+      --n0:#09090B; --n50:#131316; --n100:#1C1C21; --n200:#27272A; --n300:#3F3F46; --n400:#71717A;
+      --n500:#8E8E9A; --n600:#A0A0AB; --n700:#C4C4CC; --n800:#E3E3E8; --n900:#F3F3F7;
+      --brand:#7578FF; --brand-ink:#C2CBFF; --brand-50:#1B1A3A; --brand-100:#27265A; --tint:#15142A;
+      --red:#FF5C73; --red-soft:#2E161B; --green:#2EC79E; --green-soft:#10281F; --cost:#E0A44A; --amber-soft:#33291A;
+      --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
       color-scheme:dark;
     }
   }
   :root[data-theme="dark"]{
-    --gray900:#EDEFF2; --gray700:#D4D9E0; --gray600:#AEB6C1; --gray500:#8B95A1;
-    --gray400:#6B7684; --gray300:#4E5968; --gray200:#3A424D; --gray100:#2A313A;
-    --gray50:#222831; --gray25:#1E242C;
-    --blue:#4B94F8; --blue-dark:#3182F6; --blue-soft:#17253B;
-    --chip-ink:#7FB4FF;
-    --red:#F4636F; --red-soft:#3A2226;
-    --green:#2BB88A; --green-soft:#173029;
-    --amber:#E0A44A; --amber-soft:#33291A;
-    --violet:#9A79FF; --violet-soft:#241E3A;
-    --bg:#171B21; --card:#1E242C;
-    --ink:var(--gray900); --sub:var(--gray600); --faint:var(--gray400);
-    --line:#2A313A; --chipbg:#242B34;
-    --shadow:0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35);
+    --n0:#09090B; --n50:#131316; --n100:#1C1C21; --n200:#27272A; --n300:#3F3F46; --n400:#71717A;
+    --n500:#8E8E9A; --n600:#A0A0AB; --n700:#C4C4CC; --n800:#E3E3E8; --n900:#F3F3F7;
+    --brand:#7578FF; --brand-ink:#C2CBFF; --brand-50:#1B1A3A; --brand-100:#27265A; --tint:#15142A;
+    --red:#FF5C73; --red-soft:#2E161B; --green:#2EC79E; --green-soft:#10281F; --cost:#E0A44A; --amber-soft:#33291A;
+    --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
     color-scheme:dark;
   }
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Noto Sans KR",sans-serif;
-    background:var(--bg); color:var(--ink);
-    -webkit-font-smoothing:antialiased; line-height:1.65; letter-spacing:-0.01em;
+    font-family:var(--sans); background:var(--bg); color:var(--ink); font-size:15px;
+    -webkit-font-smoothing:antialiased; line-height:1.7; letter-spacing:-0.01em;
   }
+  .shell{ max-width:880px; margin:0 auto; padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px)); }
 
-  /* ── theme toggle (LOCKED) ──
-     The page follows the system setting until the reader presses this; the press
-     writes data-theme on <html>, which wins in both directions. On narrow screens
-     the button sits at the top of the page only, so it never covers body text. */
+  /* ── theme toggle (LOCKED) ── the page follows the system setting until the reader presses this */
   .theme-btn{
     position:absolute; top:16px; right:16px; z-index:50;
     width:36px; height:36px; padding:0; border-radius:50%;
     display:grid; place-items:center; cursor:pointer;
-    background:var(--card); color:var(--sub); border:1px solid var(--line);
+    background:var(--bg); color:var(--sub); border:1px solid var(--line);
     transition:color .15s ease, border-color .15s ease;
   }
-  .theme-btn:hover{ color:var(--ink); border-color:var(--gray300); }
-  .theme-btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .theme-btn:hover{ color:var(--ink); border-color:var(--n300); }
+  .theme-btn:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
   .theme-btn svg{ width:18px; height:18px; display:block; }
   @media (min-width:1080px){ .theme-btn{ position:fixed; top:20px; right:28px; } }
   @media print{ .theme-btn{ display:none; } }
 
-  /* eli5 runs wider than visual-doc: the pictures are the content. */
-  .shell{ max-width:880px; margin:0 auto; padding:0 24px 140px; }
+  /* ── cover: the brand-tint band holds the eyebrow, the title, the lede and the outline. The body below is white.
+     The band is the one place the brand tint is used as a surface; it is what says "this is an Upstage document". */
+  .band{ background:var(--tint); }
+  .hero{ padding-block:56px 40px; }
+  .eyebrow{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--brand-ink); margin-bottom:18px; }
+  .eyebrow i{ width:8px; height:8px; border-radius:2px; background:var(--brand); flex:none; }
+  .hero h1{ font-size:clamp(26px,3.6vw,32px); font-weight:800; line-height:1.3; letter-spacing:-0.035em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px; }
+  .hero .lede{ font-size:16px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0; max-width:720px; }
 
-  /* ── hero ──
-     The eyebrow is the page's only provenance line: where this comes from and as of when.
-     There is no footer. File paths and line numbers never appear on the page. */
-  .hero{ padding:44px 0 20px; }
-  .eyebrow{
-    font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.06em;
-    color:var(--faint); text-transform:uppercase; margin-bottom:14px;
-  }
-  .hero h1{
-    font-size:clamp(24px,3.6vw,30px); font-weight:800; line-height:1.3;
-    letter-spacing:-0.025em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 12px;
-  }
-  /* No max-width: the lede runs the column like .say, so its right edge matches the figure card. */
-  .hero .lede{
-    font-size:15.5px; line-height:1.7; color:var(--sub);
-    word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0;
-  }
+  /* ── outline: a nested table of contents inside the cover. Top-level rows are separated by hairlines; a sub-row is a
+     nested <ol> under its parent's title and uses the same 32px number column, so every title starts on one of two
+     vertical lines. No label, no card. */
+  .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
+  .outline ol{ list-style:none; margin:0; padding:0; }
+  .outline > ol > li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--brand); }
+  .outline ol ol{ grid-column:2; margin-top:6px; display:flex; flex-direction:column; gap:3px; }
+  .outline ol ol li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
+  .outline ol ol li b{ color:var(--faint); font-size:11.5px; }
+  .outline a{ color:inherit; text-decoration:none; }
+  .outline a:hover{ color:var(--brand); }
 
-  /* ── grouped page (optional; SKILL.md "Where the reader is on the page"): a top-level section (.sec-top) holds
-     its name in h2 and its beats below, each beat opening with .sub-h (number line + h3). A top-level
-     section with one beat has no .sub-h: the section is the beat. */
-  .sec-top > h2{ font-size:20px; font-weight:800; letter-spacing:-0.02em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
-  .sec-top .beat{ margin-top:34px; }
-  .sec-top.single .beat{ margin-top:18px; }
-  .sub-h h3{ font-size:18px; font-weight:700; letter-spacing:-0.02em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; }
-  .sub-h{ margin-bottom:14px; }
+  /* ── section hierarchy (eli5 copy; the other three skills still carry the pre-Lift block) ──
+     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills with the scroll
+     ratio, every top-level section opens with a hairline and a number line (`1 / 4`), and a beat inside a grouped
+     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text. */
+  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--brand); z-index:60; transition:width .1s linear; }
+  .sec-top{ border-top:1px solid var(--line); padding-top:28px; margin-top:56px; }
+  .shell > .sec-top:first-child{ border-top:none; margin-top:44px; padding-top:0; }  /* the first section sits under the cover without a second rule */
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
+  .sec-no b{ color:var(--brand); font-weight:700; }
+  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; }
+  /* deck: the fact under a short heading. The heading names what the figure is about (a noun phrase, about 20 characters);
+     the deck states the fact or the number in one line. The outline lists headings only, so it stays scannable. */
+  .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
+  .deck{ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
+  .sec-top .beat{ margin-top:36px; }
+  .sec-top.single .beat{ margin-top:0; }
+  .sub-h{ margin:0 0 14px; }
+  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
+  .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
+  .sub-h .deck{ margin-bottom:0; }
 
-  /* ── beat: one picture, one claim ── */
-  .beat{ margin-top:48px; }
-  .beat h2{
-    font-size:18px; font-weight:700; letter-spacing:-0.02em;
-    word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px;
-  }
-
-  /* ── figure ── */
-  .fig{
-    margin:0; background:var(--card); border:1px solid var(--line);
-    border-radius:var(--r-card); box-shadow:var(--shadow);
-    padding:26px 24px 20px; overflow-x:auto;
-  }
+  /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
+  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:26px 24px 20px; overflow-x:auto; }
   .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
-  /* no figcaption: everything the reader needs to read the picture goes in the .say below the card */
-
-  /* ── the one paragraph per beat (2-3 sentences) ──
-     Sits below the lede in the scale and runs the full column width: a narrower
-     measure than the figure above it strands a two-word last line. */
-  .say{
-    font-size:15px; font-weight:400; line-height:1.7; color:var(--sub);
-    word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:14px 0 0;
-  }
-  .say b{ font-weight:600; color:var(--ink); }
-  .say .cost{ font-weight:700; color:var(--amber); }
-  /* the conclusion line starts with a one-word label; no box, no border: it is prose */
-  .say .lab{ font-weight:700; color:var(--blue); margin-right:6px; }
-  .say .lab.warn{ color:var(--amber); }
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
-  .notes{ display:grid; gap:9px; margin-top:16px; }
-  .note{
-    display:grid; grid-template-columns:20px minmax(0,1fr); gap:10px; align-items:start;
-    font-size:15px; line-height:1.65; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty;
-  }
-  .note .m{ margin-top:5px; }
-  .note .m.code{ margin-top:4px; }
+  .notes{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+  .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .note .m{ margin-top:4px; }
   .note b{ font-weight:600; color:var(--ink); }
-  .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list, or whose rows are named by caption chips: no badges; the row's chip (.cap) or title leads */
-  /* caption chip inside a note: the same chip as the row header in the drawing (.dg-pill/.dg-cap, h 20, 11.5px), so a row's note is found by its chip, not by a badge */
-  .cap{ display:inline-block; vertical-align:1px; margin-right:6px; padding:0 8px; height:20px; line-height:20px; border-radius:10px; font-size:11.5px; font-weight:700; color:var(--sub); background:var(--gray100); white-space:nowrap; }
-  .cap.em{ color:var(--blue); background:var(--blue-soft); }
+  .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list, or whose rows are named by caption chips: no badges */
+  .cap{ display:inline-block; vertical-align:1px; margin-right:6px; padding:0 8px; height:20px; line-height:20px; border-radius:10px; font-size:11.5px; font-weight:700; color:var(--sub); background:var(--n200); white-space:nowrap; }
+  .cap.em{ color:var(--brand-ink); background:var(--brand-50); }
   .cap.bad{ color:var(--red); background:var(--red-soft); }
 
+  /* ── the closing line of a beat (SKILL.md "The word budget"): prose, full column width. The one-word label says what
+     the line is (`그래서` a conclusion drawn from the figure, `실측` a measurement, `지금은` the present state, `선택` a
+     decision); it is a lime highlight, the page's one signature mark, and a beat carries at most one. A line that is a
+     plain description carries no label. `확인 못 한 것` (lab warn) is text-only, in the cost color. */
+  .say{ font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:16px 0 0; }
+  .say b{ font-weight:600; color:var(--ink); }
+  .say .lab{ display:inline-block; font-weight:700; color:var(--hl-ink); background:var(--hl); padding:0 7px; border-radius:4px; margin-right:8px; line-height:1.5; }
+  .say .lab.warn{ background:transparent; color:var(--cost); padding:0; }
+  .say .cost{ font-weight:700; color:var(--cost); }
+
   /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
-     Numbers live in the drawing only; a card repeats the drawing's badge in its head. The number says where, the look
-     says what follows: the gray square (18px, rx 4) is a note only; the terminal badge (.code: a dark 22x20 window with a
-     title bar and three dots and a white mono digit, the same colors in both themes) says an evidence card with code
-     follows. Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
-  .m{
-    display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px;
-    background:var(--gray500); color:var(--card); font-family:var(--mono); font-size:10.5px; font-weight:700;
-    line-height:1; flex:none; vertical-align:-3px;
-  }
-  .m.code{ position:relative; width:22px; height:20px; border-radius:3px; background:#141A24; color:#FFFFFF; padding-top:5.5px; overflow:hidden; vertical-align:-5px; }
-  .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:5.5px; background:#2A3342; }
-  .m.code::after{ content:""; position:absolute; top:1.6px; left:2.4px; width:2.4px; height:2.4px; border-radius:50%; background:#F87171; box-shadow:3.4px 0 0 #FBBF24, 6.8px 0 0 #34D399; }
-  .dg-m rect{ fill:var(--gray500); }
-  .dg-m text{ fill:var(--card); font-family:var(--mono); font-size:10.5px; font-weight:700; text-anchor:middle; }
+     Two kinds, one 18x18 square. The gray square means a note follows; the terminal square (.code: dark window, a title
+     strip with three dots, a white digit, the same colors in both themes) means an evidence card with code follows.
+     Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
+  .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n700); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:700; line-height:1; flex:none; vertical-align:-3px; }
+  .m.code{ position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
+  .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:4.5px; background:#2A3342; }
+  .m.code::after{ content:""; position:absolute; top:1.4px; left:2px; width:1.8px; height:1.8px; border-radius:50%; background:#F87171; box-shadow:2.8px 0 0 #FBBF24, 5.6px 0 0 #34D399; }
+  .dg-m rect{ fill:var(--n700); }
+  .dg-m text{ fill:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:700; text-anchor:middle; }
   .dg-m.code rect{ fill:#141A24; }
   .dg-m.code rect.bar{ fill:#2A3342; }
   .dg-m.code .d1{ fill:#F87171; } .dg-m.code .d2{ fill:#FBBF24; } .dg-m.code .d3{ fill:#34D399; }
   .dg-m.code text{ fill:#FFFFFF; font-size:10px; }
-  /* group outline: one note about several boxes gets one dashed outline and one badge on its corner (SKILL.md "The word budget") */
-  .dg-grp{ fill:none; stroke:var(--blue); stroke-width:1.2; stroke-dasharray:4 4; opacity:.7; }
+  /* group outline: one note about several boxes gets one dashed outline and one badge on its corner */
+  .dg-grp{ fill:none; stroke:var(--brand); stroke-width:1.2; stroke-dasharray:4 4; opacity:.7; }
   .dg-grp.bad{ stroke:var(--red); }
-  /* system box and sequence lanes (SKILL.md "Draw the behavior with these shapes": steps inside one system, a request across systems) */
-  .dg-sys{ fill:var(--chipbg); stroke:var(--gray300); stroke-width:1.2; }   /* the boundary of one system; the steps inside sit on it with fill var(--card) */
-  .dg-life{ stroke:var(--gray300); stroke-width:1.2; stroke-dasharray:3 4; } /* a lane's lifeline under its head box */
-  .dg-dim{ opacity:.45; }                                                    /* a message or label that is history, not the point */
+  /* system box and sequence lanes (SKILL.md "Draw the behavior with these shapes") */
+  .dg-sys{ fill:var(--bg); stroke:var(--n300); stroke-width:1.2; }
+  .dg-life{ stroke:var(--n300); stroke-width:1.2; stroke-dasharray:3 4; }
+  .dg-dim{ opacity:.7; }                                   /* a replaced or past state reads like secondary text, not a watermark; solid strokes, never dashed (dashed = absent) */
+  .dg-dim .dg-s{ opacity:.85; }                            /* .7 x .85 = .6: the sub-line gray used everywhere else on the page */
+  .dg-sys.em{ stroke:var(--brand); }
+  /* to-scale bars (SKILL.md "Numbers are drawn to scale"): a 22px-tall bar per value, gray for the reference state,
+     brand for the state that is the point, red for the state that is worse; the value label sits right after the bar */
+  .dg-bar{ fill:var(--n300); }
+  .dg-bar.em{ fill:var(--brand); }
+  .dg-bar.bad{ fill:var(--red); opacity:.75; }
 
   /* ── evidence card (optional; SKILL.md "Evidence card") ──
-     The real file or table, verbatim, between the figure and the notes. Dashed border and the
-     chip background mark it as quoted material, not a drawing. Syntax colors reuse the code block's.
-     The card's head carries the badge of the drawing box it backs (the same number, .code shape), then a
-     kind word and the file; lines inside carry no badge. Line color means what badge color means: .hi blue
-     for the line that is the point, .hi.bad red for the line that breaks, .ghost for a line that should be
-     there and is not. A change at one place is one card in diff form: .del red minus, .add green plus,
-     context lines plain (the same colors as explain-diff's diff lines).
-     Cards stack one per row by default; .evs.pair puts two short cards side by side (SKILL.md "Rows by default"). */
-  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:14px; margin-top:14px; }
+     The real file verbatim, between the figure and the notes. Hairline border, a neutral head strip that reads the file, a kind word,
+     then the badge of the drawing box it backs at the right edge. Lines inside carry no badge and no gutter mark: the line the note is
+     about gets a neutral wash (.hi) and its .tag says why (.hi.bad: a red tag). A line that should be there and is not
+     (.ghost) is hollow: faint text in a gray dashed outline, tag `이 줄이 없음`. A change at one place is one card in diff
+     form: .del red minus, .add green plus, context lines plain. Cards stack one per row; .evs.pair puts two short cards side by side. */
+  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
   .evs.pair{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
   .ev{
-    /* keep equal to the --sx-* values in the SHARED code block below (.codeblock); eli5-only copy */
-    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
-    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
-    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
-    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
-    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
-    position:relative; border:1px dashed var(--gray200); border-radius:var(--r-el); background:var(--chipbg); min-width:0;
+    --sx-base:color-mix(in srgb, var(--ink) 55%, var(--n700));
+    --sx-k:var(--violet); --sx-f:var(--brand); --sx-s:var(--green); --sx-n:var(--cost);
+    border:1px solid var(--line); border-radius:var(--r); background:var(--bg); min-width:0; overflow:hidden;
   }
-  .ev-head{
-    display:flex; align-items:center; gap:10px; min-height:36px; padding:6px 12px; border-bottom:1px dashed var(--gray200);
-    font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0; flex-wrap:wrap;
-  }
-  .ev-head .m{ flex:none; }
-  .ev-head .kind{ font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }
-  .ev-head .kind.em{ color:var(--blue); }
+  .ev-head{ display:flex; align-items:center; gap:10px; min-height:36px; padding:6px 12px; border-bottom:1px solid var(--line-soft); background:var(--panel); font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0; flex-wrap:wrap; }
+  .ev-head .loc{ order:1; color:var(--ink); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }  /* the file is what the card is about: it reads first */
+  .ev-head .kind{ order:2; margin-right:auto; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }  /* what view of the file this is; pushes the badges to the right edge */
+  .ev-head .m{ order:3; flex:none; }                        /* the badge of the drawing box this card backs, where the eye lands coming down from the drawing. `order` draws pages written badge-first in this order too */
+  .ev-head .kind.em{ color:var(--brand); }
   .ev-head .kind.bad{ color:var(--red); }
   .ev-head .kind.add{ color:var(--green); text-transform:none; }  /* `PR #12 diff`: the number must not be upper-cased */
-  .ev-head .loc{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-  .ev-body{ overflow-x:auto; border-radius:0 0 var(--r-el) var(--r-el); }
+  .ev-body{ overflow-x:auto; }
   .ev-body pre{ width:max-content; min-width:100%; margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
-  .ev .ln{ display:flex; align-items:center; padding:0 12px 0 8px; white-space:pre; height:19px; }
-  /* file form: no line fill (a red fill reads as a diff deletion). A pointer in the gutter marks the line the note is about */
-  .ev .ln:not(:has(.sign))::before{ content:""; flex:none; width:14px; font-weight:700; color:var(--blue); }
-  .ev .ln.hi:not(:has(.sign))::before{ content:"›"; }
-  .ev .ln.hi.bad:not(:has(.sign))::before{ color:var(--red); }
+  .ev .ln{ display:flex; align-items:center; padding:0 12px 0 8px; white-space:pre; height:20px; }
+  .ev .ln:not(:has(.sign))::before{ content:""; flex:none; width:6px; }
   .ev .ln .t{ flex:none; }
-  .ev .ln.hi{ color:var(--ink); }
+  .ev .ln.hi{ background:var(--n100); color:var(--ink); }
   .ev .ln.ghost{ color:var(--faint); }
-  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--red); border-radius:4px; padding:0 6px; margin:1px 0; color:var(--red); opacity:.85; }
+  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--n400); border-radius:4px; padding:0 6px; margin:1px 0; color:var(--faint); }
   .ev .ln.ghost .sx-f, .ev .ln.ghost .sx-s, .ev .ln.ghost .sx-n, .ev .ln.ghost .sx-k{ color:inherit; }
   .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:14px; }  /* right after the text, never pushed to the edge */
-  .ev .ln.hi .tag{ color:var(--chip-ink); font-weight:600; }
-  .ev .ln.hi.bad .tag, .ev .ln.ghost .tag{ color:var(--red); font-weight:600; }
+  .ev .ln.hi .tag{ color:var(--brand-ink); font-weight:600; }
+  .ev .ln.hi.bad .tag{ color:var(--red); font-weight:600; }
+  .ev .ln.ghost .tag{ color:var(--faint); font-weight:600; }
   /* diff form: every line starts with a .sign (`-`, `+`, or a space for context) so the columns align */
   .ev .ln .sign{ flex:none; width:14px; font-weight:700; color:transparent; }
   .ev .ln.add{ background:var(--green-soft); color:var(--ink); }
   .ev .ln.add .sign{ color:var(--green); }
-  .ev .ln.del{ background:var(--red-soft); color:var(--gray500); }
+  .ev .ln.del{ background:var(--red-soft); color:var(--n500); }
   .ev .ln.del .sign{ color:var(--red); }
   .ev .ln.del .sx-k, .ev .ln.del .sx-f, .ev .ln.del .sx-s, .ev .ln.del .sx-n{ color:inherit; }
   .ev .ln.add .tag{ color:var(--green); font-weight:600; }
   .ev .ln.del .tag{ color:var(--red); font-weight:600; }
+  .ev .ln.gap{ color:var(--faint); font-style:italic; }
   /* table form: every .col keeps the badge slot (.g); a table card has no head badge because its badges sit on the columns */
   .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
   .erd{ display:grid; grid-template-columns:1fr auto 1fr; align-items:start; padding:12px; gap:0; }
   @media (max-width:600px){ .erd{ grid-template-columns:1fr; } .erd .rel{ transform:rotate(90deg); height:40px; } }
-  .tbl{ border:1px solid var(--gray200); border-radius:10px; background:var(--card); overflow:hidden; min-width:0; }
-  .tbl .tn{ padding:7px 12px; font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--gray200); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  .tbl{ border:1px solid var(--line); border-radius:8px; background:var(--bg); overflow:hidden; min-width:0; }
+  .tbl .tn{ padding:7px 12px; font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
   .tbl .tn small{ font-family:inherit; font-weight:400; color:var(--faint); font-size:11px; }
-  .tbl .col{ display:flex; align-items:center; gap:8px; padding:3px 12px; font-family:var(--mono); font-size:11.5px; color:var(--gray700); }
+  .tbl .col{ display:flex; align-items:center; gap:8px; padding:3px 12px; font-family:var(--mono); font-size:11.5px; color:var(--n700); }
   .tbl .col .g{ order:-1; }
   .tbl .col::before{ content:""; width:16px; flex:none; font-size:9.5px; font-weight:700; color:var(--faint); }
   .tbl .col.key::before{ content:"PK"; }
-  .tbl .col.fk::before{ content:"FK"; color:var(--chip-ink); }
+  .tbl .col.fk::before{ content:"FK"; color:var(--brand-ink); }
   .tbl .col .ty{ margin-left:auto; color:var(--faint); font-size:10.5px; white-space:nowrap; }
-  .tbl .col.hi{ background:var(--blue-soft); color:var(--ink); }
-  .tbl .col.hi .ty{ color:var(--chip-ink); }
+  .tbl .col.hi{ background:var(--brand-50); color:var(--ink); }
+  .tbl .col.hi .ty{ color:var(--brand-ink); }
   .tbl .col.more{ color:var(--faint); }
   .rel{ display:grid; place-items:center; padding:0 8px; align-self:center; }
-  .rel svg{ width:56px; height:26px; display:block; color:var(--chip-ink); }
-  code{
-    font-family:var(--mono); font-size:.88em; font-weight:500;
-    background:color-mix(in srgb, var(--blue) 9%, transparent);
-    color:var(--chip-ink); padding:2px 3px; border-radius:6px;
-  }
+  .rel svg{ width:56px; height:26px; display:block; color:var(--brand-ink); }
+  code{ font-family:var(--mono); font-size:.88em; font-weight:500; background:var(--brand-50); color:var(--brand-ink); padding:2px 4px; border-radius:5px; }
 
-  /* ── number strip: 4 max, at least one is a cost ── */
-  .numbers{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-    gap:1px; background:var(--line); border:1px solid var(--line);
-    border-radius:var(--r-el); overflow:hidden;
-  }
-  .num{ background:var(--card); padding:16px 18px; }
-  .num .k{ font-size:12.5px; color:var(--sub); word-break:keep-all; }
-  .num .v{
-    font-size:16px; font-weight:700; letter-spacing:-0.01em;
-    font-variant-numeric:tabular-nums; margin-top:4px; color:var(--ink); word-break:keep-all;
-  }
-  .num .v.cost{ color:var(--amber); }
-  .num .d{ font-size:13px; line-height:1.6; color:var(--sub); margin-top:6px; word-break:keep-all; text-wrap:pretty; }
+  /* ── close: prose, no box. A hairline, the mono label, one bold sentence, one short paragraph. The page ends here. ── */
+  .close{ margin-top:56px; padding-top:28px; border-top:1px solid var(--line); padding-bottom:120px; }
+  .close .k{ font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--brand); margin-bottom:10px; }
+  .close .t{ font-size:19px; font-weight:700; letter-spacing:-0.03em; line-height:1.5; word-break:keep-all; text-wrap:balance; max-width:760px; }
+  .close p{ margin:12px 0 0; font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; text-wrap:pretty; max-width:720px; }
 
-  /* ── closing card: no heading above it, the statement is the heading ── */
-  .close{
-    margin-top:48px; background:var(--amber-soft);
-    border:1px solid color-mix(in srgb, var(--amber) 22%, transparent);
-    border-radius:var(--r-el); padding:20px 24px;
-  }
-  .close .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--amber); margin-bottom:8px; }
-  .close .t{ font-size:16px; font-weight:700; letter-spacing:-0.01em; word-break:keep-all; text-wrap:balance; line-height:1.5; }
-  .close p{ margin:8px 0 0; font-size:14.5px; line-height:1.65; color:var(--sub); word-break:keep-all; text-wrap:pretty; }
-
-  /* ── section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
-     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills
-     with the scroll ratio (no text on it), one inline .outline right after the hero lists every
-     section once, each top-level section opens with a rule and a number line (`1 / 8`), and a
-     sub-section opens with a short left bar and its number (`1-1`). Numbers live in these lines,
-     never in the heading text. Comes after the component CSS so .sec-top wins over a block's own margin. */
-  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blue); z-index:60; transition:width .1s linear; }
-  .sec-top{ border-top:2px solid var(--gray200); padding-top:26px; margin-top:60px; }
-  .hero + .sec-top, .outline + .sec-top{ margin-top:28px; }  /* the first section sits close under the outline: the rule, not empty space, separates them */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
-  .sec-no b{ color:var(--blue); font-weight:700; }
-  .sub-h{ border-left:3px solid var(--blue); padding-left:12px; margin:30px 0 12px; }
-  .sub-h > *{ margin:0; }
-  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--blue); margin:0 0 4px; }
-  .outline{ margin:22px 0 0; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-el); }
-  .outline .k{ font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--faint); margin-bottom:8px; }
-  .outline ol{ list-style:none; margin:0; padding:0; }
-  .outline li{ display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; padding:4px 0; font-size:14.5px; font-weight:600; line-height:1.5; word-break:keep-all; }
-  .outline li b{ font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue); padding-top:3px; }
-  .outline li + li:not(.sub){ margin-top:6px; }  /* top-level lines group their sub lines under them */
-  .outline li.sub{ padding:2px 0 2px 22px; grid-template-columns:40px minmax(0,1fr); font-size:13.5px; font-weight:400; color:var(--sub); }
-  .outline li.sub b{ color:var(--faint); font-weight:600; }
-  .outline a{ color:inherit; text-decoration:none; border-bottom:none; }
-  .outline a:hover{ color:var(--blue); }
-
-  /* ── figure labels (SHARED: identical in eli5, visual-doc, explain-diff) ──
-     Text inside a hand-authored SVG figure uses only these classes. */
+  /* ── figure labels (SHARED names with visual-doc, explain-diff) ── Text inside a hand-authored SVG figure uses only these classes. */
   .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
-  .dg-s{ font-family:var(--mono); font-size:11px; fill:currentColor; opacity:.6; }
-  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* the one big number */
-  .dg-halo{ paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line: opaque, page-colored stroke behind the glyphs; draw it after the lines */
-  .dg-em{ fill:var(--blue); }                               /* the point of this picture */
+  .dg-s{ font-size:11.5px; fill:currentColor; opacity:.6; }  /* sub-line and free caption: the body face, so Hangul does not fall back to a second face */
+  .dg-s.code{ font-family:var(--mono); font-size:11px; }   /* an identifier, a path, a call, a status code (`sha1`, `astream_chat`, `POST title/generate`) */
+  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* shared name; an eli5 page does not use it (a result is a bar pair in the cost beat or a `.say` line, never a number floating beside a mechanism) */
+  .dg-halo{ paint-order:stroke; stroke:var(--panel); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line; draw it after the lines, and break the line around it */
+  .dg-em{ fill:var(--brand); }                              /* the point of this picture */
   .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
-  /* optional, for a figure whose rows compare states (SKILL.md "State captions and the focal string"): */
-  .dg-q{ font-size:15px; font-weight:700; }                 /* with .dg-l: the one string the figure is about (no fill, so .dg-em/.dg-bad still apply) */
-  .dg-pill{ fill:var(--gray100); }                          /* state caption pill: rect h=20 rx=10, width = text + 16 */
+  .dg-q{ font-size:14px; font-weight:600; }                 /* with .dg-l: the one string the figure is about; one per figure, a row of variants stays .dg-l */
+  .dg-pill{ fill:var(--n200); }                             /* state caption pill: rect h=20 rx=10, width = text + 16 */
   .dg-pill.bad{ fill:var(--red-soft); }
-  .dg-pill.em{ fill:var(--blue-soft); }
-  .dg-cap{ font-size:11.5px; font-weight:700; fill:var(--sub); }                 /* state caption text on the pill, baseline y = pill y + 14 */
+  .dg-pill.em{ fill:var(--brand-50); }
+  .dg-cap{ font-size:11.5px; font-weight:700; fill:var(--sub); }  /* state caption text on the pill, baseline y = pill y + 14 */
   .dg-cap.bad{ fill:var(--red); }
-  .dg-cap.em{ fill:var(--blue); }
+  .dg-cap.em{ fill:var(--brand-ink); }
 
-  /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ──
-     The .ctl row sits above the .fig it drives. The script that redraws the figure
-     goes at the end of <body>, never inside the <svg>. */
+  /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ── */
   .ctl{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px; margin:0 0 12px; }
   .ctl .field{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
   .ctl label, .ctl .lbl{ font-size:13.5px; color:var(--sub); }
   .ctl output{ font-size:14px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; min-width:3em; }
-  .ctl input[type=range]{ width:160px; max-width:100%; accent-color:var(--blue); }
-  .seg{ display:inline-flex; flex-wrap:wrap; background:var(--chipbg); border:1px solid var(--line); border-radius:999px; padding:3px; }
-  .seg button{
-    appearance:none; border:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
-    color:var(--sub); background:transparent; padding:6px 14px; border-radius:999px;
-  }
-  .seg button[aria-pressed="true"]{ background:var(--blue); color:var(--card); }
-  .ctl input:focus-visible, .seg button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .ctl input[type=range]{ width:160px; max-width:100%; accent-color:var(--brand); }
+  .seg{ display:inline-flex; flex-wrap:wrap; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .seg button{ appearance:none; border:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--sub); background:transparent; padding:6px 14px; border-radius:999px; }
+  .seg button[aria-pressed="true"]{ background:var(--brand); color:var(--n0); }
+  .ctl input:focus-visible, .seg button:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
 
-  /* ── inline code chip wrapping (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
-     A chip never breaks inside: a flag split at "--" reads as two tokens. Below 600px a chip moves to
-     the next line whole, and one longer than its line or table cell scrolls inside itself instead of
-     pushing the page sideways. */
+  /* ── inline code chip wrapping (SHARED) ── */
   :not(pre) > code{ white-space:nowrap; }
   @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
 
-  /* ── code block (SHARED: identical in eli5, visual-doc, explain-diff, micro-world) ──
-     Syntax colors are spans the author wraps by hand (no highlighter script):
-     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment.
-     Each color is its token mixed with body gray, so it reads calm in both themes.
-     Long lines never wrap: .cb-body scrolls with an always-visible scrollbar. */
-  .codeblock{
-    --sx-base:color-mix(in srgb, var(--ink) 50%, var(--gray700));
-    --sx-k:color-mix(in srgb, var(--violet) 80%, var(--gray600));
-    --sx-f:color-mix(in srgb, var(--blue) 80%, var(--gray700));
-    --sx-s:color-mix(in srgb, var(--green) 80%, var(--gray600));
-    --sx-n:color-mix(in srgb, var(--amber) 82%, var(--gray600));
-    background:var(--gray25); border:1px solid var(--line); border-radius:var(--r-el); overflow:hidden;
-  }
-  .cb-head{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:9px 16px; border-bottom:1px solid var(--line);
-    font-family:var(--mono); font-size:11px; color:var(--faint);
-  }
-  .cb-head .file{ font-weight:600; color:var(--gray500); min-width:0; overflow-wrap:anywhere; }
-  .cb-body{ overflow-x:auto; }
-  .cb-body::-webkit-scrollbar{ height:10px; }
-  .cb-body::-webkit-scrollbar-track{ background:var(--gray50); }
-  .cb-body::-webkit-scrollbar-thumb{ background:var(--gray300); border-radius:999px; border:2px solid var(--gray50); }
-  /* Firefox: no ::-webkit-scrollbar. Chrome ignores the pseudo-elements once scrollbar-color is set, so scope it */
-  @supports not selector(::-webkit-scrollbar){ .cb-body{ scrollbar-color:var(--gray300) var(--gray50); } }
-  .codeblock pre{
-    margin:0; padding:12px 0; width:max-content; min-width:100%;
-    font-family:var(--mono); font-size:12.5px; line-height:1.8; color:var(--sx-base);
-  }
-  .ln{ display:block; padding:0 18px; white-space:pre; }
-  .ln.gap{ color:var(--faint); font-style:italic; }
-  .sx-k{ color:var(--sx-k); }
-  .sx-f{ color:var(--sx-f); }
-  .sx-s{ color:var(--sx-s); }
-  .sx-n{ color:var(--sx-n); }
-  .sx-c{ color:var(--faint); font-style:italic; }
+  /* ── code block (SHARED names) ── on this page quoted source goes in the evidence card; these classes color its tokens.
+     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment. */
+  .sx-k{ color:var(--sx-k); } .sx-f{ color:var(--sx-f); } .sx-s{ color:var(--sx-s); } .sx-n{ color:var(--sx-n); } .sx-c{ color:var(--faint); font-style:italic; }
 </style>
 <script>
-/* theme toggle (LOCKED): a saved choice is applied before first paint. The button
-   still works where storage is blocked (private windows); it just is not remembered. */
+/* theme toggle (LOCKED): a saved choice is applied before first paint. */
 (function(){
   var root = document.documentElement, KEY = "git-claw-doc-theme";
   function isDark(){
@@ -435,208 +311,170 @@
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
 </button>
 <div class="progress" id="progress"></div>
+
+<!-- COVER: band + hero + outline. The eyebrow is the page's only provenance line (source, date). No footer. -->
+<div class="band">
+  <div class="shell">
+    <div class="hero">
+      <div class="eyebrow"><i aria-hidden="true"></i>{출처 한 가지, YYYY-MM-DD}</div>
+      <h1>{주제의 실제 이름이 들어간 명사구, 25자 안팎. 비유와 식별자 금지}</h1>
+      <p class="lede">{그 하나의 생각을 한두 문장으로. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
+      <!-- 차례: 상위 섹션마다 한 줄, 제목은 h2와 같은 글. 하위 beat는 상위 li 안의 <ol>로 중첩한다. 마지막 .close에는 제목이 없으므로 넣지 않는다.
+           묶음이 없는 평평한 페이지는 상위 줄만 있다 -->
+      <nav class="outline" aria-label="차례">
+        <ol>
+          <li><b>1</b><a href="#g1">{섹션 1의 h2와 같은 글}</a></li>
+          <li><b>2</b><a href="#g2">{섹션 2의 h2와 같은 글}</a>
+            <ol>
+              <li><b>2-1</b><a href="#b21">{그 안 beat의 h3와 같은 글}</a></li>
+              <li><b>2-2</b><a href="#b22">{그 안 beat의 h3와 같은 글}</a></li>
+            </ol>
+          </li>
+          <li><b>3</b><a href="#g3">{섹션 3의 h2와 같은 글}</a></li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+
 <div class="shell">
 
-  <div class="hero">
-    <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
-    <h1>{주제의 실제 이름이 들어간 명사구. 비유 금지}</h1>
-    <p class="lede">{한 문장으로 요약한 그 하나의 생각. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
-    <!-- 차례: beat마다 한 줄, h2와 같은 글. 마지막 .close 카드는 제목이 없으므로 넣지 않는다.
-         beat가 5개 이상이고 두세 묶음으로 나뉘면(배경, 원인, 변경, 현황처럼) 상위 줄 아래에 li.sub로 beat를 들여 쓴다:
-           <li><b>1</b><a href="#g1">{상위 섹션의 h2}</a></li>
-           <li class="sub"><b>1-1</b><a href="#b1">{그 안 beat의 h3}</a></li>
-         beat가 하나뿐인 상위 섹션은 하위 줄 없이 그 줄이 beat다 -->
-    <nav class="outline" aria-label="차례">
-      <div class="k">차례</div>
-      <ol>
-        <li><b>1</b><a href="#b1">{BEAT 1의 h2와 같은 글}</a></li>
-        <li><b>2</b><a href="#b2">{BEAT 2의 h2와 같은 글}</a></li>
-      </ol>
-    </nav>
-  </div>
-
-  <!-- BEAT 1: 문제. 막히거나 실패하는 장면부터 그린다.
-       beat마다 id, 위에 가로선(.sec-top), 번호 줄(.sec-no: 번호 / 전체 beat 수, `1 / 6`처럼 0을 채우지 않는다). 제목 글자에는 숫자를 넣지 않는다.
-       묶음이 있는 페이지는 상위 섹션이 가로선과 번호 줄, h2를 갖고 beat는 그 안에서 .sub-h로 연다 (h2 대신 h3):
-         <section class="sec-top" id="g1">
-           <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
-           <h2>{상위 섹션의 사실 한 가지}</h2>
-           <div class="beat" id="b1">
-             <div class="sub-h"><div class="sub-no">1-1</div><h3>{이 그림이 보여주는 사실 한 가지}</h3></div>
-             <figure class="fig">…</figure> …
-           </div>
-         </section>
-       beat가 하나뿐인 상위 섹션은 class="sec-top single"이고 .sub-h가 없다 -->
-  <div class="beat sec-top" id="b1">
-    <div class="sec-no"><b>1</b><span>/ {전체 beat 수}</span></div>
-    <h2>{이 그림이 보여주는 사실을 담은 명사구. 서술어로 끝나면 제목이 아니라 해설이다}</h2>
-    <figure class="fig">
-      <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
-        <!-- W=760 | row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(✕) [590..720] -->
-        <defs>
-          <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <polygon points="0,0 10,5 0,10" fill="currentColor"/>
-          </marker>
-        </defs>
-
-        <rect x="40" y="56" width="150" height="88" rx="6"
-              fill="none" stroke="currentColor" stroke-width="1.5"/>
-
-        <line x1="205" y1="100" x2="320" y2="100"
-              stroke="currentColor" stroke-width="1.6" marker-end="url(#ar1)"/>
-
-        <rect x="335" y="56" width="150" height="88" rx="6"
-              fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <!-- two lines: name, then one plain sub-line (dy = height of the line above). 150 wide holds 9 Hangul or 15 lowercase Latin per .dg-l line.
-             boxes are 88 high (row shares one height), so the block is centered: y = 100 − 18/2 + 4 = 95; one-line boxes: y = 100 + 4 = 104 -->
-
-        <g stroke="var(--red)" stroke-width="3.2" stroke-linecap="round">
-          <line x1="512" y1="84" x2="546" y2="118"/>
-          <line x1="546" y1="84" x2="512" y2="118"/>
-        </g>
-
-        <rect x="590" y="56" width="130" height="88" rx="6"
-              fill="none" stroke="currentColor" stroke-width="1.5"
-              stroke-dasharray="5 4" opacity=".45"/>
-
-        <!-- labels last: text paints over the shapes (rule 6), which is what makes dg-halo work -->
-        <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
-        <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
-        <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{무엇인지 한 마디}</tspan></text>
-        <text class="dg-l dg-bad" x="529" y="146" text-anchor="middle">{여기서 실패}</text>
-        <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
-        <!-- one note about several same-shaped boxes: a dashed group outline drawn BEFORE those boxes (8px outside them, rx 10),
-             the boxes filled with var(--card) so they sit on top, and the one badge on the group's corner:
-             <rect class="dg-grp" x="327" y="48" width="166" height="104" rx="10"/>  (bad for a red group) -->
-        <!-- badges last of all: on the top-left corner of the box (or group outline) they number, in reading order, same number as the note below.
-             Not every box gets one: only the ones whose note adds what the label cannot. A drawing that is itself a list gets none (.notes.plain).
-             Badges carry no color (red for what breaks lives in the drawing). A badge whose beat has an evidence card for that box is a terminal badge
-             (class code: the 22x20 window rect, a .bar title strip, three dots, the digit at y=6.5); the card head and the note repeat it.
-             A row named by a caption chip (.dg-pill) gets no badge: its note opens with the same chip (.cap) -->
-        <g class="dg-m" transform="translate(40,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
-        <g class="dg-m code" transform="translate(335,56)"><rect x="-11" y="-10" width="22" height="20" rx="3"/><rect class="bar" x="-11" y="-10" width="22" height="5.5"/><circle class="d1" cx="-7.6" cy="-7.2" r="1.2"/><circle class="d2" cx="-4.2" cy="-7.2" r="1.2"/><circle class="d3" cx="-0.8" cy="-7.2" r="1.2"/><text y="6.5">2</text></g>
-        <g class="dg-m" transform="translate(590,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">3</text></g>
-      </svg>
-    </figure>
-    <!-- 선택: 그림이 말할 수 없는 사실일 때만 (SKILL.md "Evidence card": 있어야 할 줄이 없음, 문구 자체가 변경점, 그림이 상자로 추상화한 한 줄).
-         카드 머리에 그 상자의 배지(같은 번호, code 모양)와 종류 한 마디, 파일 이름. 줄 안에는 배지가 없다.
-         요점 줄은 .hi(홈에 파란 › 포인터), 깨지는 줄은 .hi.bad(빨간 포인터), 있어야 하는데 없는 줄은 .ghost. 줄 배경은 칠하지 않는다(빨간 배경은 diff의 삭제로 읽힌다). 꼬리표(.tag)는 글자 바로 뒤에 붙는다.
-         같은 자리의 변경은 카드 하나에 diff로: 줄마다 .sign(- + 공백), 빠진 줄 .del, 생긴 줄 .add, 머리에는 전과 후 상자의 배지 둘(같은 터미널 모양)
-    <div class="evs">
-      <div class="ev">
-        <div class="ev-head"><span class="m code">2</span><span class="kind">설정</span><span class="loc">{config/config.yaml}</span></div>
-        <div class="ev-body"><pre><span class="ln"><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi"><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
+  <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호 줄은 `1 / 전체 상위 섹션 수`. 제목 글자에는 숫자를 넣지 않는다. -->
+  <section class="sec-top single" id="g1">
+    <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
+    <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
+    <p class="deck">{그림이 보여주는 사실 한 줄: 수치, 조건, 결과. 제목을 되풀이하지 않는다}</p>
+    <div class="beat">
+      <figure class="fig">
+        <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
+          <!-- W=760 | row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(X on the line) [590..720] -->
+          <defs>
+            <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+            </marker>
+          </defs>
+          <rect x="40" y="56" width="150" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="205" y1="100" x2="320" y2="100" stroke="currentColor" stroke-width="1.6" marker-end="url(#ar1)"/>
+          <rect x="335" y="56" width="150" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <!-- a failure: the line leaves the box in red, stops short, and the X sits ON the line where it stops; the unreachable box is dashed and dim -->
+          <line x1="500" y1="100" x2="518" y2="100" stroke="var(--red)" stroke-width="1.8"/>
+          <g stroke="var(--red)" stroke-width="2.6" stroke-linecap="round"><line x1="520" y1="91" x2="538" y2="109"/><line x1="538" y1="91" x2="520" y2="109"/></g>
+          <rect x="590" y="56" width="130" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".45"/>
+          <!-- labels last: text paints over the shapes (rule 6) -->
+          <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
+          <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
+          <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{데이터 한 조각: 숫자, 식별자(code), 값. 없으면 이 tspan을 지우고 y를 104로}</tspan></text>
+          <text class="dg-s dg-bad" x="529" y="128" text-anchor="middle" style="opacity:1">{상태 코드나 한 마디}</text>
+          <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+          <!-- badges last of all, on the top-left corner of the box they number, in reading order, same number as the note below.
+               Note badge: 18x18 gray square. Terminal badge (an evidence card with code follows): class code, the same 18x18 square
+               with a title strip and three dots. Not every box gets one; a badge earns its place. -->
+          <g class="dg-m" transform="translate(40,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
+          <g class="dg-m code" transform="translate(335,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
+        </svg>
+      </figure>
+      <!-- 선택: 근거 카드 (SKILL.md "Evidence card"). 머리는 파일 이름, 종류 한 마디, 그 상자의 터미널 배지(오른쪽 끝) 순서. 요점 줄은 .hi(회색 바탕, 꼬리표가 이유를 말한다), 깨지는 줄은 .hi.bad(빨간 꼬리표), 있어야 하는데 없는 줄은 .ghost(회색 점선).
+      <div class="evs">
+        <div class="ev">
+          <div class="ev-head"><span class="loc">{config/config.yaml}</span><span class="kind">설정</span><span class="m code">2</span></div>
+          <div class="ev-body"><pre><span class="ln"><span class="t"><span class="sx-f">search</span>:</span></span><span class="ln hi bad"><span class="t">  <span class="sx-f">statement_timeout_ms</span>: <span class="sx-n">2000</span></span><span class="tag">{꼬리표 한 마디}</span></span><span class="ln ghost"><span class="t">  default_search_mode: hybrid</span><span class="tag">이 줄이 없음</span></span></pre></div>
+        </div>
+        <div class="ev">
+          <div class="ev-head"><span class="loc">{app/titler/prompt.py}</span><span class="kind add">PR #{n} diff</span><span class="m code">1</span><span class="m code">2</span></div>
+          <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">SYSTEM_PROMPT = (</span></span><span class="ln del"><span class="sign">-</span><span class="t">    <span class="sx-s">"At most 4 words."</span></span><span class="tag">{빠진 규칙 한 마디}</span></span><span class="ln add"><span class="sign">+</span><span class="t">    <span class="sx-s">"A concise noun phrase. No word limit."</span></span><span class="tag">{생긴 규칙 한 마디}</span></span><span class="ln gap"><span class="sign"> </span><span class="t">    … {N}줄 생략</span></span><span class="ln"><span class="sign"> </span><span class="t">)</span></span></pre></div>
+        </div>
+      </div> -->
+      <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 1~2문장, 110자 이내. 사실만, 본문 크기. -->
+      <div class="notes">
+        <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
+        <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
       </div>
-      <div class="ev">
-        <div class="ev-head"><span class="m code">1</span><span class="m code">2</span><span class="kind add">PR #{n} diff</span><span class="loc">{app/titler/prompt.py}</span></div>
-        <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">SYSTEM_PROMPT = (</span></span><span class="ln del"><span class="sign">-</span><span class="t">    <span class="sx-s">"At most 4 words."</span></span><span class="tag">{빠진 규칙 한 마디}</span></span><span class="ln add"><span class="sign">+</span><span class="t">    <span class="sx-s">"A concise noun phrase. No word limit."</span></span><span class="tag">{생긴 규칙 한 마디}</span></span><span class="ln gap"><span class="sign"> </span><span class="t">    … {N}줄 생략</span></span><span class="ln"><span class="sign"> </span><span class="t">)</span></span></pre></div>
-      </div>
-      <div class="ev">
-        <div class="ev-head"><span class="kind">테이블</span><span class="loc">{후보 1행 → 청크 1행}</span></div>
-        <div class="erd">
-          <div class="tbl">
-            <div class="tn">{table_a} <small>{쉬운 말 한 마디}</small></div>
-            <div class="col key"><span class="g"></span>id</div>
-            <div class="col fk hi"><span class="g"><span class="m">1</span></span>b_id<span class="ty">→ {table_b}.id</span></div>
-            <div class="col more"><span class="g"></span>+ {N} 컬럼</div>
-          </div>
-          <div class="rel"><svg viewBox="0 0 56 26" aria-hidden="true"><path d="M2 13 H46" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M46 13 l-7 -5 M46 13 l-7 5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2 5 V21 M8 5 L2 13 L8 21" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
-          <div class="tbl">
-            <div class="tn">{table_b} <small>{쉬운 말 한 마디}</small></div>
-            <div class="col key"><span class="g"></span>id</div>
-            <div class="col hi"><span class="g"><span class="m">2</span></span>embedding<span class="ty">vector(1024) = 4 KB</span></div>
-          </div>
+      <!-- 마무리 줄. 라벨은 그 줄이 무엇인지 말하는 한 단어(그래서, 실측, 지금은, 선택)이고 beat당 하나. 설명문이면 라벨 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
+      <p class="say"><span class="lab warn">확인 못 한 것</span>{검증하지 못한 사실과 무엇이 확정하는지.}</p>
+      <p class="say"><span class="lab">그래서</span>{이 그림의 결론 한두 문장, 90자 이내.}</p>
+    </div>
+  </section>
+
+  <!-- SECTION 2 (묶음: 상위 섹션이 h2를 갖고, beat는 .sub-h로 연다) -->
+  <section class="sec-top" id="g2">
+    <div class="sec-no"><b>2</b><span>/ {상위 섹션 수}</span></div>
+    <h2>{상위 섹션의 대상, 짧은 명사구}</h2>
+    <p class="deck">{이 묶음이 말하는 사실 한 줄}</p>
+    <div class="beat" id="b21">
+      <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3><p class="deck">{사실 한 줄}</p></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
+          <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다 -->
+          <rect x="40" y="40" width="680" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".4"/>
+          <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
+        </svg>
+      </figure>
+      <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장. 설명문이라 라벨이 없다.}</p>
+    </div>
+    <div class="beat" id="b22">
+      <div class="sub-h"><div class="sub-no">2-2</div><h3>{짧은 명사구}</h3><p class="deck">{사실 한 줄}</p></div>
+      <!-- 선택: 조작할 수 있는 그림 (SKILL.md "An interactive figure"). 값이 움직여야 요점이 보이는 주제에만, 페이지당 1개.
+      <div class="ctl">
+        <div class="field">
+          <label for="in-count">{입력 이름}</label>
+          <input type="range" id="in-count" min="1" max="5" step="1" value="3">
+          <output id="in-count-out" for="in-count">{기본값과 단위}</output>
         </div>
       </div>
-    </div> -->
-    <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 그것이 무엇이고 그림에 없는 조건 하나를 1~2문장. 사실만, 본문 크기.
-         그림이 세로 목록 그 자체(결정 3줄 등)이거나 행마다 캡션 칩이 이름이면 .notes.plain: 배지 없이 행의 칩(<span class="cap em">원문만</span>)이나 행 제목(굵게)으로 시작, 행과 같은 순서 -->
-    <div class="notes">
-      <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
-      <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
-      <div class="note"><span class="m">3</span><div><b>{못 닿는 곳}</b>{에 왜 못 닿는지. 배지는 회색이고 빨강은 그림 안의 표시가 맡는다.}</div></div>
+      <figure class="fig"><svg viewBox="0 0 760 200" role="img" aria-labelledby="fig-live-say"><g id="fig-live"></g></svg></figure>
+      <p class="say" id="fig-live-say" aria-live="polite">{기본값일 때 무슨 일이 일어나는지 1~2문장.}</p>
+      -->
+      <figure class="fig">
+        <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
+          <rect x="40" y="40" width="680" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".4"/>
+          <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
+        </svg>
+      </figure>
+      <p class="say"><span class="lab">지금은</span>{현재 상태를 말하는 줄에는 그래서 대신 지금은.}</p>
     </div>
-    <!-- 결론 한 줄. 라벨 한 단어만 색, 상자 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
-    <p class="say"><span class="lab warn">확인 못 한 것</span>{검증하지 못한 사실과 무엇이 확정하는지.}</p>
-    <p class="say"><span class="lab">그래서</span>{이 그림의 결론 한두 문장.}</p>
-  </div>
+  </section>
 
-  <!-- BEAT 2: 순진한 해법. BEAT 3: 함정(이 페이지의 핵심). BEAT 4: 진짜 해법. -->
-  <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다. -->
-
-  <!-- 선택: 조작할 수 있는 그림 (SKILL.md "An interactive figure"). 값이 움직여야 요점이 보이는 주제에만, 페이지당 1개.
-       두 상태 비교(전/후, 켬/끔)는 조작 요소 없이 한 그림의 두 줄로 그린다.
-       정적 그림과 같은 .beat 구조에 .ctl 한 줄을 더하고, 스크립트가 g#fig-live 안을 다시 그린다.
-  <div class="beat sec-top" id="b3">
-    <div class="sec-no"><b>3</b><span>/ {전체 beat 수}</span></div>
-    <h2>{입력과 결과의 관계를 말하는 사실 한 가지}</h2>
-    <div class="ctl">
-      <div class="field">
-        <label for="in-count">{입력 이름}</label>
-        <input type="range" id="in-count" min="1" max="5" step="1" value="3">
-        <output id="in-count-out" for="in-count">{기본값과 단위}</output>
-      </div>
+  <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 표나 타일은 없다. -->
+  <section class="sec-top single" id="g3">
+    <div class="sec-no"><b>3</b><span>/ {상위 섹션 수}</span></div>
+    <h2>{대가와 현황}</h2>
+    <p class="deck">{숫자 한 줄. 예: 마이그레이션 0건, 응답 +0.05초}</p>
+    <div class="beat">
+      <figure class="fig">
+        <svg viewBox="0 0 760 170" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
+          <!-- W=760 | group1 x[40..360]: title y=30, bars x=100 scale {px/단위}: before {w1} (y=50 h=22), after {w2} (y=90 h=22) | group2 x[420..740]: bars x=480 -->
+          <rect class="dg-bar" x="100" y="50" width="132" height="22" rx="3"/>
+          <rect class="dg-bar em" x="100" y="90" width="192" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="50" width="182" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="90" width="187" height="22" rx="3"/>
+          <text class="dg-l" x="40" y="30">{잰 것 1}</text>
+          <text class="dg-s" x="40" y="65">AS-IS</text>
+          <text class="dg-s" x="40" y="105">TO-BE</text>
+          <text class="dg-l" x="240" y="66">{11자}</text>
+          <text class="dg-l dg-em" x="300" y="106">{16자}</text>
+          <text class="dg-l" x="420" y="30">{잰 것 2}</text>
+          <text class="dg-s" x="420" y="65">AS-IS</text>
+          <text class="dg-s" x="420" y="105">TO-BE</text>
+          <text class="dg-l" x="670" y="66">{1.65초}</text>
+          <text class="dg-l" x="675" y="106">{1.70초}</text>
+          <text class="dg-s" x="40" y="150">{막대로 그리지 않는 부가 수치 한 줄: 설정 변경 0건, 테스트 15건}</text>
+          <text class="dg-s" x="420" y="150">{현재 상태 한 줄}</text>
+        </svg>
+      </figure>
+      <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 한두 문장. 비용이 있으면 여기서 말한다.}</p>
     </div>
-    <figure class="fig">
-      <svg viewBox="0 0 760 200" role="img" aria-labelledby="fig-live-say">
-        (첫 자식은 가장 넓은 상태 기준의 배치 계획 주석, 그 다음 defs)
-        <g id="fig-live"></g>
-      </svg>
-    </figure>
-    <p class="say" id="fig-live-say" aria-live="polite">{기본값일 때 무슨 일이 일어나는지 1~2문장. 스크립트가 입력에 맞춰 바꾼다.}</p>
-  </div>
-  스크립트는 body 끝에 하나만 둔다:
-  <script>
-  (function(){
-    var input = document.getElementById("in-count"), out = document.getElementById("in-count-out");
-    var g = document.getElementById("fig-live"), say = document.getElementById("fig-live-say");
-    if (!input || !g) return;
-    function rect(x,y,w,h){ return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>'; }
-    function label(x,y,t,cls){ return '<text class="'+(cls||"dg-l")+'" x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>'; }
-    function draw(){
-      var n = +input.value, shapes = "", labels = "";
-      /* 주제의 실제 규칙으로 n에서 결과를 계산하고, shapes와 labels를 채운다 */
-      g.innerHTML = shapes + labels;  /* 도형 먼저, 글자 나중 */
-      out.textContent = n + "{단위}";
-      say.textContent = "{입력이 n일 때 일어나는 일}";
-    }
-    input.addEventListener("input", draw);
-    draw();
-  })();
-  </script>
-  -->
+  </section>
 
-  <!-- BEAT 5: 대가. 숫자는 여기 한 번만, 4개 이하, 하나는 반드시 비용. -->
-  <div class="beat sec-top" id="b5">
-    <div class="sec-no"><b>5</b><span>/ {전체 beat 수}</span></div>
-    <h2>{드는 비용을 숫자로. 예: 마이그레이션 0건, LLM 호출 1회}</h2>
-    <div class="numbers">
-      <div class="num">
-        <div class="k">{무엇을 잰 값인지}</div>
-        <div class="v">0.07 → 0.73</div>
-        <div class="d">{한 줄 보충}</div>
-      </div>
-      <div class="num">
-        <div class="k">{드는 비용}</div>
-        <div class="v cost">+23%</div>
-        <div class="d">{한 줄 보충}</div>
-      </div>
-    </div>
-    <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 풀어 쓴 2~3문장.}</p>
-  </div>
-
-  <!-- CLOSE: 결론 카드. 위에 h2를 두지 않는다 (제목이 두 번 나온다). 페이지는 여기서 끝난다. -->
+  <!-- CLOSE: 상자 없음. 위에 h2를 두지 않는다. 페이지는 여기서 끝난다. -->
   <div class="close">
     <div class="k">정리</div>
-    <div class="t">{결론을 조건과 결과가 든 한 문장으로. 예: 설명은 사람이 누를 때만 다시 만든다}</div>
-    <p>{그 이유 한두 문장.}</p>
+    <div class="t">{결론을 조건과 결과가 든 한 문장으로.}</div>
+    <p>{그 이유 한두 문장. 남은 확인이 있으면 마지막 문장.}</p>
   </div>
 
 </div>
 <script>
-/* section hierarchy (SHARED: identical in eli5, visual-doc, explain-diff, micro-world):
-   the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
+/* section hierarchy: the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
 (function(){
   var bar = document.getElementById("progress");
   function onScroll(){

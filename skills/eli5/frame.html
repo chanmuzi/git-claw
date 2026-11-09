@@ -265,6 +265,14 @@
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
   .res tr:last-child td{ border-bottom:none; }
   /* notes fold away: a <details> whose summary names what it holds; nothing else sits under the table */
+  /* ── folded detail (optional, SKILL.md "The word budget"): the one place for an explanation the notes cannot hold.
+     Closed by default; the summary names what is inside; at most 3 sentences; never a figure number said again. ── */
+  .more{ margin:12px 0 0; font-size:14px; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:600; font-size:13px; }
+  .more summary::-webkit-details-marker{ display:none; }
+  .more summary::before{ content:""; width:0; height:0; border:4px solid transparent; border-left:5px solid var(--faint); margin-left:2px; transition:transform .12s; }
+  .more[open] summary::before{ transform:rotate(90deg); }
+  .more p{ margin:8px 0 0 15px; line-height:1.7; }
   .res-more{ margin:10px 0 0; font-size:12.5px; color:var(--faint); word-break:keep-all; }
   .res-more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:500; }
   .res-more summary::-webkit-details-marker{ display:none; }
@@ -445,6 +453,8 @@
         <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
         <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
       </div>
+      <!-- 선택: 해설에 다 못 담는 조건이나 예외가 있을 때만. 접힌 채로 나오고, 요약 줄이 안에 무엇이 있는지 말한다. 3문장까지, 그림의 숫자는 다시 쓰지 않는다.
+      <details class="more"><summary>{무엇을 설명하는지 한 마디: 예외 2건, 왜 2차 호출이 기준인지}</summary><p>{조건이나 예외 1~3문장, 해요체}</p></details> -->
       <!-- 마무리 줄. 라벨은 그 줄이 무엇인지 말하는 한 단어(그래서, 실측, 지금은, 선택)이고 beat당 하나. 설명문이면 라벨 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
       <p class="say"><span class="lab warn">확인 못 한 것</span>{검증하지 못한 사실과 무엇이 확정하는지.}</p>
       <p class="say"><span class="lab">그래서</span>{이 그림의 결론 한두 문장, 90자 이내.}</p>

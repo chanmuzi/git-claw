@@ -119,7 +119,7 @@
   /* deck: the fact under a short heading. The heading names what the figure is about (a noun phrase, about 20 characters);
      the deck states the fact or the number in one line. The outline lists headings only, so it stays scannable. */
   .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
-  .deck{ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
+  .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
   .sec-top .beat{ margin-top:36px; }
   .sec-top.single .beat{ margin-top:0; }
   .sub-h{ margin:0 0 14px; }
@@ -133,7 +133,7 @@
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
   .notes{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
-  .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
   .note .m{ margin-top:4px; }
   .note b{ font-weight:600; color:var(--ink); }
   .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list, or whose rows are named by caption chips: no badges */
@@ -145,7 +145,7 @@
      the line is (`그래서` a conclusion drawn from the figure, `실측` a measurement, `지금은` the present state, `선택` a
      decision); it is a lime highlight, the page's one signature mark, and a beat carries at most one. A line that is a
      plain description carries no label. `확인 못 한 것` (lab warn) is text-only, in the cost color. */
-  .say{ font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:16px 0 0; }
+  .say{ font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:16px 0 0; }
   .say b{ font-weight:600; color:var(--ink); }
   .say .lab{ display:inline-block; font-weight:700; color:var(--hl-ink); background:var(--hl); padding:0 7px; border-radius:4px; margin-right:8px; line-height:1.5; }
   .say .lab.warn{ background:transparent; color:var(--cost); padding:0; }
@@ -387,7 +387,6 @@
   <section class="sec-top single" id="g1">
     <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
-    <p class="deck">{그림이 보여주는 사실 한 줄: 수치, 조건, 결과. 제목을 되풀이하지 않아요}</p>
     <div class="beat">
       <figure class="fig">
         <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
@@ -456,9 +455,8 @@
   <section class="sec-top" id="g2">
     <div class="sec-no"><b>2</b><span>/ {상위 섹션 수}</span></div>
     <h2>{상위 섹션의 대상, 짧은 명사구}</h2>
-    <p class="deck">{이 묶음이 말하는 사실 한 줄}</p>
     <div class="beat" id="b21">
-      <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3><p class="deck">{사실 한 줄}</p></div>
+      <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3></div>
       <figure class="fig">
         <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
           <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다 -->
@@ -469,7 +467,7 @@
       <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장이에요. 설명문이라 라벨이 없어요.}</p>
     </div>
     <div class="beat" id="b22">
-      <div class="sub-h"><div class="sub-no">2-2</div><h3>{짧은 명사구}</h3><p class="deck">{사실 한 줄}</p></div>
+      <div class="sub-h"><div class="sub-no">2-2</div><h3>{짧은 명사구}</h3></div>
       <!-- 선택: 조작할 수 있는 그림 (SKILL.md "An interactive figure"). 값이 움직여야 요점이 보이는 주제에만, 페이지당 1개.
       <div class="ctl">
         <div class="field">
@@ -495,7 +493,7 @@
        표 2(결과, 숫자만)가 본체이고, 표 1(세팅)은 세팅이 둘 이상의 점에서 다를 때만 둔다. 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>.
        칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 접힌 res-more에. 값이 하나도 없는 열은 표에 넣지 않는다. 빈칸은 원문에 없는 값이고 채우지 않는다.
   <div class="beat" id="b{n}">
-    <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3><p class="deck">{표가 보여주는 사실 한 줄}</p></div>
+    <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>
     <figure class="fig tab">
       <p class="res-cap"><b>표 1. 세팅</b><span>{모든 세팅에 공통인 것 한 마디}</span></p>
       <table class="res">
@@ -528,7 +526,6 @@
   <section class="sec-top single" id="g3">
     <div class="sec-no"><b>3</b><span>/ {상위 섹션 수}</span></div>
     <h2>{대가와 현황}</h2>
-    <p class="deck">{숫자 한 줄. 예: 마이그레이션 0건, 응답 +0.05초}</p>
     <div class="beat">
       <figure class="fig">
         <svg viewBox="0 0 760 170" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">

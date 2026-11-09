@@ -4,7 +4,7 @@
 
   Layer 1 (LOCKED): the :root tokens (Upstage Lift neutral + brand, both themes, plus the legacy aliases),
     the base primitives, and the blocks below (.band/.hero/.outline cover, .beat, .fig, .notes, .say,
-    .close, the optional .ev evidence card and .ctl controls, the .m / .dg-m badges, the .dg-bar bars),
+    .close, the optional .ev evidence card and .prose-card, .ctl controls, the .m / .dg-m badges, the .dg-bar bars),
     the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
@@ -310,6 +310,20 @@
   :not(pre) > code{ white-space:nowrap; }
   @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
 
+  /* ── prose card (SKILL.md "Evidence card", the prose form: a prompt, an error message, a notice) ──
+     the words are verbatim and only whitespace changes; nothing is added inside (no highlight, tag, fold, gloss). */
+  .prose-card{ margin-top:14px; border:1px solid var(--line-soft); border-radius:var(--r-lg); background:var(--panel); overflow:hidden; }
+  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px 16px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
+  .pc-h .kind{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
+  .pc-h .name{ color:var(--ink); font-weight:600; }
+  .pc-h .src{ margin-left:auto; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .pc-b{ padding:14px 20px 16px; max-width:76ch; }
+  .pc-b p{ margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
+  .pc-b p + p, .pc-b pre + p, .pc-b p + pre{ margin-top:12px; }
+  .pc-b p.gap{ color:var(--faint); font-style:italic; }
+  .pc-b pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; overflow-wrap:anywhere; }
+  @media (max-width:600px){ .pc-h .src{ display:none; } }
+
   /* ── code block (SHARED names) ── on this page quoted source goes in the evidence card; these classes color its tokens.
      sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment. */
   .sx-k{ color:var(--sx-k); } .sx-f{ color:var(--sx-f); } .sx-s{ color:var(--sx-s); } .sx-n{ color:var(--sx-n); } .sx-c{ color:var(--faint); font-style:italic; }
@@ -373,7 +387,7 @@
   <section class="sec-top single" id="g1">
     <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
-    <p class="deck">{그림이 보여주는 사실 한 줄: 수치, 조건, 결과. 제목을 되풀이하지 않는다}</p>
+    <p class="deck">{그림이 보여주는 사실 한 줄: 수치, 조건, 결과. 제목을 되풀이하지 않아요}</p>
     <div class="beat">
       <figure class="fig">
         <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
@@ -404,6 +418,19 @@
         </svg>
       </figure>
       <!-- 선택: 근거 카드 (SKILL.md "Evidence card"). 머리는 파일 이름, 종류 한 마디, 그 상자의 터미널 배지(오른쪽 끝) 순서. 요점 줄은 .hi(회색 바탕, 꼬리표가 이유를 말한다), 깨지는 줄은 .hi.bad(빨간 꼬리표), 있어야 하는데 없는 줄은 .ghost(회색 점선).
+      <!-- prose card: a prompt or message quoted as sentences. One <p> per source paragraph; a condition list may break at "; or"; JSON one key per line. -->
+      <div class="prose-card">
+        <div class="pc-h"><span class="kind">system</span><span class="name">{프롬프트 이름 v{n}}</span><span class="src">{파일 경로}</span></div>
+        <div class="pc-b">
+          <p>{첫 문단, 원문 그대로}</p>
+          <p>{조건 문단, 원문 그대로. "; or" 뒤에서 줄만 바꾼다}<br>{or it …}<br>{or it …}</p>
+          <p class="gap">… {N}문단 생략</p>
+          <pre class="js">{
+  "key": "{값, 원문 그대로}",
+  "flag": true|false
+}</pre>
+        </div>
+      </div>
       <div class="evs">
         <div class="ev">
           <div class="ev-head"><span class="loc">{config/config.yaml}</span><span class="kind">설정</span><span class="m code">2</span></div>
@@ -439,7 +466,7 @@
           <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
       </figure>
-      <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장. 설명문이라 라벨이 없다.}</p>
+      <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장이에요. 설명문이라 라벨이 없어요.}</p>
     </div>
     <div class="beat" id="b22">
       <div class="sub-h"><div class="sub-no">2-2</div><h3>{짧은 명사구}</h3><p class="deck">{사실 한 줄}</p></div>
@@ -492,7 +519,7 @@
     </figure>
     <div class="notes plain">
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
-      <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않는다.}</div></div>
+      <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</div></div>
     </div>
     <p class="say">{표에서 읽히는 사실 한 줄, 90자 이내.}</p>
   </div> -->
@@ -524,15 +551,15 @@
           <text class="dg-s" x="420" y="150">{현재 상태 한 줄}</text>
         </svg>
       </figure>
-      <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 한두 문장. 비용이 있으면 여기서 말한다.}</p>
+      <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 한두 문장. 비용이 있으면 여기서 말해요.}</p>
     </div>
   </section>
 
   <!-- CLOSE: 상자 없음. 위에 h2를 두지 않는다. 페이지는 여기서 끝난다. -->
   <div class="close">
     <div class="k">정리</div>
-    <div class="t">{결론을 조건과 결과가 든 한 문장으로.}</div>
-    <p>{그 이유 한두 문장. 남은 확인이 있으면 마지막 문장.}</p>
+    <div class="t">{결정 하나를 말하는 한 문장, 45자 안, 쉼표 1개 이하. 조건과 대안은 아래 문단으로}</div>
+    <p>{그 결정의 이유나 조건 한두 문장. 남은 확인이 있으면 마지막 문장. 진행 메모는 여기 아니라 해당 beat에}</p>
   </div>
 
 </div>

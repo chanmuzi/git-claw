@@ -247,9 +247,10 @@
      The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
      run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned, equal
      width, tabular). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
-     deltas in the .res-note or the drawing. <b> marks the best value of its row (or column: the caption says which),
-     <u> the second when three or more values are compared; a tie shares the mark. A cell the source does not give
-     stays empty and the .res-note says so. No adjective in a cell. */
+     deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column: the caption says which),
+     <u> the second when three or more values are compared; a tie shares the mark. A column or row with no value is
+     not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
+     folded .res-more under the table, never in a visible line. No adjective in a cell. */
   .fig.tab{ padding:20px 24px 16px; }
   .beat .fig + .fig{ margin-top:14px; }
   .res-cap{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
@@ -263,7 +264,13 @@
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
   .res tr:last-child td{ border-bottom:none; }
-  .res-note{ margin:10px 0 0; font-size:12.5px; color:var(--faint); word-break:keep-all; }
+  /* notes fold away: a <details> whose summary names what it holds; nothing else sits under the table */
+  .res-more{ margin:10px 0 0; font-size:12.5px; color:var(--faint); word-break:keep-all; }
+  .res-more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:500; }
+  .res-more summary::-webkit-details-marker{ display:none; }
+  .res-more summary::before{ content:""; width:0; height:0; border:4px solid transparent; border-left:5px solid var(--faint); margin-left:2px; transition:transform .12s; }
+  .res-more[open] summary::before{ transform:rotate(90deg); }
+  .res-more p{ margin:6px 0 0 15px; line-height:1.6; }
   @media (max-width:600px){ .res{ font-size:12.5px; } .res th, .res td{ padding:7px 8px; } }
 
   /* ── close: prose, no box. A hairline, the mono label, one bold sentence, one short paragraph. The page ends here. ── */
@@ -459,7 +466,7 @@
 
   <!-- 선택: 결과 표 beat (SKILL.md "Results table"). 조건 2개 이상 x 측정값 2개 이상(또는 조건 3개 이상)이 있을 때 대가 beat 앞에 둔다.
        표 1은 세팅(짧은 글), 표 2는 결과(숫자만). 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>.
-       칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 res-note에. 빈칸은 원문에 없는 값이고 채우지 않는다.
+       칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 접힌 res-more에. 값이 하나도 없는 열은 표에 넣지 않는다. 빈칸은 원문에 없는 값이고 채우지 않는다.
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3><p class="deck">{표가 보여주는 사실 한 줄}</p></div>
     <figure class="fig tab">
@@ -481,7 +488,7 @@
           <tr><td>{비교 질문 55, hybrid}</td><td class="n"><u>35.2</u></td><td class="n">31.5</td><td class="n"><b>37.1</b></td></tr>
         </tbody>
       </table>
-      <p class="res-note">{빈칸은 원문 보고서에 없는 조합. 승패나 변화량이 필요하면 여기 한 줄}</p>
+      <details class="res-more"><summary>주석: 빈칸, 승패, 계산</summary><p>{빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
     </figure>
     <div class="notes plain">
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>

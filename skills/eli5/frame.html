@@ -243,6 +243,29 @@
   .rel svg{ width:56px; height:26px; display:block; color:var(--brand-ink); }
   code{ font-family:var(--mono); font-size:.88em; font-weight:500; background:var(--brand-50); color:var(--brand-ink); padding:2px 4px; border-radius:5px; }
 
+  /* ── results table (optional; SKILL.md "Results table") ──
+     The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
+     run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned, equal
+     width, tabular). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
+     deltas in the .res-note or the drawing. <b> marks the best value of its row (or column: the caption says which),
+     <u> the second when three or more values are compared; a tie shares the mark. A cell the source does not give
+     stays empty and the .res-note says so. No adjective in a cell. */
+  .fig.tab{ padding:20px 24px 16px; }
+  .beat .fig + .fig{ margin-top:14px; }
+  .res-cap{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
+  .res-cap b{ color:var(--ink); font-weight:600; }
+  .res{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
+  .res th, .res td{ padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; word-break:keep-all; }
+  .res th{ font-size:11.5px; font-weight:600; letter-spacing:.03em; color:var(--faint); border-bottom:1px solid var(--n300); white-space:nowrap; }
+  .res th.n, .res td.n{ text-align:right; white-space:nowrap; width:12%; font-variant-numeric:tabular-nums; }
+  .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; }
+  .res td{ color:var(--sub); }
+  .res td b{ color:var(--ink); font-weight:700; }
+  .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
+  .res tr:last-child td{ border-bottom:none; }
+  .res-note{ margin:10px 0 0; font-size:12.5px; color:var(--faint); word-break:keep-all; }
+  @media (max-width:600px){ .res{ font-size:12.5px; } .res th, .res td{ padding:7px 8px; } }
+
   /* ── close: prose, no box. A hairline, the mono label, one bold sentence, one short paragraph. The page ends here. ── */
   .close{ margin-top:56px; padding-top:28px; border-top:1px solid var(--line); padding-bottom:120px; }
   .close .k{ font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--brand); margin-bottom:10px; }
@@ -434,7 +457,40 @@
     </div>
   </section>
 
-  <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 표나 타일은 없다. -->
+  <!-- 선택: 결과 표 beat (SKILL.md "Results table"). 조건 2개 이상 x 측정값 2개 이상(또는 조건 3개 이상)이 있을 때 대가 beat 앞에 둔다.
+       표 1은 세팅(짧은 글), 표 2는 결과(숫자만). 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>.
+       칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 res-note에. 빈칸은 원문에 없는 값이고 채우지 않는다.
+  <div class="beat" id="b{n}">
+    <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3><p class="deck">{표가 보여주는 사실 한 줄}</p></div>
+    <figure class="fig tab">
+      <p class="res-cap"><b>표 1. 세팅</b><span>{모든 세팅에 공통인 것 한 마디}</span></p>
+      <table class="res">
+        <thead><tr><th>세팅</th><th>{분해 조건}</th><th class="n">{하위 질문}</th><th class="n">{추가 호출}</th></tr></thead>
+        <tbody>
+          <tr><td>{원문만}</td><td>{안 나눔}</td><td class="n">1</td><td class="n">0회</td></tr>
+          <tr><td>{always}</td><td>{항상}</td><td class="n">2~4</td><td class="n">1회</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="fig tab">
+      <p class="res-cap"><b>표 2. {근거 전부 적중률}</b><span>{%, 높을수록 좋음}. 행마다 최고 굵게, 둘째 밑줄</span></p>
+      <table class="res">
+        <thead><tr><th>세트</th><th class="n">{원문만}</th><th class="n">{always}</th><th class="n">{judge}</th></tr></thead>
+        <tbody>
+          <tr><td>{비교 질문 55, dense}</td><td class="n"><u>24.1</u></td><td class="n"><b>33.3</b></td><td class="n"></td></tr>
+          <tr><td>{비교 질문 55, hybrid}</td><td class="n"><u>35.2</u></td><td class="n">31.5</td><td class="n"><b>37.1</b></td></tr>
+        </tbody>
+      </table>
+      <p class="res-note">{빈칸은 원문 보고서에 없는 조합. 승패나 변화량이 필요하면 여기 한 줄}</p>
+    </figure>
+    <div class="notes plain">
+      <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
+      <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않는다.}</div></div>
+    </div>
+    <p class="say">{표에서 읽히는 사실 한 줄, 90자 이내.}</p>
+  </div> -->
+
+  <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 숫자 타일은 없다. 조건 x 측정값 격자는 위의 결과 표 beat가 맡는다. -->
   <section class="sec-top single" id="g3">
     <div class="sec-no"><b>3</b><span>/ {상위 섹션 수}</span></div>
     <h2>{대가와 현황}</h2>

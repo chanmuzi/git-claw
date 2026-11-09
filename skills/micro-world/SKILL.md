@@ -115,7 +115,7 @@ The rules are the first defense; looking at the rendered page is the second, and
    ```
    If Pillow is not installed, look at the full screenshots and say in the report that the check was at thumbnail size.
 3. **Measure.** Run `measure.html` from this skill's base directory (the command is in its header comment) at the reading width and again at `--window-size=500,2000` (headless Chrome does not go narrower than 500px, so a 420px request silently measures 500). The `<body>` tag must carry `data-sbs`, `data-fit`, and `data-ovf`, all `none`; a body tag without them means the measurement never ran, which is a failure, not a pass.
-4. **Text.** `grep -nP '[—–·]'` and the particle grep from the design rules print nothing outside verbatim source.
+4. **Text.** Run every grep in this skill with `LC_ALL=C.UTF-8` (under the `C` locale `[—–·]` matches every Hangul line). `grep -nP '[—–·]'` and the particle grep from the design rules print nothing outside verbatim source.
 5. **Headings.** `grep -nP '<(h[1-3]|span class="dg-cap")[^>]*>[^<]*(는가|인가|일까|나요|\?|[0-9]축|한 축|하는 법|읽는 법|하려면|핵심|본질|결국| vs )' <file>` lists the headings and figure captions that match a translation tell. This is a reading list, not a failure: read each hit aloud, rewrite it only when it reads as a frame rather than a fact, and name in the report each hit you kept and why. Body prose is not searched.
 
 Fix and repeat until the first four pass and the fifth has been read. Only when no browser exists at all, say plainly that the page was not visually verified. Screenshots, crops, and the measurement copy live in `D`, are not part of the output, and are deleted when you finish.

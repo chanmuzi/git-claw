@@ -152,7 +152,7 @@ SVG text does not wrap and does not push boxes apart. Every clipped label and ev
 | non-Hangul in `.dg-s` (body face, 11.5px) | digits and lowercase 6.5px, uppercase 7.5px, space and punctuation 3.5px |
 | anything not listed (`×`, `→`, `=`, `+`, `…`) | 1.0 × font-size |
 | `.dg-q` (optional focal string, 14px, weight 600) | Hangul 14px, `m` `w` and Latin uppercase 13px, every other non-Hangul character 9px, space 5px |
-| `.dg-cap` (optional state caption, 12px bold) | Hangul 13px, Latin 10px, space 5px; its pill is the text + 16 wide |
+| `.dg-cap` (optional state caption, 11.5px bold, body face) | Hangul 11.5px, digits and lowercase 7px, uppercase 8px, space and punctuation 3.5px; its pill is the text + 16 wide (8px each side, the same padding as the `.cap` chip under the figure). The old row (Hangul 13, Latin 10) belongs to the 12px caption of visual-doc and explain-diff and makes an eli5 pill 20 to 30px too wide; the Render check measures the pill against the rendered text |
 
 Line height: 18px per `.dg-l` line, 15px per `.dg-s` line, 19px per `.dg-q` line. A `<tspan>`'s `dy` is the height of the line **above** it (a `.dg-s` sub-line right under the `.dg-l` name has `dy="18"`; the next `.dg-s` line has `dy="15"`), so the box-height formula below and the `dy` values agree.
 

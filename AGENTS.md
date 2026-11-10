@@ -64,7 +64,7 @@ git-claw/
 │       ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │       └── LICENSE.txt
 ├── docs/
-│   ├── testing.md, skill-rules.md, shared-logic.md, terminal-rendering.md, release.md   # 작업별 문서
+│   ├── testing.md, skill-rules.md, shared-logic.md, terminal-rendering.md, release.md, doc-review.md   # 작업별 문서
 │   ├── ops/                          # main push 후 동기화, Skills CLI 운영
 │   ├── decisions/                    # 결정 기록 (README.md가 목록)
 │   └── changelog/                    # v1.8.0 이전의 날짜별 변경 기록
@@ -98,6 +98,7 @@ git-claw/
 | 릴리스 | docs/release.md |
 | 규칙의 이유, 과거 개정 확인, 결정 문서 작성 | docs/decisions/README.md |
 | v1.8.0 이전의 변경 기록 확인 | docs/changelog/2026-02-to-04.md |
+| 기록 문서가 길어졌거나 찾기 어려울 때, 문서 구조 점검 요청 | docs/doc-review.md |
 
 ## Git Convention (이 프로젝트 자체에 적용)
 

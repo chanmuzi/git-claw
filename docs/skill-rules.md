@@ -33,7 +33,7 @@
 4. `AGENTS.md`: 프로젝트 개요(slash command 목록), 아키텍처 트리. `docs/testing.md`: 테스트 시나리오. `docs/skill-rules.md`: 스킬 공통 규칙
 5. `README.md`: 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시, `skills-N` 배지 count 동기화
 6. `README.ko.md`: README.md와 동일 항목 한국어 반영 (`skills-N` 배지 포함)
-7. `CHANGELOG.md`: 변경 항목 추가
+7. `CHANGELOG.md`: 변경 항목 추가 (항목은 300자 안에서 무엇이 바뀌었는지 쓰고, 이유와 상세는 결정 문서를 가리킨다)
 
 위 목록 반영 후, 기존 스킬 이름(예: `review-reply`)으로 Grep하여 참조가 있는 파일을 추가 확인한다. 누락된 파일이 있으면 함께 업데이트한다.
 
@@ -43,7 +43,7 @@
 
 1. `README.md`: 해당 스킬의 플래그, 사용 예시, 설명 반영
 2. `README.ko.md`: README.md와 동일 항목 한국어 반영
-3. `CHANGELOG.md`: 변경 항목 추가
+3. `CHANGELOG.md`: 변경 항목 추가 (항목은 300자 안에서 무엇이 바뀌었는지 쓰고, 이유와 상세는 결정 문서를 가리킨다)
 4. `docs/skill-rules.md`(스킬 공통 규칙), `docs/testing.md`(테스트 시나리오), `docs/shared-logic.md`(스킬 간 공유 로직) 중 해당하는 문서 업데이트. `AGENTS.md`는 개요, 아키텍처, 작업별 문서 표가 바뀔 때만 고친다
 
 변경한 스킬 이름으로 Grep하여 참조가 있는 파일을 추가 확인한다.

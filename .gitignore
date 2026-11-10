@@ -3,3 +3,4 @@ IMPLEMENTATION_GUIDE.md
 .playwright-cli/
 __pycache__/
 *.pyc
+.omc/

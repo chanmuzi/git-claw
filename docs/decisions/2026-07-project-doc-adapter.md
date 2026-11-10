@@ -1,4 +1,4 @@
-# 2026-07 — 프로젝트 문서 체계: AGENTS.md 정본 + CLAUDE.md adapter
+# 2026-07: 프로젝트 문서 체계, AGENTS.md 정본 + CLAUDE.md adapter
 
 ## 상태
 

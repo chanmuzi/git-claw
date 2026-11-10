@@ -1,4 +1,4 @@
-# 2026-07 — explain-diff / micro-world 공유 디자인 시스템
+# 2026-07: explain-diff / micro-world 공유 디자인 시스템
 
 ## 상태
 

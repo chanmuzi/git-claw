@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## v1.27.0 (2026-11-11)
 
 **Changed**
 - 기록 문서 점검 가이드 `docs/doc-review.md` 추가: 크기, 깨진 경로, 목록에 없는 결정 문서, 긴 표 행을 재는 명령 4개와 읽고 판단할 질문. 목록 표의 행과 CHANGELOG 항목은 300자 안에서 쓴다는 규칙을 `docs/decisions/README.md`, `docs/shared-logic.md`, `docs/skill-rules.md`에 넣었다.

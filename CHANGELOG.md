@@ -3,6 +3,7 @@
 ## Unreleased
 
 **Changed**
+- 기록 문서 점검 가이드 `docs/doc-review.md` 추가: 크기, 깨진 경로, 목록에 없는 결정 문서, 긴 표 행을 재는 명령 4개와 읽고 판단할 질문. 목록 표의 행과 CHANGELOG 항목은 300자 안에서 쓴다는 규칙을 `docs/decisions/README.md`, `docs/shared-logic.md`, `docs/skill-rules.md`에 넣었다.
 - CHANGELOG 분리: v1.8.0까지의 날짜별 항목 38건(26.6KB)을 `docs/changelog/2026-02-to-04.md`로 옮겼다. 이 파일에는 버전별 항목만 남는다.
 - 결정 문서 정리: `docs/decisions/README.md`에 문서 목록과 작성 규칙을 두었다. eli5 결정 문서(73KB)는 현재 상태와 개정 목록을 담은 `2026-08-eli5.md`와 원본과 개정 본문 19건을 담은 `2026-08-eli5-history.md`로 나눴다. 내용과 이름이 어긋나던 두 문서를 개명했다(`2026-07-visual-doc.md`는 `2026-07-html-shared-design-rules.md`, `2026-07-explain-diff-design-system.md`는 `2026-07-explain-diff-micro-world-design.md`). SKILL.md, 템플릿, 이 파일의 옛 항목에 있던 경로도 새 이름으로 바꿨다.
 - 프로젝트 문서 구조: `AGENTS.md`(59KB)를 어느 작업에나 적용되는 규칙과 작업별 문서 표만 남긴 6.5KB로 줄이고, 로컬 테스트, 스킬 공통 규칙과 체크리스트, 스킬 간 공유 로직, 터미널 렌더링, 릴리스, 동기화 절차, Skills CLI 운영을 `docs/` 아래 문서 7개로 옮겼다. Codex가 프로젝트 지침을 32KiB까지만 읽어 뒤쪽 구역이 전달되지 않던 문제 때문이다. 공유 로직 표는 찾을 표식과 정본 칸으로 줄이고 원래 글은 같은 파일의 상세 절에 뒀다. 정본: docs/decisions/2026-11-doc-routing.md

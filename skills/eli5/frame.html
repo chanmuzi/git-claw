@@ -167,13 +167,13 @@
      strip with three dots, a white digit, the same colors in both themes) means an evidence card with code follows.
      Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
   .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n500); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; line-height:1; flex:none; vertical-align:-3px; }
-  .m.code{ position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
+  .m.code{ box-shadow:0 0 0 1px var(--line); position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
   .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:4.5px; background:#2A3342; }
   .m.code::after{ content:""; position:absolute; top:1.4px; left:2px; width:1.8px; height:1.8px; border-radius:50%; background:#F87171; box-shadow:2.8px 0 0 #FBBF24, 5.6px 0 0 #34D399; }
   .dg-m rect{ fill:var(--n500); }
   .dg-m text{ fill:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; text-anchor:middle; }
-  .dg-m.code rect{ fill:#141A24; }
-  .dg-m.code rect.bar{ fill:#2A3342; }
+  .dg-m.code rect{ fill:#141A24; stroke:var(--line); stroke-width:1; }   /* the hairline keeps the dark window visible on the dark ground */
+  .dg-m.code rect.bar{ fill:#2A3342; stroke:none; }
   .dg-m.code .d1{ fill:#F87171; } .dg-m.code .d2{ fill:#FBBF24; } .dg-m.code .d3{ fill:#34D399; }
   .dg-m.code text{ fill:#FFFFFF; font-size:10px; }
   /* group outline: one note about several boxes gets one dashed outline and one badge on its corner */

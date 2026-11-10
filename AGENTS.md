@@ -84,7 +84,7 @@ git-claw/
 npx skills add ./  # 로컬 경로에서 설치
 
 # 방법 2: Claude Code Plugin (초기 설치 전용, 브랜치 테스트는 아래 '브랜치 테스트' 섹션 참조)
-/plugin marketplace add /Users/chanmuzi/coding/workspace/git-claw
+/plugin marketplace add /path/to/git-claw
 /plugin install git-claw@git-claw
 
 # SKILL.md 수정 후 반영 (캐시 갱신: 새 세션 불필요)
@@ -219,7 +219,7 @@ for c in "$CACHE" "$NEWEST"; do [ -d "$c" ] && cp -r "$PLUG/marketplaces/git-cla
 
 로컬 테스트 안내 시 아래 구조를 따른다. Claude가 복사, 실행, 리포트, 복원을 전담하고, 사용자는 `/reload-plugins`만 실행한다.
 
-1. **최신 cache 탐색 + 복사**: `ls -td` 로 최신 cache 경로 탐색 → 로컬 스킬 복사
+1. **활성 cache 탐색 + 복사**: `installed_plugins.json`의 `installPath`로 활성 cache 경로 탐색(없을 때만 `ls -td`) → 로컬 스킬 복사
 2. **reload 요청**: 사용자에게 이 세션에서 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드)
 3. **검증**: reload 후 활성 cache를 다시 탐색해 `diff -q`로 신버전 여부 확인. 새 cache가 생겨 구버전이 로드됐으면 재복사 후 reload를 한 번 더 요청한다. 스킬 실행 시 표시되는 `Base directory`가 활성 cache와 일치하는지도 함께 확인한다. **이 단계를 건너뛰고 테스트 결과를 보고하지 않는다** (구버전 실행 결과를 신버전 결과로 오인해 보고하게 됨)
 4. **테스트 실행 + 결과 리포트**: 스킬 실행 및 결과 보고
@@ -275,17 +275,18 @@ for c in "$CACHE" "$NEWEST"; do [ -d "$c" ] && cp -r "$PLUG/marketplaces/git-cla
   done
 
   # 2. marketplace를 최신 main으로 pull 후 직접 복사 + .installed-ref 기록
-  git -C ~/.claude/plugins/marketplaces/git-claw pull
-  SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
+  MKT=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw
+  git -C "$MKT" pull
+  SHA=$(git -C "$MKT" rev-parse HEAD)
   for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
     rm -rf ~/.codex/skills/$s
-    cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
+    cp -R "$MKT/skills/$s" ~/.codex/skills/$s
     echo "$SHA" > ~/.codex/skills/$s/.installed-ref
   done
 
   # 3. 검증: 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
-  diff -q ~/.claude/plugins/marketplaces/git-claw/skills/code-review/SKILL.md ~/.codex/skills/code-review/SKILL.md
-  ls ~/.claude/skills/   # git-claw skill이 보이면 universal install로 오염된 것
+  diff -q "$MKT/skills/code-review/SKILL.md" ~/.codex/skills/code-review/SKILL.md
+  ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/"   # git-claw skill이 보이면 universal install로 오염된 것
   ```
 - 스킬 rename / 제거 시 stale 폴더 cleanup:
   - `npx skills` CLI는 rename, 제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
@@ -331,18 +332,19 @@ universal install로 잘못 전환된 경우 또는 update가 동작하지 않�
 npx skills remove -g commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5 -y
 
 # 2. marketplace를 최신 main으로 pull
-git -C ~/.claude/plugins/marketplaces/git-claw pull
+MKT=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw
+git -C "$MKT" pull
 
 # 3. marketplace → ~/.codex/skills/ 직접 복사 + .installed-ref 수동 기록
-SHA=$(git -C ~/.claude/plugins/marketplaces/git-claw rev-parse HEAD)
+SHA=$(git -C "$MKT" rev-parse HEAD)
 for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
   rm -rf ~/.codex/skills/$s
-  cp -R ~/.claude/plugins/marketplaces/git-claw/skills/$s ~/.codex/skills/$s
+  cp -R "$MKT/skills/$s" ~/.codex/skills/$s
   echo "$SHA" > ~/.codex/skills/$s/.installed-ref
 done
 
 # 4. 검증: Claude Code 쪽 중복 없는지 확인
-ls ~/.claude/skills/   # context7 같은 universal-only skill만 보여야 함
+ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/"   # context7 같은 universal-only skill만 보여야 함
 
 # 5. (사용자 직접) Codex CLI 세션 재시작
 ```

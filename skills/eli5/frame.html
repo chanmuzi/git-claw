@@ -8,7 +8,7 @@
     the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
-    (viewBox sizing, currentColor strokes, labeled arrows, one accent per picture, the layout-plan comment as
+    (viewBox sizing, the stroke classes dg-box/dg-arrow/dg-head/dg-cell, labeled arrows, one accent per picture, the layout-plan comment as
     the first child of <svg>, a two-line box via <tspan>, a to-scale bar pair). Author your own drawings per
     subject. Never reuse these.
 
@@ -35,6 +35,8 @@
     --sans:"Geist","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;
     --mono:"Geist Mono",ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
     --r:8px; --r-lg:12px;
+    /* figure strokes: one set for every drawing. They follow the neutrals, so the dark blocks need no second copy. */
+    --dg-line:color-mix(in srgb, var(--n300) 45%, var(--n400)); --dg-flow:color-mix(in srgb, var(--n400) 50%, var(--n500));
     /* legacy aliases: pages built before this skin reference these names in inline SVG fills. Keep them so an
        old page can be re-skinned by swapping this <style> only. New drawings use the names above. */
     --card:var(--panel); --chipbg:var(--n100); --blue:var(--brand); --blue-soft:var(--brand-50); --chip-ink:var(--brand-ink);
@@ -122,6 +124,10 @@
   .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
   .sec-top .beat{ margin-top:36px; }
   .sec-top.single .beat{ margin-top:0; }
+  /* three levels of separation, all in the hairline color: a full rule opens a section, a 120px rule sits between the
+     beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
+  .sec-top .beat + .beat{ position:relative; padding-top:28px; }
+  .sec-top .beat + .beat::before{ content:""; position:absolute; top:0; left:0; width:120px; height:1px; background:var(--line); }
   .sub-h{ margin:0 0 14px; }
   .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
   .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
@@ -141,26 +147,31 @@
   .cap.em{ color:var(--brand-ink); background:var(--brand-50); }
   .cap.bad{ color:var(--red); background:var(--red-soft); }
 
-  /* ── the closing line of a beat (SKILL.md "The word budget"): prose, full column width. The one-word label says what
-     the line is (`그래서` a conclusion drawn from the figure, `실측` a measurement, `지금은` the present state, `선택` a
-     decision); it is a lime highlight, the page's one signature mark, and a beat carries at most one. A line that is a
-     plain description carries no label. `확인 못 한 것` (lab warn) is text-only, in the cost color. */
+  /* ── the closing line of a beat (SKILL.md "The word budget"): prose, full column width. After a notes list it opens
+     with a badge so it does not read as one more note. Two kinds: the lime badge (.lab), the page's one signature mark,
+     only on the lines the `정리` headline restates; the outline badge (.lab.q) on every other closing line, naming what
+     that line is in the subject's own words. `확인 못 한 것` (lab warn) is text-only, in the cost color. */
   .say{ font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:16px 0 0; }
   .say b{ font-weight:600; color:var(--ink); }
   .say .lab{ display:inline-block; font-weight:700; color:var(--hl-ink); background:var(--hl); padding:0 7px; border-radius:4px; margin-right:8px; line-height:1.5; }
+  .say .lab.q{ background:transparent; color:var(--sub); font-weight:500; box-shadow:inset 0 0 0 1px var(--n200); }
   .say .lab.warn{ background:transparent; color:var(--cost); padding:0; }
+  /* color key: a note about a part the drawing marks by fill opens with the same fill */
+  .sw{ display:inline-block; width:10px; height:10px; border-radius:2px; background:var(--n300); margin-right:7px; }
+  .sw.em{ background:var(--brand); }
+  .sw.bad{ background:var(--red); }
   .say .cost{ font-weight:700; color:var(--cost); }
 
   /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
      Two kinds, one 18x18 square. The gray square means a note follows; the terminal square (.code: dark window, a title
      strip with three dots, a white digit, the same colors in both themes) means an evidence card with code follows.
      Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
-  .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n700); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:700; line-height:1; flex:none; vertical-align:-3px; }
+  .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n500); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; line-height:1; flex:none; vertical-align:-3px; }
   .m.code{ position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
   .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:4.5px; background:#2A3342; }
   .m.code::after{ content:""; position:absolute; top:1.4px; left:2px; width:1.8px; height:1.8px; border-radius:50%; background:#F87171; box-shadow:2.8px 0 0 #FBBF24, 5.6px 0 0 #34D399; }
-  .dg-m rect{ fill:var(--n700); }
-  .dg-m text{ fill:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:700; text-anchor:middle; }
+  .dg-m rect{ fill:var(--n500); }
+  .dg-m text{ fill:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; text-anchor:middle; }
   .dg-m.code rect{ fill:#141A24; }
   .dg-m.code rect.bar{ fill:#2A3342; }
   .dg-m.code .d1{ fill:#F87171; } .dg-m.code .d2{ fill:#FBBF24; } .dg-m.code .d3{ fill:#34D399; }
@@ -302,6 +313,32 @@
   .dg-cap{ font-size:11.5px; font-weight:700; fill:var(--sub); }  /* state caption text on the pill, baseline y = pill y + 14 */
   .dg-cap.bad{ fill:var(--red); }
   .dg-cap.em{ fill:var(--brand-ink); }
+  .dg-l.dg-row{ fill:var(--sub); }                          /* the name of a bar or strip row: label size, secondary color */
+
+  /* ── figure strokes (eli5; SKILL.md "One stroke set") ── a flow, a strip and a bar chart read as one family because
+     they share these strokes: box and cell outlines --dg-line 1px over a --bg fill, connectors and arrowheads --dg-flow
+     1.1px, the accent (brand, red) 1.2px and never re-toned. What is absent is dashed in --dg-flow (a light dashed line
+     disappears); a dimmed shape keeps opacity .6 or more. The attribute rules at the end re-tone a shape written with
+     stroke="currentColor", so a drawing made the old way still lands in the family; colored strokes are left alone. */
+  .dg-box{ fill:var(--bg); stroke:var(--dg-line); stroke-width:1; }
+  .dg-box.em{ stroke:var(--brand); stroke-width:1.2; }
+  .dg-box.bad{ stroke:var(--red); stroke-width:1.2; }
+  .dg-box.absent{ stroke:var(--dg-flow); stroke-dasharray:5 4; }
+  .dg-box.in{ fill:var(--panel); }                          /* a step inside a .dg-sys system box: the panel fill sets it off from the white system box */
+  .dg-arrow{ fill:none; stroke:var(--dg-flow); stroke-width:1.1; }
+  .dg-arrow.em{ stroke:var(--brand); stroke-width:1.2; }
+  .dg-arrow.bad{ stroke:var(--red); stroke-width:1.2; }
+  .dg-arrow.absent{ stroke-dasharray:5 4; }
+  .dg-head{ fill:var(--dg-flow); }                          /* the arrowhead polygon inside a <marker>; a colored arrow gets its own marker with fill="var(--brand)" or "var(--red)" */
+  .dg-cell{ fill:var(--bg); stroke:var(--dg-line); stroke-width:1; }         /* an empty slot of a strip */
+  .dg-cell.on{ fill:var(--brand); stroke:var(--panel); stroke-width:1.5; }   /* filled slots are parted by a panel-colored gap, like a segmented bar */
+  .dg-cell.off{ fill:var(--n300); stroke:var(--panel); stroke-width:1.5; }
+  .fig svg rect[stroke="currentColor"]{ stroke:var(--dg-line); stroke-width:1; }
+  .fig svg rect[fill="none"][stroke="currentColor"]{ fill:var(--bg); }
+  .fig svg rect[stroke="currentColor"][stroke-dasharray]{ stroke:var(--dg-flow); }
+  .fig svg line[stroke="currentColor"], .fig svg path[stroke="currentColor"]{ stroke:var(--dg-flow); stroke-width:1.1; }
+  .fig svg marker polygon[fill="currentColor"]{ fill:var(--dg-flow); }
+  .fig > .res-more{ margin-top:12px; }                      /* the folded reading condition under a drawing, same block as under a table */
 
   /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ── */
   .ctl{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px; margin:0 0 12px; }
@@ -401,16 +438,17 @@
           <!-- W=760 | row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(X on the line) [590..720] -->
           <defs>
             <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+              <polygon class="dg-head" points="0,0 10,5 0,10"/>
             </marker>
           </defs>
-          <rect x="40" y="56" width="150" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="205" y1="100" x2="320" y2="100" stroke="currentColor" stroke-width="1.6" marker-end="url(#ar1)"/>
-          <rect x="335" y="56" width="150" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <!-- a failure: the line leaves the box in red, stops short, and the X sits ON the line where it stops; the unreachable box is dashed and dim -->
-          <line x1="500" y1="100" x2="518" y2="100" stroke="var(--red)" stroke-width="1.8"/>
+          <rect class="dg-box" x="40" y="56" width="150" height="88" rx="6"/>
+          <line class="dg-arrow" x1="205" y1="100" x2="320" y2="100" marker-end="url(#ar1)"/>
+          <rect class="dg-box" x="335" y="56" width="150" height="88" rx="6"/>
+          <!-- shapes take the stroke classes (dg-box, dg-arrow, dg-head, dg-cell), never stroke="currentColor" with a width of their own.
+               a failure: the line leaves the box in red, stops short, and the X sits ON the line where it stops; the unreachable box is dashed (absent), opacity .6 at the least -->
+          <line class="dg-arrow bad" x1="500" y1="100" x2="518" y2="100"/>
           <g stroke="var(--red)" stroke-width="2.6" stroke-linecap="round"><line x1="520" y1="91" x2="538" y2="109"/><line x1="538" y1="91" x2="520" y2="109"/></g>
-          <rect x="590" y="56" width="130" height="88" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".45"/>
+          <rect class="dg-box absent" x="590" y="56" width="130" height="88" rx="6" opacity=".6"/>
           <!-- labels last: text paints over the shapes (rule 6) -->
           <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
           <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
@@ -425,7 +463,7 @@
         </svg>
       </figure>
       <!-- 선택: 근거 카드 (SKILL.md "Evidence card"). 머리는 파일 이름, 종류 한 마디, 그 상자의 터미널 배지(오른쪽 끝) 순서. 요점 줄은 .hi(회색 바탕, 꼬리표가 이유를 말한다), 깨지는 줄은 .hi.bad(빨간 꼬리표), 있어야 하는데 없는 줄은 .ghost(회색 점선).
-      <!-- prose card: a prompt or message quoted as sentences. One <p> per source paragraph; a condition list may break at "; or"; JSON one key per line. -->
+           prose card: a prompt or message quoted as sentences. One <p> per source paragraph; a condition list may break at "; or"; JSON one key per line.
       <div class="prose-card">
         <div class="pc-h"><span class="kind">system</span><span class="name">{프롬프트 이름 v{n}}</span><span class="src">{파일 경로}</span></div>
         <div class="pc-b">
@@ -448,16 +486,17 @@
           <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">SYSTEM_PROMPT = (</span></span><span class="ln del"><span class="sign">-</span><span class="t">    <span class="sx-s">"At most 4 words."</span></span><span class="tag">{빠진 규칙 한 마디}</span></span><span class="ln add"><span class="sign">+</span><span class="t">    <span class="sx-s">"A concise noun phrase. No word limit."</span></span><span class="tag">{생긴 규칙 한 마디}</span></span><span class="ln gap"><span class="sign"> </span><span class="t">    … {N}줄 생략</span></span><span class="ln"><span class="sign"> </span><span class="t">)</span></span></pre></div>
         </div>
       </div> -->
-      <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 1~2문장, 110자 이내. 사실만, 본문 크기. -->
+      <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 1~2문장, 80자 이내. 사실만, 본문 크기.
+           해설의 머리는 그림에서 찾을 수 있는 표시다: 번호 배지, 행 칩(.cap), 그림이 채움색으로 구분하면 색 조각(<i class="sw em"></i>), 그림이 이름을 글자로 적고 있으면 그 글자 그대로(굵게, 표시 없음). -->
       <div class="notes">
         <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
         <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
       </div>
       <!-- 선택: 해설에 다 못 담는 조건이나 예외가 있을 때만. 접힌 채로 나오고, 요약 줄이 안에 무엇이 있는지 말한다. 3문장까지, 그림의 숫자는 다시 쓰지 않는다.
       <details class="more"><summary>{무엇을 설명하는지 한 마디: 예외 2건, 왜 2차 호출이 기준인지}</summary><p>{조건이나 예외 1~3문장, 해요체}</p></details> -->
-      <!-- 마무리 줄. 라벨은 그 줄이 무엇인지 말하는 한 단어(그래서, 실측, 지금은, 선택)이고 beat당 하나. 설명문이면 라벨 없음. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
+      <!-- 마무리 줄. 해설 목록 뒤에서는 항상 배지로 시작한다. 형광 배지(lab)는 맨 끝 정리 머리 문장이 다시 말하는 줄에만, 그 밖의 줄은 테두리 배지(lab q)이고 문구는 그 줄이 무엇인지 주제의 말로 1~3단어. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
       <p class="say"><span class="lab warn">확인 못 한 것</span>{검증하지 못한 사실과 무엇이 확정하는지.}</p>
-      <p class="say"><span class="lab">그래서</span>{이 그림의 결론 한두 문장, 90자 이내.}</p>
+      <p class="say"><span class="lab">그래서</span>{정리 머리 문장이 다시 말하는 결론 한 문장, 60자 이내.}</p>
     </div>
   </section>
 
@@ -470,11 +509,11 @@
       <figure class="fig">
         <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
           <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다 -->
-          <rect x="40" y="40" width="680" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".4"/>
+          <rect class="dg-box absent" x="40" y="40" width="680" height="40" rx="6" opacity=".6"/>
           <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
       </figure>
-      <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장이에요. 설명문이라 라벨이 없어요.}</p>
+      <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장이에요. 해설 목록이 없어 섞일 것이 없으니 배지도 없어요.}</p>
     </div>
     <div class="beat" id="b22">
       <div class="sub-h"><div class="sub-no">2-2</div><h3>{짧은 명사구}</h3></div>
@@ -491,11 +530,11 @@
       -->
       <figure class="fig">
         <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
-          <rect x="40" y="40" width="680" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" opacity=".4"/>
+          <rect class="dg-box absent" x="40" y="40" width="680" height="40" rx="6" opacity=".6"/>
           <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
       </figure>
-      <p class="say"><span class="lab">지금은</span>{현재 상태를 말하는 줄에는 그래서 대신 지금은.}</p>
+      <p class="say"><span class="lab q">{이 줄이 무엇인지 1~3단어}</span>{결론이 아닌 마무리 줄 한 문장. 테두리 배지예요.}</p>
     </div>
   </section>
 
@@ -505,7 +544,7 @@
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>
     <figure class="fig tab">
-      <p class="res-cap"><b>표 1. 세팅</b><span>{모든 세팅에 공통인 것 한 마디}</span></p>
+      <p class="res-cap"><b>표 1. 세팅</b></p>
       <table class="res">
         <thead><tr><th>세팅</th><th>{분해 조건}</th><th class="n">{하위 질문}</th><th class="n">{추가 호출}</th></tr></thead>
         <tbody>
@@ -515,7 +554,7 @@
       </table>
     </figure>
     <figure class="fig tab">
-      <p class="res-cap"><b>표 2. {근거 전부 적중률}</b><span>{%, 높을수록 좋음}. 행마다 최고 굵게, 둘째 밑줄</span></p>
+      <p class="res-cap"><b>표 2. {근거 전부 적중률}</b><span>{%, 높을수록 좋음}</span></p>
       <table class="res">
         <thead><tr><th>세트</th><th class="n">{원문만}</th><th class="n">{always}</th><th class="n">{judge}</th></tr></thead>
         <tbody>
@@ -529,7 +568,7 @@
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
       <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</div></div>
     </div>
-    <p class="say">{표에서 읽히는 사실 한 줄, 90자 이내.}</p>
+    <p class="say"><span class="lab q">{이 줄이 무엇인지 1~3단어}</span>{표에서 읽히는 사실 한 줄, 60자 이내.}</p>
   </div> -->
 
   <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 숫자 타일은 없다. 조건 x 측정값 격자는 위의 결과 표 beat가 맡는다. -->
@@ -538,25 +577,25 @@
     <h2>{대가와 현황}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 170" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
+        <svg viewBox="0 0 760 124" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
           <!-- W=760 | group1 x[40..360]: title y=30, bars x=100 scale {px/단위}: before {w1} (y=50 h=22), after {w2} (y=90 h=22) | group2 x[420..740]: bars x=480 -->
           <rect class="dg-bar" x="100" y="50" width="132" height="22" rx="3"/>
           <rect class="dg-bar em" x="100" y="90" width="192" height="22" rx="3"/>
           <rect class="dg-bar" x="480" y="50" width="182" height="22" rx="3"/>
           <rect class="dg-bar" x="480" y="90" width="187" height="22" rx="3"/>
           <text class="dg-l" x="40" y="30">{잰 것 1}</text>
-          <text class="dg-s" x="40" y="65">AS-IS</text>
-          <text class="dg-s" x="40" y="105">TO-BE</text>
+          <text class="dg-l dg-row" x="40" y="66">AS-IS</text>
+          <text class="dg-l dg-row" x="40" y="106">TO-BE</text>
           <text class="dg-l" x="240" y="66">{11자}</text>
           <text class="dg-l dg-em" x="300" y="106">{16자}</text>
           <text class="dg-l" x="420" y="30">{잰 것 2}</text>
-          <text class="dg-s" x="420" y="65">AS-IS</text>
-          <text class="dg-s" x="420" y="105">TO-BE</text>
+          <text class="dg-l dg-row" x="420" y="66">AS-IS</text>
+          <text class="dg-l dg-row" x="420" y="106">TO-BE</text>
           <text class="dg-l" x="670" y="66">{1.65초}</text>
           <text class="dg-l" x="675" y="106">{1.70초}</text>
-          <text class="dg-s" x="40" y="150">{막대로 그리지 않는 부가 수치 한 줄: 설정 변경 0건, 테스트 15건}</text>
-          <text class="dg-s" x="420" y="150">{현재 상태 한 줄}</text>
         </svg>
+        <!-- 선택: 이 줄이 없으면 그림을 잘못 읽게 되는 조건(모집단, 단위, 기준)이 있을 때만. 그리지 않은 수치는 여기도 넣지 않고 보고서로 보낸다.
+        <details class="res-more"><summary>{무엇이 들었는지: 측정 조건}</summary><p>{어느 집합의 어떤 값인지 한두 문장}</p></details> -->
       </figure>
       <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 한두 문장. 비용이 있으면 여기서 말해요.}</p>
     </div>

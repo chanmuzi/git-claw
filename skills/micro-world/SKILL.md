@@ -134,5 +134,5 @@ Then check: pressing `→` from a fresh page walks the whole scenario; something
 **Constraints:**
 
 - Read-only with respect to git state: exactly one HTML file is created (plus the scratch files of the Render check, deleted when it finishes).
-- Visual language is fixed by the template and the design-system record (`docs/decisions/2026-07-explain-diff-design-system.md`). Do not improvise styles.
+- Visual language is fixed by the template and the design-system record (`docs/decisions/2026-07-explain-diff-micro-world-design.md`). Do not improvise styles.
 - Never present the sim as proof of correctness: it is an understanding aid, not a test. If the sim surfaces a suspected bug, report it as an attention pointer and suggest a code review.

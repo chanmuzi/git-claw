@@ -222,7 +222,7 @@ The rules are the first defense; looking at the rendered page is the second, and
    ```
 2. **Look at every piece.** Crop each screenshot to the content (the window is taller than the page and the rest is blank), cut it into pieces about 1,800px tall and read them all; a page-sized thumbnail hides a clipped label, a chip split across two lines, and a lone word on a last line.
    ```bash
-   python3 -c "from PIL import Image; im=Image.open('D/light.png'); [im.crop((0,y,im.width,min(y+1800,im.height))).save(f'D/light-{i}.png') for i,y in enumerate(range(0,im.height,1800))]"
+   python3 -c "from PIL import Image,ImageChops; im=Image.open('D/light.png').convert('RGB'); b=ImageChops.difference(im,Image.new('RGB',im.size,im.getpixel((im.width-1,im.height-1)))).getbbox(); h=min(im.height,(b[3] if b else im.height)+40); [im.crop((0,y,im.width,min(y+1800,h))).save(f'D/light-{i}.png') for i,y in enumerate(range(0,h,1800))]"
    ```
    If Pillow is not installed, look at the full screenshots and say in the report that the check was at thumbnail size.
 3. **Measure.** Run `measure.html` from this skill's base directory (the command is in its header comment) at the reading width and again at `--window-size=500,2000` (headless Chrome does not go narrower than 500px, so a 420px request silently measures 500). The `<body>` tag must carry `data-sbs`, `data-fit`, and `data-ovf`, all `none`; a body tag without them means the measurement never ran, which is a failure, not a pass.

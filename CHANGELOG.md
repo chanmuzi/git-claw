@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+**Fixed**
+- cache 정리 스크립트(`docs/ops/plugin-sync.md`, `docs/testing.md`)가 `installed_plugins.json`의 git-claw 항목 중 첫 번째 `installPath`만 남기던 것: user 범위와 project 범위처럼 항목이 여러 개면 전부 남긴다. 동기화 3번도 모든 항목의 `installPath`를 바꾸도록 적었다.
+
 ## v1.27.0 (2026-11-11)
 
 **Changed**

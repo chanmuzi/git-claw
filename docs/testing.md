@@ -80,13 +80,13 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 
 **복사본이 무시되는 함정**: `/reload-plugins`가 marketplace(main)에서 **새 hash의 cache 디렉토리를 새로 만들어 버리면**, 직전에 복사해둔 cache는 활성 경로에서 밀려나고 구버전이 로드된다. "복사 → reload" 한 번으로 끝났다고 가정하지 말 것. reload 후 **활성 cache에 실제로 신버전이 있는지 grep으로 검증**하고, 구버전이면 새 cache에 재복사한 뒤 reload를 한 번 더 실행한다.
 
-> marketplace commit이 바뀐 뒤 `/reload-plugins`를 실행하면 그 commit 이름의 새 cache 디렉토리가 생겨 누적된다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **installPath와 다른 세션이 쓰고 있는 디렉토리를 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다). Claude Code는 세션이 로드한 cache 디렉토리 안에 `.in_use/{pid}` 마커를 남기므로, 살아 있는 pid가 있는 디렉토리는 다른 세션의 것이다 (2026-10-10 확인):
+> marketplace commit이 바뀐 뒤 `/reload-plugins`를 실행하면 그 commit 이름의 새 cache 디렉토리가 생겨 누적된다. 오래된 cache는 주기적으로 정리하되, 최근 수정 순이 아니라 **모든 git-claw 항목의 installPath와 다른 세션이 쓰고 있는 디렉토리를 남기고** 지운다 (mtime 최신 디렉토리가 활성 cache가 아닐 수 있다). Claude Code는 세션이 로드한 cache 디렉토리 안에 `.in_use/{pid}` 마커를 남기므로, 살아 있는 pid가 있는 디렉토리는 다른 세션의 것이다 (2026-10-10 확인):
 >
 > ```bash
 > PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
-> KEEP=$(grep -A6 '"git-claw' "$PLUG/installed_plugins.json" | grep -o '"installPath": *"[^"]*"' | head -1 | cut -d'"' -f4)
-> [ -d "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
->   [ "${d%/}" = "${KEEP%/}" ] && continue
+> KEEP=$(grep -o '"installPath": *"[^"]*/cache/git-claw/[^"]*"' "$PLUG/installed_plugins.json" | cut -d'"' -f4 | sed 's:/*$::')   # 항목이 여러 개면(user, project 범위) 전부
+> [ -n "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
+>   echo "$KEEP" | grep -qxF "${d%/}" && continue
 >   live=$(for f in "$d".in_use/*; do p=$(basename "$f"); [ -d "/proc/$p" ] && echo "$p"; done 2>/dev/null)
 >   [ -n "$live" ] && { echo "skip $d (세션 사용 중: $(echo $live))"; continue; }
 >   rm -rf "$d"

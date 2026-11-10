@@ -243,4 +243,4 @@ Then check: every quiz option reveals its explanation and the gate opens; the di
 **Constraints:**
 
 - This skill is read-only with respect to git state: it creates exactly one HTML file (plus the scratch files of the Render check, deleted when it finishes) and changes nothing else.
-- Design decisions are fixed by the template and the design-system record (`docs/decisions/2026-07-explain-diff-design-system.md` in the git-claw repo). Do not improvise styles.
+- Design decisions are fixed by the template and the design-system record (`docs/decisions/2026-07-explain-diff-micro-world-design.md` in the git-claw repo). Do not improvise styles.

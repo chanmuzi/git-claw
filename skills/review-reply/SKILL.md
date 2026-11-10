@@ -254,7 +254,7 @@ PR 전체 코멘트, {reviewer_name}
 
 Rejecting a suggestion demands **more** evidence than accepting one, not less. `❌ Can Safely Ignore` therefore quotes the code that actually refutes the reviewer: the user cannot check "this is already handled elsewhere" against a claim alone. An X item with no evidence at all is not dismissible; re-examine it. (For an unanchored comment there is no code to quote: then the evidence is the files you checked and what you found there, stated explicitly.)
 
-**Evidence rules** (kept in sync with `code-review`: see AGENTS.md 스킬 간 공유 로직):
+**Evidence rules** (kept in sync with `code-review`: see docs/shared-logic.md):
 - **Two sources per item**: the reviewer's words AND the code. Quote both. The comment is the claim under evaluation; the code is what decides it. Dropping either leaves the user unable to check your assessment.
 - **Verbatim only**: lines inside an evidence block are copied from the file as-is. Never paraphrase, re-indent, or reconstruct them from memory. If the file does not say what you expected, that is a finding in itself: the reviewer (or you) misread it.
 - **Block format is decided by the fix, NOT by the category**: a concrete replacement exists → ` ```diff `; nothing to replace (directional fix, or the item needs no change) → a plain ` ```{lang} ` block quoting the current code; the problem is *absent* code → a `+`-only ` ```diff ` anchored on the lines the addition should sit next to, or on the sibling that already does it right. Never drop an item for lack of quotable lines: quote the anchor.

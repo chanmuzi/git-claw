@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>git-claw 기록 문서 정리 계획</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap">
+<style>
+  /* ── tokens (LOCKED). Lift 1.1.0: neutral = zinc-leaning gray, brand-500 = #5B52FF, highlight = #D2FF95.
+     Page = white ground, one 880px column; the cover (hero + outline) sits on a brand-tint band; figures
+     are neutral-50 panels; nothing else is a card. */
+  :root{
+    --n0:#FFFFFF; --n50:#F9F9FC; --n100:#F3F3F7; --n200:#E3E3E8; --n300:#D0D0D7; --n400:#A0A0AB;
+    --n500:#71717A; --n600:#52525B; --n700:#3F3F46; --n800:#27272A; --n900:#18181B;
+    --brand:#5B52FF; --brand-ink:#3723A9; --brand-50:#EBF0FF; --brand-100:#DDE3FF; --tint:#F4F2FF;
+    --hl:#D2FF95; --hl-ink:#0D0D12;
+    --red:#E60026; --red-soft:#FFF0F1; --green:#00AD82; --green-soft:#EFFDF8; --cost:#8A5A00;
+    --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
+    --sans:"Geist","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;
+    --mono:"Geist Mono",ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --r:8px; --r-lg:12px;
+    /* figure strokes: one set for every drawing. They follow the neutrals, so the dark blocks need no second copy. */
+    --dg-line:color-mix(in srgb, var(--n300) 45%, var(--n400)); --dg-flow:color-mix(in srgb, var(--n400) 50%, var(--n500));
+    /* legacy aliases: pages built before this skin reference these names in inline SVG fills. Keep them so an
+       old page can be re-skinned by swapping this <style> only. New drawings use the names above. */
+    --card:var(--panel); --chipbg:var(--n100); --blue:var(--brand); --blue-soft:var(--brand-50); --chip-ink:var(--brand-ink);
+    --amber:var(--cost); --amber-soft:#FFF8E6; --violet:#7C4DFF;
+    --gray900:var(--n900); --gray700:var(--n700); --gray600:var(--n600); --gray500:var(--n500); --gray400:var(--n400);
+    --gray300:var(--n300); --gray200:var(--n200); --gray100:var(--n100); --gray50:var(--n50); --gray25:var(--n50);
+  }
+  /* Dark tokens appear twice on purpose: once for "follow the system" and once for the toggle. Keep the two blocks identical. */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --n0:#09090B; --n50:#131316; --n100:#1C1C21; --n200:#27272A; --n300:#3F3F46; --n400:#71717A;
+      --n500:#8E8E9A; --n600:#A0A0AB; --n700:#C4C4CC; --n800:#E3E3E8; --n900:#F3F3F7;
+      --brand:#7578FF; --brand-ink:#C2CBFF; --brand-50:#1B1A3A; --brand-100:#27265A; --tint:#15142A;
+      --red:#FF5C73; --red-soft:#2E161B; --green:#2EC79E; --green-soft:#10281F; --cost:#E0A44A; --amber-soft:#33291A;
+      --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --n0:#09090B; --n50:#131316; --n100:#1C1C21; --n200:#27272A; --n300:#3F3F46; --n400:#71717A;
+    --n500:#8E8E9A; --n600:#A0A0AB; --n700:#C4C4CC; --n800:#E3E3E8; --n900:#F3F3F7;
+    --brand:#7578FF; --brand-ink:#C2CBFF; --brand-50:#1B1A3A; --brand-100:#27265A; --tint:#15142A;
+    --red:#FF5C73; --red-soft:#2E161B; --green:#2EC79E; --green-soft:#10281F; --cost:#E0A44A; --amber-soft:#33291A;
+    --bg:var(--n0); --panel:var(--n50); --ink:var(--n900); --sub:var(--n600); --faint:var(--n500); --line:var(--n200); --line-soft:var(--n100);
+    color-scheme:dark;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:var(--sans); background:var(--bg); color:var(--ink); font-size:15px;
+    -webkit-font-smoothing:antialiased; line-height:1.7; letter-spacing:-0.01em;
+  }
+  .shell{ max-width:880px; margin:0 auto; padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px)); }
+
+  /* ── theme toggle (LOCKED) ── the page follows the system setting until the reader presses this */
+  .theme-btn{
+    position:absolute; top:16px; right:16px; z-index:50;
+    width:36px; height:36px; padding:0; border-radius:50%;
+    display:grid; place-items:center; cursor:pointer;
+    background:var(--bg); color:var(--sub); border:1px solid var(--line);
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .theme-btn:hover{ color:var(--ink); border-color:var(--n300); }
+  .theme-btn:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
+  .theme-btn svg{ width:18px; height:18px; display:block; }
+  @media (min-width:1080px){ .theme-btn{ position:fixed; top:20px; right:28px; } }
+  @media print{ .theme-btn{ display:none; } }
+
+  /* ── cover: the brand-tint band holds the eyebrow, the title, the lede and the outline. The body below is white.
+     The band is the one place the brand tint is used as a surface; it is what says "this is an Upstage document". */
+  .band{ background:var(--tint); }
+  .hero{ padding-block:56px 40px; }
+  .eyebrow{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--brand-ink); margin-bottom:18px; }
+  .eyebrow i{ width:8px; height:8px; border-radius:2px; background:var(--brand); flex:none; }
+  .hero h1{ font-size:clamp(26px,3.6vw,32px); font-weight:800; line-height:1.3; letter-spacing:-0.035em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px; }
+  .hero .lede{ font-size:16px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0; max-width:720px; }
+
+  /* ── outline: a nested table of contents inside the cover. Top-level rows are separated by hairlines; a sub-row is a
+     nested <ol> under its parent's title and uses the same 32px number column, so every title starts on one of two
+     vertical lines. No label, no card. */
+  .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
+  .outline ol{ list-style:none; margin:0; padding:0; }
+  .outline > ol > li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--brand); }
+  .outline ol ol{ grid-column:2; margin-top:6px; display:flex; flex-direction:column; gap:3px; }
+  .outline ol ol li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
+  .outline ol ol li b{ color:var(--faint); font-size:11.5px; }
+  .outline a{ color:inherit; text-decoration:none; }
+  .outline a:hover{ color:var(--brand); }
+
+  /* ── section hierarchy (eli5 copy; the other three skills still carry the pre-Lift block) ──
+     Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills with the scroll
+     ratio, every top-level section opens with a hairline and a number line (`1 / 4`), and a beat inside a grouped
+     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text. */
+  .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--brand); z-index:60; transition:width .1s linear; }
+  .sec-top{ border-top:1px solid var(--line); padding-top:28px; margin-top:56px; }
+  .shell > .sec-top:first-child{ border-top:none; margin-top:44px; padding-top:0; }  /* the first section sits under the cover without a second rule */
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
+  .sec-no b{ color:var(--brand); font-weight:700; }
+  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; }
+  /* deck: the fact under a short heading. The heading names what the figure is about (a noun phrase, about 20 characters);
+     the deck states the fact or the number in one line. The outline lists headings only, so it stays scannable. */
+  .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
+  .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
+  .sec-top .beat{ margin-top:36px; }
+  .sec-top.single .beat{ margin-top:0; }
+  /* three levels of separation, all in the hairline color: a full rule opens a section, a 120px rule sits between the
+     beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
+  .sec-top .beat + .beat{ position:relative; padding-top:28px; }
+  .sec-top .beat + .beat::before{ content:""; position:absolute; top:0; left:0; width:120px; height:1px; background:var(--line); }
+  .sub-h{ margin:0 0 14px; }
+  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
+  .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
+  .sub-h .deck{ margin-bottom:0; }
+
+  /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
+  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:26px 24px 20px; overflow-x:auto; }
+  .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
+
+  /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
+  .notes{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+  .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .note .m{ margin-top:4px; }
+  .note b{ font-weight:600; color:var(--ink); }
+  .notes.plain .note{ grid-template-columns:minmax(0,1fr); }  /* a drawing that is itself a list, or whose rows are named by caption chips: no badges */
+  .cap{ display:inline-block; vertical-align:1px; margin-right:6px; padding:0 8px; height:20px; line-height:20px; border-radius:10px; font-size:11.5px; font-weight:700; color:var(--sub); background:var(--n200); white-space:nowrap; }
+  .cap.em{ color:var(--brand-ink); background:var(--brand-50); }
+  .cap.bad{ color:var(--red); background:var(--red-soft); }
+
+  /* ── the closing line of a beat (SKILL.md "The word budget"): prose, full column width. After a notes list it opens
+     with a badge so it does not read as one more note. Two kinds: the lime badge (.lab), the page's one signature mark,
+     only on the lines the `정리` headline restates; the outline badge (.lab.q) on every other closing line, naming what
+     that line is in the subject's own words. `확인 못 한 것` (lab warn) is text-only, in the cost color. */
+  .say{ font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:16px 0 0; }
+  .say b{ font-weight:600; color:var(--ink); }
+  .say .lab{ display:inline-block; font-weight:700; color:var(--hl-ink); background:var(--hl); padding:0 7px; border-radius:4px; margin-right:8px; line-height:1.5; }
+  .say .lab.q{ background:transparent; color:var(--sub); font-weight:500; box-shadow:inset 0 0 0 1px var(--n200); }
+  .say .lab.warn{ background:transparent; color:var(--cost); padding:0; }
+  /* color key: a note about a part the drawing marks by fill opens with the same fill */
+  .sw{ display:inline-block; width:10px; height:10px; border-radius:2px; background:var(--n300); margin-right:7px; }
+  .sw.em{ background:var(--brand); }
+  .sw.bad{ background:var(--red); }
+  .say .cost{ font-weight:700; color:var(--cost); }
+
+  /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
+     Two kinds, one 18x18 square. The gray square means a note follows; the terminal square (.code: dark window, a title
+     strip with three dots, a white digit, the same colors in both themes) means an evidence card with code follows.
+     Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
+  .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n500); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; line-height:1; flex:none; vertical-align:-3px; }
+  .m.code{ box-shadow:0 0 0 1px var(--line); position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
+  .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:4.5px; background:#2A3342; }
+  .m.code::after{ content:""; position:absolute; top:1.4px; left:2px; width:1.8px; height:1.8px; border-radius:50%; background:#F87171; box-shadow:2.8px 0 0 #FBBF24, 5.6px 0 0 #34D399; }
+  .dg-m rect{ fill:var(--n500); }
+  .dg-m text{ fill:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; text-anchor:middle; }
+  .dg-m.code rect{ fill:#141A24; stroke:var(--line); stroke-width:1; }   /* the hairline keeps the dark window visible on the dark ground */
+  .dg-m.code rect.bar{ fill:#2A3342; stroke:none; }
+  .dg-m.code .d1{ fill:#F87171; } .dg-m.code .d2{ fill:#FBBF24; } .dg-m.code .d3{ fill:#34D399; }
+  .dg-m.code text{ fill:#FFFFFF; font-size:10px; }
+  /* group outline: one note about several boxes gets one dashed outline and one badge on its corner */
+  .dg-grp{ fill:none; stroke:var(--brand); stroke-width:1.2; stroke-dasharray:4 4; opacity:.7; }
+  .dg-grp.bad{ stroke:var(--red); }
+  /* system box and sequence lanes (SKILL.md "Draw the behavior with these shapes") */
+  .dg-sys{ fill:var(--bg); stroke:var(--n300); stroke-width:1.2; }
+  .dg-life{ stroke:var(--n300); stroke-width:1.2; stroke-dasharray:3 4; }
+  .dg-dim{ opacity:.7; }                                   /* a replaced or past state reads like secondary text, not a watermark; solid strokes, never dashed (dashed = absent) */
+  .dg-dim .dg-s{ opacity:.85; }                            /* .7 x .85 = .6: the sub-line gray used everywhere else on the page */
+  .dg-sys.em{ stroke:var(--brand); }
+  /* to-scale bars (SKILL.md "Numbers are drawn to scale"): a 22px-tall bar per value, gray for the reference state,
+     brand for the state that is the point, red for the state that is worse; the value label sits right after the bar */
+  .dg-bar{ fill:var(--n300); }
+  .dg-bar.em{ fill:var(--brand); }
+  .dg-bar.bad{ fill:var(--red); opacity:.75; }
+
+  /* ── evidence card (optional; SKILL.md "Evidence card") ──
+     The real file verbatim, between the figure and the notes. Hairline border, a neutral head strip that reads the file, a kind word,
+     then the badge of the drawing box it backs at the right edge. Lines inside carry no badge and no gutter mark: the line the note is
+     about gets a neutral wash (.hi) and its .tag says why (.hi.bad: a red tag). A line that should be there and is not
+     (.ghost) is hollow: faint text in a gray dashed outline, tag `이 줄이 없음`. A change at one place is one card in diff
+     form: .del red minus, .add green plus, context lines plain. Cards stack one per row; .evs.pair puts two short cards side by side. */
+  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .evs.pair{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+  .ev{
+    --sx-base:color-mix(in srgb, var(--ink) 55%, var(--n700));
+    --sx-k:var(--violet); --sx-f:var(--brand); --sx-s:var(--green); --sx-n:var(--cost);
+    border:1px solid var(--line); border-radius:var(--r); background:var(--bg); min-width:0; overflow:hidden;
+  }
+  .ev-head{ display:flex; align-items:center; gap:10px; min-height:36px; padding:6px 12px; border-bottom:1px solid var(--line-soft); background:var(--panel); font-family:var(--mono); font-size:11.5px; color:var(--sub); min-width:0; flex-wrap:wrap; }
+  .ev-head .loc{ order:1; color:var(--ink); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }  /* the file is what the card is about: it reads first */
+  .ev-head .kind{ order:2; margin-right:auto; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); flex:none; }  /* what view of the file this is; pushes the badges to the right edge */
+  .ev-head .m{ order:3; flex:none; }                        /* the badge of the drawing box this card backs, where the eye lands coming down from the drawing. `order` draws pages written badge-first in this order too */
+  .ev-head .kind.em{ color:var(--brand); }
+  .ev-head .kind.bad{ color:var(--red); }
+  .ev-head .kind.add{ color:var(--green); text-transform:none; }  /* `PR #12 diff`: the number must not be upper-cased */
+  .ev-body{ overflow-x:auto; }
+  .ev-body pre{ width:max-content; min-width:100%; margin:0; padding:8px 0; font-family:var(--mono); font-size:12px; line-height:1.5; color:var(--sx-base); white-space:normal; }
+  .ev .ln{ display:flex; align-items:center; padding:0 12px 0 8px; white-space:pre; height:20px; }
+  .ev .ln:not(:has(.sign))::before{ content:""; flex:none; width:6px; }
+  .ev .ln .t{ flex:none; }
+  .ev .ln.hi{ background:var(--n100); color:var(--ink); }
+  .ev .ln.ghost{ color:var(--faint); }
+  .ev .ln.ghost .t{ flex:0 1 auto; border:1px dashed var(--n400); border-radius:4px; padding:0 6px; margin:1px 0; color:var(--faint); }
+  .ev .ln.ghost .sx-f, .ev .ln.ghost .sx-s, .ev .ln.ghost .sx-n, .ev .ln.ghost .sx-k{ color:inherit; }
+  .ev .ln .tag{ font-size:10.5px; color:var(--faint); white-space:nowrap; flex:none; margin-left:14px; }  /* right after the text, never pushed to the edge */
+  .ev .ln.hi .tag{ color:var(--brand-ink); font-weight:600; }
+  .ev .ln.hi.bad .tag{ color:var(--red); font-weight:600; }
+  .ev .ln.ghost .tag{ color:var(--faint); font-weight:600; }
+  /* diff form: every line starts with a .sign (`-`, `+`, or a space for context) so the columns align */
+  .ev .ln .sign{ flex:none; width:14px; font-weight:700; color:transparent; }
+  .ev .ln.add{ background:var(--green-soft); color:var(--ink); }
+  .ev .ln.add .sign{ color:var(--green); }
+  .ev .ln.del{ background:var(--red-soft); color:var(--n500); }
+  .ev .ln.del .sign{ color:var(--red); }
+  .ev .ln.del .sx-k, .ev .ln.del .sx-f, .ev .ln.del .sx-s, .ev .ln.del .sx-n{ color:inherit; }
+  .ev .ln.add .tag{ color:var(--green); font-weight:600; }
+  .ev .ln.del .tag{ color:var(--red); font-weight:600; }
+  .ev .ln.gap{ color:var(--faint); font-style:italic; }
+  /* table form: every .col keeps the badge slot (.g); a table card has no head badge because its badges sit on the columns */
+  .g{ width:20px; flex:none; display:inline-grid; place-items:center; }
+  .erd{ display:grid; grid-template-columns:1fr auto 1fr; align-items:start; padding:12px; gap:0; }
+  @media (max-width:600px){ .erd{ grid-template-columns:1fr; } .erd .rel{ transform:rotate(90deg); height:40px; } }
+  .tbl{ border:1px solid var(--line); border-radius:8px; background:var(--bg); overflow:hidden; min-width:0; }
+  .tbl .tn{ padding:7px 12px; font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  .tbl .tn small{ font-family:inherit; font-weight:400; color:var(--faint); font-size:11px; }
+  .tbl .col{ display:flex; align-items:center; gap:8px; padding:3px 12px; font-family:var(--mono); font-size:11.5px; color:var(--n700); }
+  .tbl .col .g{ order:-1; }
+  .tbl .col::before{ content:""; width:16px; flex:none; font-size:9.5px; font-weight:700; color:var(--faint); }
+  .tbl .col.key::before{ content:"PK"; }
+  .tbl .col.fk::before{ content:"FK"; color:var(--brand-ink); }
+  .tbl .col .ty{ margin-left:auto; color:var(--faint); font-size:10.5px; white-space:nowrap; }
+  .tbl .col.hi{ background:var(--brand-50); color:var(--ink); }
+  .tbl .col.hi .ty{ color:var(--brand-ink); }
+  .tbl .col.more{ color:var(--faint); }
+  .rel{ display:grid; place-items:center; padding:0 8px; align-self:center; }
+  .rel svg{ width:56px; height:26px; display:block; color:var(--brand-ink); }
+  code{ font-family:var(--mono); font-size:.88em; font-weight:500; background:var(--brand-50); color:var(--brand-ink); padding:2px 4px; border-radius:5px; }
+
+  /* ── results table (optional; SKILL.md "Results table") ──
+     The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
+     run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned, equal
+     width, tabular). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
+     deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column: the caption says which),
+     <u> the second when three or more values are compared; a tie shares the mark. A column or row with no value is
+     not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
+     folded .res-more under the table, never in a visible line. No adjective in a cell. */
+  .fig.tab{ padding:20px 24px 16px; }
+  .beat .fig + .fig{ margin-top:14px; }
+  .res-cap{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
+  .res-cap b{ color:var(--ink); font-weight:600; }
+  .res{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
+  .res th, .res td{ padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; word-break:keep-all; }
+  .res th{ font-size:11.5px; font-weight:600; letter-spacing:.03em; color:var(--faint); border-bottom:1px solid var(--n300); white-space:nowrap; }
+  .res th.n, .res td.n{ text-align:right; white-space:nowrap; width:12%; font-variant-numeric:tabular-nums; }
+  .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; }
+  .res td{ color:var(--sub); }
+  .res td b{ color:var(--ink); font-weight:700; }
+  .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
+  .res tr:last-child td{ border-bottom:none; }
+  /* notes fold away: a <details> whose summary names what it holds; nothing else sits under the table */
+  /* ── folded detail (optional, SKILL.md "The word budget"): the one place for an explanation the notes cannot hold.
+     Closed by default; the summary names what is inside; at most 3 sentences; never a figure number said again. ── */
+  .more{ margin:12px 0 0; font-size:14px; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:600; font-size:13px; }
+  .more summary::-webkit-details-marker{ display:none; }
+  .more summary::before{ content:""; width:0; height:0; border:4px solid transparent; border-left:5px solid var(--faint); margin-left:2px; transition:transform .12s; }
+  .more[open] summary::before{ transform:rotate(90deg); }
+  .more p{ margin:8px 0 0 15px; line-height:1.7; }
+  .res-more{ margin:10px 0 0; font-size:12.5px; color:var(--faint); word-break:keep-all; }
+  .res-more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:500; }
+  .res-more summary::-webkit-details-marker{ display:none; }
+  .res-more summary::before{ content:""; width:0; height:0; border:4px solid transparent; border-left:5px solid var(--faint); margin-left:2px; transition:transform .12s; }
+  .res-more[open] summary::before{ transform:rotate(90deg); }
+  .res-more p{ margin:6px 0 0 15px; line-height:1.6; }
+  @media (max-width:600px){ .res{ font-size:12.5px; } .res th, .res td{ padding:7px 8px; } }
+
+  /* ── close: prose, no box. A hairline, the mono label, one bold sentence, one short paragraph. The page ends here. ── */
+  .close{ margin-top:56px; padding-top:28px; border-top:1px solid var(--line); padding-bottom:120px; }
+  .close .k{ font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--brand); margin-bottom:10px; }
+  .close .t{ font-size:19px; font-weight:700; letter-spacing:-0.03em; line-height:1.5; word-break:keep-all; text-wrap:balance; max-width:760px; }
+  .close p{ margin:12px 0 0; font-size:15px; line-height:1.7; color:var(--sub); word-break:keep-all; text-wrap:pretty; max-width:720px; }
+
+  /* ── figure labels (SHARED names with visual-doc, explain-diff) ── Text inside a hand-authored SVG figure uses only these classes. */
+  .dg-l{ font-size:13px; fill:currentColor; }              /* shape label */
+  .dg-s{ font-size:11.5px; fill:currentColor; opacity:.6; }  /* sub-line and free caption: the body face, so Hangul does not fall back to a second face */
+  .dg-s.code{ font-family:var(--mono); font-size:11px; }   /* an identifier, a path, a call, a status code (`sha1`, `astream_chat`, `POST title/generate`) */
+  .dg-b{ font-size:20px; font-weight:800; fill:currentColor; } /* shared name; an eli5 page does not use it (a result is a bar pair in the cost beat or a `.say` line, never a number floating beside a mechanism) */
+  .dg-halo{ paint-order:stroke; stroke:var(--panel); stroke-width:4px; stroke-linejoin:round; fill:var(--sub); opacity:1; } /* label on or near a line; draw it after the lines, and break the line around it */
+  .dg-em{ fill:var(--brand); }                              /* the point of this picture */
+  .dg-bad{ fill:var(--red); }                               /* the thing that breaks */
+  .dg-q{ font-size:14px; font-weight:600; }                 /* with .dg-l: the one string the figure is about; one per figure, a row of variants stays .dg-l */
+  .dg-pill{ fill:var(--n200); stroke:var(--n300); stroke-width:1; }  /* state caption pill: rect h=20 rx=10, width = text + 16; the hairline separates it from the panel (fill vs panel is under 1.1:1) */
+  .dg-pill.bad{ fill:var(--red-soft); stroke:var(--red); stroke-opacity:.3; }
+  .dg-pill.em{ fill:var(--brand-50); stroke:var(--brand); stroke-opacity:.35; }
+  .dg-cap{ font-size:11.5px; font-weight:700; fill:var(--sub); }  /* state caption text on the pill, baseline y = pill y + 14 */
+  .dg-cap.bad{ fill:var(--red); }
+  .dg-cap.em{ fill:var(--brand-ink); }
+  .dg-l.dg-row{ fill:var(--sub); }                          /* the name of a bar or strip row: label size, secondary color */
+
+  /* ── figure strokes (eli5; SKILL.md "One stroke set") ── a flow, a strip and a bar chart read as one family because
+     they share these strokes: box and cell outlines --dg-line 1px over a --bg fill, connectors and arrowheads --dg-flow
+     1.1px, the accent (brand, red) 1.2px and never re-toned. What is absent is dashed in --dg-flow (a light dashed line
+     disappears); a dimmed shape keeps opacity .6 or more. The attribute rules at the end re-tone a shape written with
+     stroke="currentColor", so a drawing made the old way still lands in the family; colored strokes are left alone. */
+  .dg-box{ fill:var(--bg); stroke:var(--dg-line); stroke-width:1; }
+  .dg-box.em{ stroke:var(--brand); stroke-width:1.2; }
+  .dg-box.bad{ stroke:var(--red); stroke-width:1.2; }
+  .dg-box.absent{ stroke:var(--dg-flow); stroke-dasharray:5 4; }
+  .dg-box.in{ fill:var(--panel); }                          /* a step inside a .dg-sys system box: the panel fill sets it off from the white system box */
+  .dg-arrow{ fill:none; stroke:var(--dg-flow); stroke-width:1.1; }
+  .dg-arrow.em{ stroke:var(--brand); stroke-width:1.2; }
+  .dg-arrow.bad{ stroke:var(--red); stroke-width:1.2; }
+  .dg-arrow.absent{ stroke-dasharray:5 4; }
+  .dg-head{ fill:var(--dg-flow); }                          /* the arrowhead polygon inside a <marker>; a colored arrow gets its own marker with fill="var(--brand)" or "var(--red)" */
+  .dg-cell{ fill:var(--bg); stroke:var(--dg-line); stroke-width:1; }         /* an empty slot of a strip */
+  .dg-cell.on{ fill:var(--brand); stroke:var(--panel); stroke-width:1.5; }   /* filled slots are parted by a panel-colored gap, like a segmented bar */
+  .dg-cell.off{ fill:var(--n300); stroke:var(--panel); stroke-width:1.5; }
+  .fig svg rect[stroke="currentColor"]{ stroke:var(--dg-line); stroke-width:1; }
+  .fig svg rect[fill="none"][stroke="currentColor"]{ fill:var(--bg); }
+  .fig svg rect[stroke="currentColor"][stroke-dasharray]{ stroke:var(--dg-flow); }
+  .fig svg line[stroke="currentColor"], .fig svg path[stroke="currentColor"]{ stroke:var(--dg-flow); stroke-width:1.1; }
+  .fig svg marker polygon[fill="currentColor"]{ fill:var(--dg-flow); }
+  .fig > .res-more{ margin-top:12px; }                      /* the folded reading condition under a drawing, same block as under a table */
+
+  /* ── interactive figure controls (optional; SKILL.md "An interactive figure") ── */
+  .ctl{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px; margin:0 0 12px; }
+  .ctl .field{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+  .ctl label, .ctl .lbl{ font-size:13.5px; color:var(--sub); }
+  .ctl output{ font-size:14px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; min-width:3em; }
+  .ctl input[type=range]{ width:160px; max-width:100%; accent-color:var(--brand); }
+  .seg{ display:inline-flex; flex-wrap:wrap; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .seg button{ appearance:none; border:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--sub); background:transparent; padding:6px 14px; border-radius:999px; }
+  .seg button[aria-pressed="true"]{ background:var(--brand); color:var(--n0); }
+  .ctl input:focus-visible, .seg button:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
+
+  /* ── inline code chip wrapping (SHARED) ── */
+  :not(pre) > code{ white-space:nowrap; }
+  @media (max-width:600px){ :not(pre) > code{ display:inline-block; max-width:100%; overflow-x:auto; vertical-align:bottom; } }
+
+  /* ── prose card (SKILL.md "Evidence card", the prose form: a prompt, an error message, a notice) ──
+     the words are verbatim and only whitespace changes; nothing is added inside (no highlight, tag, fold, gloss). */
+  .prose-card{ margin-top:14px; border:1px solid var(--line-soft); border-radius:var(--r-lg); background:var(--panel); overflow:hidden; }
+  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px 16px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
+  .pc-h .kind{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
+  .pc-h .name{ color:var(--ink); font-weight:600; }
+  .pc-h .src{ margin-left:auto; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .pc-b{ padding:14px 20px 16px; max-width:76ch; }
+  .pc-b p{ margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
+  .pc-b p + p, .pc-b pre + p, .pc-b p + pre{ margin-top:12px; }
+  .pc-b p.gap{ color:var(--faint); font-style:italic; }
+  .pc-b pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; overflow-wrap:anywhere; }
+  @media (max-width:600px){ .pc-h .src{ display:none; } }
+
+  /* ── code block (SHARED names) ── on this page quoted source goes in the evidence card; these classes color its tokens.
+     sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment. */
+  .sx-k{ color:var(--sx-k); } .sx-f{ color:var(--sx-f); } .sx-s{ color:var(--sx-s); } .sx-n{ color:var(--sx-n); } .sx-c{ color:var(--faint); font-style:italic; }
+</style>
+<script>
+/* theme toggle (LOCKED): a saved choice is applied before first paint. */
+(function(){
+  var root = document.documentElement, KEY = "git-claw-doc-theme";
+  function isDark(){
+    var t = root.getAttribute("data-theme");
+    return t ? t === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+  try{
+    var saved = localStorage.getItem(KEY);
+    if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  }catch(e){}
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest && e.target.closest(".theme-btn");
+    if (!btn) return;
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+  });
+})();
+</script>
+</head>
+<body>
+<button type="button" class="theme-btn" aria-label="라이트/다크 전환" title="라이트/다크 전환">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
+</button>
+<div class="progress" id="progress"></div>
+
+<div class="band">
+  <div class="shell">
+    <div class="hero">
+      <div class="eyebrow"><i aria-hidden="true"></i>git-claw, 2026-11-11</div>
+      <h1>git-claw 기록 문서의 크기와 정리 계획</h1>
+      <p class="lede">작업 기록을 같은 파일에 덧붙이기만 해서 AGENTS.md가 59KB가 됐고, Codex는 그중 앞 32KiB만 읽어요. 글은 docs 폴더로 옮기고 AGENTS.md에는 규칙과 작업 기준 표만 남겨요.</p>
+      <nav class="outline" aria-label="차례">
+        <ol>
+          <li><b>1</b><a href="#g1">기록 문서 세 종류</a></li>
+          <li><b>2</b><a href="#g2">AGENTS.md와 결정 문서의 현재 상태</a>
+            <ol>
+              <li><b>2-1</b><a href="#b21">Codex가 읽는 범위</a></li>
+              <li><b>2-2</b><a href="#b22">AGENTS.md 크기 변화</a></li>
+              <li><b>2-3</b><a href="#b23">같은 개정이 적힌 세 파일</a></li>
+              <li><b>2-4</b><a href="#b24">eli5 결정 문서의 개정 19건</a></li>
+            </ol>
+          </li>
+          <li><b>3</b><a href="#g3">문서를 나누는 계획</a>
+            <ol>
+              <li><b>3-1</b><a href="#b31">파일이 나뉘는 자리</a></li>
+              <li><b>3-2</b><a href="#b32">공유 로직 표의 한 행</a></li>
+              <li><b>3-3</b><a href="#b33">PR 5건의 순서</a></li>
+            </ol>
+          </li>
+          <li><b>4</b><a href="#g4">대가: 파일 수와 고칠 참조</a></li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <section class="sec-top single" id="g1">
+    <div class="sec-no"><b>1</b><span>/ 4</span></div>
+    <h2>기록 문서 세 종류</h2>
+    <div class="beat">
+      <figure class="fig">
+        <svg viewBox="0 0 760 200" role="img" aria-label="Codex와 Claude Code는 세션마다 AGENTS.md를 전부 읽고, CHANGELOG.md와 docs/decisions는 AGENTS.md의 링크로 이어진다">
+          <!-- W=760 | col1 agents [40..160] y=40..86, 114..160 | gap170(label) | AGENTS.md [330..480] y=68..132 | gap110(label) | col3 [590..740] y=30..94, 106..170 -->
+          <defs>
+            <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon class="dg-head" points="0,0 10,5 0,10"/></marker>
+          </defs>
+          <rect class="dg-box" x="40" y="40" width="120" height="46" rx="6"/>
+          <rect class="dg-box" x="40" y="114" width="120" height="46" rx="6"/>
+          <path class="dg-arrow" d="M160 63 H245 V90 H330" marker-end="url(#ar1)"/>
+          <path class="dg-arrow" d="M160 137 H245 V110 H330" marker-end="url(#ar1)"/>
+          <rect class="dg-box em" x="330" y="68" width="150" height="64" rx="6"/>
+          <path class="dg-arrow" d="M480 90 H535 V62 H590" marker-end="url(#ar1)"/>
+          <path class="dg-arrow" d="M480 110 H535 V138 H590" marker-end="url(#ar1)"/>
+          <rect class="dg-box" x="590" y="30" width="150" height="64" rx="6"/>
+          <rect class="dg-box" x="590" y="106" width="150" height="64" rx="6"/>
+          <text class="dg-l" x="100" y="68" text-anchor="middle">Codex CLI</text>
+          <text class="dg-l" x="100" y="142" text-anchor="middle">Claude Code</text>
+          <text class="dg-s" x="245" y="53" text-anchor="middle">세션마다 전부 읽음</text>
+          <text class="dg-l dg-em" x="405" y="94" text-anchor="middle">AGENTS.md<tspan class="dg-s" x="405" dy="18">59KB, 529줄</tspan></text>
+          <text class="dg-s" x="563" y="52" text-anchor="middle">링크</text>
+          <text class="dg-l" x="665" y="56" text-anchor="middle">CHANGELOG.md<tspan class="dg-s" x="665" dy="18">123KB, 790줄</tspan></text>
+          <text class="dg-l" x="665" y="132" text-anchor="middle">docs/decisions/<tspan class="dg-s" x="665" dy="18">6개, 136KB</tspan></text>
+          <g class="dg-m" transform="translate(330,68)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
+          <g class="dg-m" transform="translate(590,30)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">2</text></g>
+          <g class="dg-m" transform="translate(590,106)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">3</text></g>
+        </svg>
+      </figure>
+      <div class="notes">
+        <div class="note"><span class="m">1</span><div><b>AGENTS.md</b>는 이 저장소에서 지킬 규칙을 적은 파일이에요. 코딩 에이전트가 세션을 시작할 때마다 처음부터 읽어요.</div></div>
+        <div class="note"><span class="m">2</span><div><b>CHANGELOG.md</b>는 버전마다 무엇이 바뀌었는지 적는 기록이에요.</div></div>
+        <div class="note"><span class="m">3</span><div><b>docs/decisions/</b>에는 규칙을 그렇게 정한 이유를 주제별 파일로 적어요.</div></div>
+      </div>
+      <p class="say"><span class="lab q">읽는 시점</span>뒤의 두 곳은 AGENTS.md에 적힌 링크를 따라 필요할 때만 열어요.</p>
+    </div>
+  </section>
+
+  <section class="sec-top" id="g2">
+    <div class="sec-no"><b>2</b><span>/ 4</span></div>
+    <h2>AGENTS.md와 결정 문서의 현재 상태</h2>
+
+    <div class="beat" id="b21">
+      <div class="sub-h"><div class="sub-no">2-1</div><h3>Codex가 읽는 범위</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 352" role="img" aria-label="Codex는 AGENTS.md를 앞에서부터 32KiB까지만 읽어서 스킬 공통 규칙 중간부터 끝까지는 전달되지 않는다">
+          <!-- W=760 | names x=40 (widest 170) | bars x=230 scale 0.025px/B: 92,420,130,90,87+39,99,411,36,72 | rows y=40..312 pitch 34 h=22 | value label at bar end + 8, max end 714 -->
+          <rect class="dg-bar" x="230" y="40" width="92" height="22" rx="3"/>
+          <rect class="dg-bar" x="230" y="74" width="420" height="22" rx="3"/>
+          <rect class="dg-bar" x="230" y="108" width="130" height="22" rx="3"/>
+          <rect class="dg-bar" x="230" y="142" width="90" height="22" rx="3"/>
+          <rect class="dg-bar" x="230" y="176" width="87" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="317" y="176" width="39" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="230" y="210" width="99" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="230" y="244" width="411" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="230" y="278" width="36" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="230" y="312" width="72" height="22" rx="3"/>
+          <line x1="317" y1="168" x2="317" y2="206" stroke="var(--red)" stroke-width="2"/>
+          <text class="dg-l" x="40" y="22">AGENTS.md 구역별 크기</text>
+          <text class="dg-l dg-row" x="40" y="56">개요, 아키텍처, 배포</text>
+          <text class="dg-l dg-row" x="40" y="90">로컬 테스트</text>
+          <text class="dg-l dg-row" x="40" y="124">Git Convention</text>
+          <text class="dg-l dg-row" x="40" y="158">Skills CLI 운영 가이드</text>
+          <text class="dg-l dg-row" x="40" y="192">스킬 공통 규칙</text>
+          <text class="dg-l dg-row" x="40" y="226">터미널 렌더링 가이드라인</text>
+          <text class="dg-l dg-row" x="40" y="260">스킬 간 공유 로직</text>
+          <text class="dg-l dg-row" x="40" y="294">체크리스트 2개</text>
+          <text class="dg-l dg-row" x="40" y="328">릴리스, 언어</text>
+          <text class="dg-l" x="330" y="56">3.7KB</text>
+          <text class="dg-l" x="658" y="90">16.8KB</text>
+          <text class="dg-l" x="368" y="124">5.2KB</text>
+          <text class="dg-l" x="328" y="158">3.6KB</text>
+          <text class="dg-l" x="364" y="192">5.1KB</text>
+          <text class="dg-s dg-bad" x="430" y="192" style="opacity:1">32KiB에서 끊김</text>
+          <text class="dg-l" x="337" y="226">4.0KB</text>
+          <text class="dg-l" x="649" y="260">16.4KB</text>
+          <text class="dg-l" x="274" y="294">1.5KB</text>
+          <text class="dg-l" x="310" y="328">2.9KB</text>
+        </svg>
+      </figure>
+      <div class="notes plain">
+        <div class="note"><div><i class="sw"></i>Codex가 읽는 구역이에요. 파일 앞에서부터 차례로 읽다가 상한에서 멈춰요.</div></div>
+        <div class="note"><div><i class="sw bad"></i>Codex에 전달되지 않는 구역이에요. 커밋과 PR에 적용하는 공통 규칙의 뒷부분, 스킬끼리 맞춰야 하는 목록, 릴리스 절차가 여기 있어요.</div></div>
+      </div>
+      <details class="more"><summary>상한 32KiB의 출처</summary><p>Codex는 프로젝트 지침 파일을 설정값 project_doc_max_bytes 바이트까지만 읽고, 기본값이 32KiB예요. 이 환경의 Codex 설정 파일에는 그 항목이 없어요. 상한을 넘는 부분은 건너뛰지 않고 잘라내요.</p></details>
+      <p class="say"><span class="lab warn">확인 못 한 것</span>Codex를 실행해 잘림 경고를 직접 본 것은 아니에요. Codex 소스와 파일 크기로 계산한 위치예요.</p>
+      <p class="say"><span class="lab">그래서</span>Codex는 릴리스 절차와 스킬 간 공유 목록을 모르는 채로 이 저장소에서 작업해요.</p>
+    </div>
+
+    <div class="beat" id="b22">
+      <div class="sub-h"><div class="sub-no">2-2</div><h3>AGENTS.md 크기 변화</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 184" role="img" aria-label="AGENTS.md는 7월 18일 27.2KB에서 11월 10일 58.9KB로 늘었고 9월 30일에 Codex 상한을 넘었다">
+          <!-- W=760 | names x=40 (80 wide) | bars x=140 scale 470px/58,940B: 217,265,364,470 | limit 32,768B at x=401 | rows y=40,74,108,142 h=22 | labels: 409, 413, 512, 618 (ends 668) -->
+          <rect class="dg-bar" x="140" y="40" width="217" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="140" y="74" width="265" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="140" y="108" width="364" height="22" rx="3"/>
+          <rect class="dg-bar bad" x="140" y="142" width="470" height="22" rx="3"/>
+          <line x1="401" y1="32" x2="401" y2="172" stroke="var(--red)" stroke-width="1.2"/>
+          <text class="dg-s dg-bad" x="401" y="22" text-anchor="middle" style="opacity:1">Codex 상한 32KiB</text>
+          <text class="dg-l dg-row" x="40" y="56">2026-07-18</text>
+          <text class="dg-l dg-row" x="40" y="90">2026-09-30</text>
+          <text class="dg-l dg-row" x="40" y="124">2026-10-23</text>
+          <text class="dg-l dg-row" x="40" y="158">2026-11-10</text>
+          <text class="dg-l" x="409" y="56">27.2KB</text>
+          <text class="dg-l" x="413" y="90">33.3KB</text>
+          <text class="dg-l" x="512" y="124">45.7KB</text>
+          <text class="dg-l" x="618" y="158">58.9KB</text>
+        </svg>
+      </figure>
+      <p class="say">9월 30일에 처음 상한을 넘었고 그 뒤로도 계속 늘었어요. 지금은 로컬 테스트와 스킬 간 공유 로직 두 구역이 파일의 절반을 넘어요.</p>
+    </div>
+
+    <div class="beat" id="b23">
+      <div class="sub-h"><div class="sub-no">2-3</div><h3>같은 개정이 적힌 세 파일</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 170" role="img" aria-label="2026-11-08 2차 개정 내용이 AGENTS.md의 표 한 행, 결정 문서의 절 하나, CHANGELOG의 항목에 각각 적혀 있다">
+          <!-- W=760 | sys [40..240] gap40 [280..480] gap40 [520..720] y=30..146 | inner [55..225] [295..465] [535..705] y=68..130 -->
+          <rect class="dg-sys" x="40" y="30" width="200" height="116" rx="8"/>
+          <rect class="dg-sys" x="280" y="30" width="200" height="116" rx="8"/>
+          <rect class="dg-sys" x="520" y="30" width="200" height="116" rx="8"/>
+          <line class="dg-arrow em" x1="225" y1="99" x2="295" y2="99"/>
+          <line class="dg-arrow em" x1="465" y1="99" x2="535" y2="99"/>
+          <rect class="dg-box in" x="55" y="68" width="170" height="62" rx="6"/>
+          <rect class="dg-box in" x="295" y="68" width="170" height="62" rx="6"/>
+          <rect class="dg-box in" x="535" y="68" width="170" height="62" rx="6"/>
+          <text class="dg-s code" x="58" y="52">AGENTS.md</text>
+          <text class="dg-s code" x="294" y="52">2026-08-eli5.md</text>
+          <text class="dg-s code" x="534" y="52">CHANGELOG.md</text>
+          <text class="dg-l" x="140" y="93" text-anchor="middle">2026-11-08 2차 개정<tspan class="dg-s" x="140" dy="18">표 한 행 974자</tspan></text>
+          <text class="dg-l" x="380" y="93" text-anchor="middle">2026-11-08 2차 개정<tspan class="dg-s" x="380" dy="18">절 하나 2,282자</tspan></text>
+          <text class="dg-l" x="620" y="93" text-anchor="middle">2026-11-08 2차 개정<tspan class="dg-s" x="620" dy="18">v1.23.0 항목</tspan></text>
+          <g class="dg-m" transform="translate(40,30)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
+        </svg>
+      </figure>
+      <div class="notes">
+        <div class="note"><span class="m">1</span><div><b>AGENTS.md</b>의 공유 로직 표는 스킬끼리 같이 고칠 곳을 적는 표예요. 지금은 개정 날짜와 바뀐 값까지 한 행에 들어 있어요.</div></div>
+      </div>
+      <p class="say"><span class="lab q">고칠 때</span>규칙 하나가 바뀌면 세 파일의 글을 함께 고쳐야 해요.</p>
+    </div>
+
+    <div class="beat" id="b24">
+      <div class="sub-h"><div class="sub-no">2-4</div><h3>eli5 결정 문서의 개정 19건</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 116" role="img" aria-label="8월에 만든 결정 문서 하나에 9월 1건, 10월 7건, 11월 11건의 개정이 덧붙었다">
+          <!-- W=760 | cells 28x28 y=54..82 | block 8월 [40..68] gap16 9월 [84..112] gap16 10월 [128..324] gap16 11월 [340..648] -->
+          <rect class="dg-cell off" x="40" y="54" width="28" height="28"/>
+          <rect class="dg-cell on" x="84" y="54" width="28" height="28"/>
+          <g>
+            <rect class="dg-cell on" x="128" y="54" width="28" height="28"/><rect class="dg-cell on" x="156" y="54" width="28" height="28"/><rect class="dg-cell on" x="184" y="54" width="28" height="28"/><rect class="dg-cell on" x="212" y="54" width="28" height="28"/><rect class="dg-cell on" x="240" y="54" width="28" height="28"/><rect class="dg-cell on" x="268" y="54" width="28" height="28"/><rect class="dg-cell on" x="296" y="54" width="28" height="28"/>
+          </g>
+          <g>
+            <rect class="dg-cell on" x="340" y="54" width="28" height="28"/><rect class="dg-cell on" x="368" y="54" width="28" height="28"/><rect class="dg-cell on" x="396" y="54" width="28" height="28"/><rect class="dg-cell on" x="424" y="54" width="28" height="28"/><rect class="dg-cell on" x="452" y="54" width="28" height="28"/><rect class="dg-cell on" x="480" y="54" width="28" height="28"/><rect class="dg-cell on" x="508" y="54" width="28" height="28"/><rect class="dg-cell on" x="536" y="54" width="28" height="28"/><rect class="dg-cell on" x="564" y="54" width="28" height="28"/><rect class="dg-cell on" x="592" y="54" width="28" height="28"/><rect class="dg-cell on" x="620" y="54" width="28" height="28"/>
+          </g>
+          <text class="dg-s code" x="40" y="22">docs/decisions/2026-08-eli5.md</text>
+          <text class="dg-s" x="54" y="46" text-anchor="middle">8월</text>
+          <text class="dg-s" x="98" y="46" text-anchor="middle">9월</text>
+          <text class="dg-s" x="128" y="46">10월 7건</text>
+          <text class="dg-s" x="340" y="46">11월 11건</text>
+          <text class="dg-s" x="54" y="100" text-anchor="middle">원본</text>
+          <text class="dg-s" x="388" y="100" text-anchor="middle">개정과 보완</text>
+        </svg>
+      </figure>
+      <p class="say">파일 이름은 8월인데 마지막 개정은 11월 11일에 붙었어요. 지금 유효한 규칙을 알려면 73KB를 처음부터 끝까지 읽어야 해요.</p>
+    </div>
+  </section>
+
+  <section class="sec-top" id="g3">
+    <div class="sec-no"><b>3</b><span>/ 4</span></div>
+    <h2>문서를 나누는 계획</h2>
+
+    <div class="beat" id="b31">
+      <div class="sub-h"><div class="sub-no">3-1</div><h3>파일이 나뉘는 자리</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 800 524" role="img" aria-label="AGENTS.md는 규칙과 작업 기준 표만 남기고 나머지는 docs 아래 파일로 나뉘며, eli5 결정 문서와 CHANGELOG.md는 각각 두 파일로 나뉘고 결정 문서 목록 파일이 새로 생긴다">
+          <!-- W=800 | left [40..200] y=98,320,438 h=40 | spine x=300 | label zone [340..450] | right [490..760] y=20,72,124,176 | 242 | 294,346 | 412,464 h=40 -->
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon class="dg-head" points="0,0 10,5 0,10"/></marker>
+          </defs>
+          <rect class="dg-box" x="40" y="98" width="160" height="40" rx="6"/>
+          <rect class="dg-box" x="40" y="320" width="160" height="40" rx="6"/>
+          <rect class="dg-box" x="40" y="438" width="160" height="40" rx="6"/>
+          <path class="dg-arrow" d="M200 118 H300 V40 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M300 92 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M300 144 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M300 118 V196 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M200 340 H300 V314 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M300 340 V366 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M200 458 H300 V432 H490" marker-end="url(#ar2)"/>
+          <path class="dg-arrow" d="M300 458 V484 H490" marker-end="url(#ar2)"/>
+          <rect class="dg-box em" x="490" y="20" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="72" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="124" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="176" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="242" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="294" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="346" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="412" width="270" height="40" rx="6"/>
+          <rect class="dg-box" x="490" y="464" width="270" height="40" rx="6"/>
+          <text class="dg-l" x="120" y="122" text-anchor="middle">AGENTS.md</text>
+          <text class="dg-l" x="120" y="344" text-anchor="middle">2026-08-eli5.md</text>
+          <text class="dg-l" x="120" y="462" text-anchor="middle">CHANGELOG.md</text>
+          <text class="dg-s" x="395" y="30" text-anchor="middle">규칙과 작업 기준 표</text>
+          <text class="dg-s" x="395" y="82" text-anchor="middle">테스트 시나리오</text>
+          <text class="dg-s" x="395" y="134" text-anchor="middle">동기화 절차</text>
+          <text class="dg-s" x="395" y="186" text-anchor="middle">작업별 규칙</text>
+          <text class="dg-s" x="395" y="304" text-anchor="middle">상태와 개정 목록</text>
+          <text class="dg-s" x="395" y="356" text-anchor="middle">원본과 개정 본문</text>
+          <text class="dg-s" x="395" y="422" text-anchor="middle">v1.9.0 이후</text>
+          <text class="dg-s" x="395" y="474" text-anchor="middle">날짜별 항목 38건</text>
+          <text class="dg-s" x="478" y="266" text-anchor="end">새 파일</text>
+          <text class="dg-l dg-em" x="625" y="44" text-anchor="middle">AGENTS.md</text>
+          <text class="dg-l" x="625" y="96" text-anchor="middle">docs/testing.md</text>
+          <text class="dg-l" x="625" y="148" text-anchor="middle">docs/ops/*.md</text>
+          <text class="dg-l" x="625" y="200" text-anchor="middle">docs/*.md 4개</text>
+          <text class="dg-l" x="625" y="266" text-anchor="middle">docs/decisions/README.md</text>
+          <text class="dg-l" x="625" y="318" text-anchor="middle">2026-08-eli5.md</text>
+          <text class="dg-l" x="625" y="370" text-anchor="middle">2026-08-eli5-history.md</text>
+          <text class="dg-l" x="625" y="436" text-anchor="middle">CHANGELOG.md</text>
+          <text class="dg-l" x="625" y="488" text-anchor="middle">docs/changelog/2026-02-to-04.md</text>
+          <g class="dg-m code" transform="translate(490,20)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">1</text></g>
+          <g class="dg-m code" transform="translate(490,242)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
+          <g class="dg-m" transform="translate(40,320)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">3</text></g>
+        </svg>
+      </figure>
+      <div class="evs">
+        <div class="ev">
+          <div class="ev-head"><span class="loc">AGENTS.md</span><span class="kind add">새 절</span><span class="m code">1</span></div>
+          <div class="ev-body"><pre><span class="ln add"><span class="sign">+</span><span class="t">## 작업별 문서</span></span><span class="ln add"><span class="sign">+</span><span class="t"> </span></span><span class="ln add"><span class="sign">+</span><span class="t">아래 작업을 시작하기 전에 해당 문서를 먼저 읽는다. 여기 없는 작업은 이 파일만으로 충분하다.</span></span><span class="ln add"><span class="sign">+</span><span class="t"> </span></span><span class="ln add"><span class="sign">+</span><span class="t">| 이 작업을 할 때 | 먼저 읽을 문서 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">|---|---|</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 스킬의 SKILL.md나 템플릿 수정, 새 스킬 추가 | docs/skill-rules.md, docs/shared-logic.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 터미널 출력 템플릿 작성 | docs/terminal-rendering.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 스킬 테스트 (로컬, 브랜치) | docs/testing.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| main push 뒤 플러그인과 Codex 동기화 | docs/ops/plugin-sync.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| npx skills 명령 실행 | docs/ops/skills-cli.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 릴리스 | docs/release.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 규칙의 이유, 과거 개정 확인 | docs/decisions/README.md |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 옛 변경 기록 확인 | docs/changelog/2026-02-to-04.md |</span></span></pre></div>
+        </div>
+        <div class="ev">
+          <div class="ev-head"><span class="loc">docs/decisions/README.md</span><span class="kind add">새 파일</span><span class="m code">2</span></div>
+          <div class="ev-body"><pre><span class="ln add"><span class="sign">+</span><span class="t"># 결정 문서 목록</span></span><span class="ln add"><span class="sign">+</span><span class="t"> </span></span><span class="ln add"><span class="sign">+</span><span class="t">| 문서 | 다루는 것 | 적용 범위 | 상태 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">|---|---|---|---|</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-07-project-doc-adapter.md | AGENTS.md 정본과 CLAUDE.md adapter | 저장소 전체 | 확정 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-07-html-shared-design-rules.md | HTML 스킬 공유 디자인 규칙 | HTML 스킬 4개 | 확정 |</span><span class="tag">옛 이름 2026-07-visual-doc.md</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-07-explain-diff-micro-world-design.md | 두 스킬의 디자인 토큰 | explain-diff, micro-world | 확정 |</span><span class="tag">옛 이름 2026-07-explain-diff-design-system.md</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-08-eli5.md | eli5 결정의 현재 상태와 개정 목록 | eli5 | 확정 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-08-eli5-history.md | eli5 원본 결정과 개정 본문 19건 | eli5 | 기록 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-10-heading-hierarchy.md | 제목 규칙과 위치 표시 | 스킬 10개 | 확정 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-10-machine-writing-symbols.md | 기계 문장 기호 금지 | 스킬 10개 | 확정 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 2026-11-doc-routing.md | AGENTS.md 작업 기준 표와 문서 분리 | 저장소 전체 | 확정 |</span></span></pre></div>
+        </div>
+      </div>
+      <div class="notes">
+        <div class="note"><span class="m code">1</span><div><b>AGENTS.md</b>에는 어느 작업에나 적용되는 규칙과 작업 기준 표만 남겨요. 에이전트는 작업을 시작할 때 표에서 그 작업의 문서를 찾아 열어요.</div></div>
+        <div class="note"><span class="m code">2</span><div><b>docs/decisions/README.md</b>는 결정 문서마다 한&nbsp;줄씩 적은 목록이에요. 이름과 내용이 어긋난 두 파일은 이때 이름을 바꿔요.</div></div>
+        <div class="note"><span class="m">3</span><div><b>2026-08-eli5.md</b>에는 현재 상태와 개정 목록만 남기고, 원본과 개정 본문은 이력 파일로 보내요.</div></div>
+      </div>
+      <details class="more"><summary>docs/*.md 4개의 이름</summary><p>스킬 공통 규칙과 체크리스트는 docs/skill-rules.md, 스킬 간 공유 로직은 docs/shared-logic.md, 터미널 렌더링은 docs/terminal-rendering.md, 릴리스 절차는 docs/release.md로 가요.</p></details>
+      <p class="say"><span class="lab">그래서</span>글은 지우지 않고 자리만 옮겨서 AGENTS.md를 Codex 상한 안으로 넣어요.</p>
+    </div>
+
+    <div class="beat" id="b32">
+      <div class="sub-h"><div class="sub-no">3-2</div><h3>공유 로직 표의 한 행</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 230" role="img" aria-label="공유 로직 표의 행에서 비고 문단이 같은 파일의 상세 절로 옮겨지고, 행에는 이름, 관련 스킬, 찾을 표식, 정본 링크만 남는다">
+          <!-- W=760 | caption col x=40 | AS-IS y=40..80: [110..230][230..320][320..520] | 상세 절 [650..740] y=100..140 | TO-BE y=160..200: [110..230][230..320][320..410][410..500] -->
+          <defs>
+            <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon class="dg-head" points="0,0 10,5 0,10"/></marker>
+          </defs>
+          <g class="dg-dim">
+            <rect class="dg-box" x="110" y="40" width="120" height="40"/>
+            <rect class="dg-box" x="230" y="40" width="90" height="40"/>
+          </g>
+          <rect class="dg-box bad" x="320" y="40" width="200" height="40"/>
+          <path class="dg-arrow" d="M420 80 V120 H650" marker-end="url(#ar3)"/>
+          <rect class="dg-box" x="650" y="100" width="90" height="40" rx="6"/>
+          <rect class="dg-box" x="110" y="160" width="120" height="40"/>
+          <rect class="dg-box" x="230" y="160" width="90" height="40"/>
+          <rect class="dg-box em" x="320" y="160" width="90" height="40"/>
+          <rect class="dg-box" x="410" y="160" width="90" height="40"/>
+          <text class="dg-s" x="40" y="64">AS-IS</text>
+          <text class="dg-s" x="40" y="184">TO-BE</text>
+          <g class="dg-dim">
+            <text class="dg-l" x="170" y="64" text-anchor="middle">공유 로직 이름</text>
+            <text class="dg-l" x="275" y="64" text-anchor="middle">관련 스킬</text>
+          </g>
+          <text class="dg-l dg-bad" x="420" y="64" text-anchor="middle">비고: 문단 하나</text>
+          <text class="dg-s" x="535" y="112" text-anchor="middle">옮김</text>
+          <text class="dg-l" x="695" y="124" text-anchor="middle">상세 절</text>
+          <text class="dg-l" x="170" y="184" text-anchor="middle">공유 로직 이름</text>
+          <text class="dg-l" x="275" y="184" text-anchor="middle">관련 스킬</text>
+          <text class="dg-l dg-em" x="365" y="184" text-anchor="middle">찾을 표식</text>
+          <text class="dg-l" x="455" y="184" text-anchor="middle">정본 링크</text>
+          <g class="dg-m code" transform="translate(110,40)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">1</text></g>
+          <g class="dg-m code" transform="translate(110,160)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
+        </svg>
+      </figure>
+      <div class="evs">
+        <div class="ev">
+          <div class="ev-head"><span class="loc">docs/shared-logic.md</span><span class="kind add">변경안 diff</span><span class="m code">1</span><span class="m code">2</span></div>
+          <div class="ev-body"><pre><span class="ln del"><span class="sign">-</span><span class="t">| 공유 로직 | 관련 스킬 | 비고 |</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 공유 로직 | 관련 스킬 | 찾을 표식 | 정본 |</span></span><span class="ln gap"><span class="sign"> </span><span class="t">… 생략</span></span><span class="ln del"><span class="sign">-</span><span class="t">| 렌더 검증 절차 (`Render check (shared` 소절: Chrome 라이트/다크 스크린샷, 1,800px 조각 확인, `measure.html` 두 폭, 금지 문자와 조사 grep) | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | 네 SKILL.md에 같은 글로 들어 있고, 그 뒤의 스킬별 확인 항목만 다르다. `allowed-tools`의 `Bash(google-chrome *)`, `Bash(chromium *)`, `Bash(cat *)`, `Bash(python3 *)`, `Bash(which *)`, `Bash(grep *)`가 이 절차에 쓰인다. 정본: docs/decisions/2026-07-visual-doc.md (개정 2026-10-23 2차) |</span><span class="tag">절차와 도구 목록까지</span></span><span class="ln add"><span class="sign">+</span><span class="t">| 렌더 검증 절차 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `Render check (shared` | docs/decisions/2026-07-html-shared-design-rules.md |</span><span class="tag">표식과 링크만</span></span></pre></div>
+        </div>
+      </div>
+      <div class="notes">
+        <div class="note"><span class="m code">1</span><div><b>지금 행</b>은 AGENTS.md 안에 있고, 비고 칸 하나에 같이 고칠 곳, 값, 개정 이력, 정본 링크를 문단으로 적어요.</div></div>
+        <div class="note"><span class="m code">2</span><div><b>찾을 표식</b>은 스킬 파일에서 그 규칙을 검색할 때 쓰는 문자열이에요. 비고 문단은 같은 파일의 상세 절에 그대로 둬요.</div></div>
+      </div>
+      <p class="say"><span class="lab q">행 길이</span>표의 20행을 같은 방식으로 고쳐요. 이 행은 413자에서 144자로 줄어요.</p>
+    </div>
+
+    <div class="beat" id="b33">
+      <div class="sub-h"><div class="sub-no">3-3</div><h3>PR 5건의 순서</h3></div>
+      <figure class="fig">
+        <svg viewBox="0 0 760 210" role="img" aria-label="오류 수정, AGENTS.md 분리, 결정 문서 정리, CHANGELOG 분리, SKILL.md 줄이기 순서로 PR 다섯 건을 올린다">
+          <!-- W=760 | row1 y=50..90: [40..190] gap40 [230..380] gap40 [420..570] | row2 y=150..190: [40..190] gap40 [230..390] | elbow PR3 -> PR4: M495 90 V120 H70 V150 -->
+          <defs>
+            <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon class="dg-head" points="0,0 10,5 0,10"/></marker>
+          </defs>
+          <rect class="dg-box" x="40" y="50" width="150" height="40" rx="6"/>
+          <line class="dg-arrow" x1="190" y1="70" x2="230" y2="70" marker-end="url(#ar4)"/>
+          <rect class="dg-box em" x="230" y="50" width="150" height="40" rx="6"/>
+          <line class="dg-arrow" x1="380" y1="70" x2="420" y2="70" marker-end="url(#ar4)"/>
+          <rect class="dg-box" x="420" y="50" width="150" height="40" rx="6"/>
+          <path class="dg-arrow" d="M495 90 V120 H70 V150" marker-end="url(#ar4)"/>
+          <rect class="dg-box" x="40" y="150" width="150" height="40" rx="6"/>
+          <line class="dg-arrow" x1="190" y1="170" x2="230" y2="170" marker-end="url(#ar4)"/>
+          <rect class="dg-box" x="230" y="150" width="160" height="40" rx="6"/>
+          <text class="dg-s" x="115" y="40" text-anchor="middle">PR 1</text>
+          <text class="dg-s" x="305" y="40" text-anchor="middle">PR 2</text>
+          <text class="dg-s" x="495" y="40" text-anchor="middle">PR 3</text>
+          <text class="dg-s" x="115" y="140" text-anchor="middle">PR 4</text>
+          <text class="dg-s" x="310" y="140" text-anchor="middle">PR 5</text>
+          <text class="dg-l" x="115" y="74" text-anchor="middle">오류 5건 수정</text>
+          <text class="dg-l dg-em" x="305" y="74" text-anchor="middle">AGENTS.md 분리</text>
+          <text class="dg-l" x="495" y="74" text-anchor="middle">결정 문서 정리</text>
+          <text class="dg-l" x="115" y="174" text-anchor="middle">CHANGELOG 분리</text>
+          <text class="dg-l" x="310" y="174" text-anchor="middle">SKILL.md 줄이기</text>
+          <g class="dg-m code" transform="translate(40,50)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">1</text></g>
+          <g class="dg-m code" transform="translate(230,50)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
+          <g class="dg-m" transform="translate(230,150)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">3</text></g>
+        </svg>
+      </figure>
+      <div class="evs">
+        <div class="ev">
+          <div class="ev-head"><span class="loc">.gitignore</span><span class="kind add">변경안 diff</span><span class="m code">1</span></div>
+          <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">__pycache__/</span></span><span class="ln"><span class="sign"> </span><span class="t">*.pyc</span></span><span class="ln add"><span class="sign">+</span><span class="t">.omc/</span><span class="tag">세션 상태 폴더 5곳, 2.1MB</span></span></pre></div>
+        </div>
+        <div class="ev">
+          <div class="ev-head"><span class="loc">AGENTS.md</span><span class="kind add">변경안 diff</span><span class="m code">1</span></div>
+          <div class="ev-body"><pre><span class="ln del"><span class="sign">-</span><span class="t">  git -C ~/.claude/plugins/marketplaces/git-claw pull</span><span class="tag">기본 경로로 고정</span></span><span class="ln add"><span class="sign">+</span><span class="t">  git -C "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw" pull</span><span class="tag">설정 경로를 따름</span></span></pre></div>
+        </div>
+        <div class="ev">
+          <div class="ev-head"><span class="loc">AGENTS.md</span><span class="kind add">변경안 diff</span><span class="m code">2</span></div>
+          <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">- 에이전트 세션은 저장소 루트에서 시작한다.</span></span><span class="ln add"><span class="sign">+</span><span class="t">- 이 파일은 32,768바이트 이하로 유지한다 (Codex 기본 상한). 확인: `[ "$(wc -c &lt; AGENTS.md)" -le 32768 ] || echo "AGENTS.md가 32KiB를 넘음"`</span><span class="tag">넘으면 알림</span></span></pre></div>
+        </div>
+      </div>
+      <div class="notes">
+        <div class="note"><span class="m code">1</span><div><b>오류 5건 수정</b>은 글을 옮기지 않는 수정이에요. 무시 목록, 다른 PC의 경로, 고정된 설정 경로, 서로 다른 두 테스트 안내, 옛 제목의 긴 줄표를 고쳐요.</div></div>
+        <div class="note"><span class="m code">2</span><div><b>AGENTS.md 분리</b>는 파일을 옮기면서 크기 확인 한&nbsp;줄을 문서 체계 절에 넣어요.</div></div>
+        <div class="note"><span class="m">3</span><div><b>SKILL.md 줄이기</b>는 스킬 본문이 대상이에요. code-review 본문이 1,292줄이고 Anthropic 권장은 500줄 이하예요.</div></div>
+      </div>
+      <p class="say"><span class="lab q">PR 사이 순서</span>PR 3은 AGENTS.md의 표를 고치므로 PR 2 뒤에 올려요.</p>
+    </div>
+  </section>
+
+  <section class="sec-top single" id="g4">
+    <div class="sec-no"><b>4</b><span>/ 4</span></div>
+    <h2>대가: 파일 수와 고칠 참조</h2>
+    <div class="beat">
+      <figure class="fig">
+        <svg viewBox="0 0 760 124" role="img" aria-label="AGENTS.md는 59.1KB에서 32KiB 이하로 줄고 기록 문서 파일은 8개에서 19개로 늘어난다">
+          <!-- W=760 | group1 x[40..360]: title y=30, bars x=100 scale 200px/59,051B: 200 (y=50), 111 (y=90) | group2 x[420..740]: bars x=480 scale 200px/19: 84, 200 -->
+          <rect class="dg-bar" x="100" y="50" width="200" height="22" rx="3"/>
+          <rect class="dg-bar em" x="100" y="90" width="111" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="50" width="84" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="90" width="200" height="22" rx="3"/>
+          <text class="dg-l" x="40" y="30">AGENTS.md 크기</text>
+          <text class="dg-l dg-row" x="40" y="66">지금</text>
+          <text class="dg-l dg-row" x="40" y="106">변경 뒤</text>
+          <text class="dg-l" x="308" y="66">59.1KB</text>
+          <text class="dg-l dg-em" x="219" y="106">32.0KB 이하</text>
+          <text class="dg-l" x="420" y="30">기록 문서 파일 수</text>
+          <text class="dg-l dg-row" x="420" y="66">지금</text>
+          <text class="dg-l dg-row" x="420" y="106">변경 뒤</text>
+          <text class="dg-l" x="572" y="66">8개</text>
+          <text class="dg-l" x="688" y="106">19개</text>
+        </svg>
+      </figure>
+      <div class="notes plain">
+        <div class="note"><div><b>AGENTS.md 크기</b>의 아래 막대는 잰 값이 아니라 Codex 상한이에요. 옮긴 뒤의 실제 크기는 PR 2에서 재요.</div></div>
+        <div class="note"><div><b>기록 문서 파일 수</b>는 AGENTS.md, CHANGELOG.md, 결정 문서를 합친 수예요. 작업별 문서 7개와 목록, 이력, 옛 변경 기록, 이번 결정 기록이 새로 생겨요.</div></div>
+      </div>
+      <p class="say"><span class="lab q">개명 비용</span>결정 문서 2개의 이름을 바꾸면 스킬 파일과 AGENTS.md의 참조 14곳을 같이 고쳐요.</p>
+    </div>
+  </section>
+
+  <div class="close">
+    <div class="k">정리</div>
+    <div class="t">AGENTS.md는 32KiB 안으로 줄이고 나머지 글은 docs로 옮겨요</div>
+    <p>Codex가 규칙 전체를 읽게 하는 일이 먼저예요. 옮기는 글은 고치지 않고, PR 다섯&nbsp;건으로 나눠 올려요.</p>
+  </div>
+
+<script>
+/* section hierarchy: the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
+(function(){
+  var bar = document.getElementById("progress");
+  function onScroll(){
+    if (!bar) return;
+    var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+  }
+  document.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('.outline a[href^="#"]');
+    if (!a) return;
+    var el = document.getElementById(a.getAttribute("href").slice(1));
+    if (!el) return;
+    e.preventDefault();
+    window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

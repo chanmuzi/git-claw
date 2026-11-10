@@ -103,7 +103,7 @@ visual-doc은 전달이 목적이다. 퀴즈·이해 게이트·diff 전용 장�
   자연스러운 한국어를 v1.14.1에서 이미 반영, 이번엔 `.sim` 장식 그라데이션 제거;
   micro-world는 dash 금지·자연스러운 한국어 규칙 추가).
 - 토큰·컴포넌트 정본은 `components.html`과 기존 디자인 시스템 문서
-  (`2026-07-explain-diff-design-system.md`) + 이 문서.
+  (`2026-07-explain-diff-micro-world-design.md`) + 이 문서.
 - 스킬은 read-only HTML 생성기다. 산출물은 저장소 루트에 쓰고 절대경로만 안내하며,
   자동 open·commit·gitignore 하지 않는다.
 

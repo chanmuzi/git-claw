@@ -1,9 +1,7 @@
 ---
 name: pr
 description: >-
-  Create a pull request following project conventions.
-  TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
-  DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
+  Create a pull request, or a release PR, that follows the project's conventions. Use when the user asks to open a PR, including as one step of a larger request.
 argument-hint: "[release] [--base <branch>] [-g|--graph]"
 version: "1.6.0"
 allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob

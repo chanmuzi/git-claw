@@ -314,6 +314,9 @@
   .dg-cap.bad{ fill:var(--red); }
   .dg-cap.em{ fill:var(--brand-ink); }
   .dg-l.dg-row{ fill:var(--sub); }                          /* the name of a bar or strip row: label size, secondary color */
+  .dg-t{ font-size:13px; font-weight:700; fill:currentColor; }  /* a title inside a figure: what a bar group measures, the name of a system box (SKILL.md "A title inside a figure is bold") */
+  .dg-t.code{ font-family:var(--mono); font-size:12px; }    /* a system box named by an identifier */
+  .dg-rule{ stroke:var(--dg-line); stroke-width:1; }        /* the hairline under a bar group's title, as wide as the group: it shows which rows the title covers */
 
   /* ── figure strokes (eli5; SKILL.md "One stroke set") ── a flow, a strip and a bar chart read as one family because
      they share these strokes: box and cell outlines --dg-line 1px over a --bg fill, connectors and arrowheads --dg-flow
@@ -577,22 +580,24 @@
     <h2>{대가와 현황}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 124" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
-          <!-- W=760 | group1 x[40..360]: title y=30, bars x=100 scale {px/단위}: before {w1} (y=50 h=22), after {w2} (y=90 h=22) | group2 x[420..740]: bars x=480 -->
-          <rect class="dg-bar" x="100" y="50" width="132" height="22" rx="3"/>
-          <rect class="dg-bar em" x="100" y="90" width="192" height="22" rx="3"/>
-          <rect class="dg-bar" x="480" y="50" width="182" height="22" rx="3"/>
-          <rect class="dg-bar" x="480" y="90" width="187" height="22" rx="3"/>
-          <text class="dg-l" x="40" y="30">{잰 것 1}</text>
-          <text class="dg-l dg-row" x="40" y="66">AS-IS</text>
-          <text class="dg-l dg-row" x="40" y="106">TO-BE</text>
-          <text class="dg-l" x="240" y="66">{11자}</text>
-          <text class="dg-l dg-em" x="300" y="106">{16자}</text>
-          <text class="dg-l" x="420" y="30">{잰 것 2}</text>
-          <text class="dg-l dg-row" x="420" y="66">AS-IS</text>
-          <text class="dg-l dg-row" x="420" y="106">TO-BE</text>
-          <text class="dg-l" x="670" y="66">{1.65초}</text>
-          <text class="dg-l" x="675" y="106">{1.70초}</text>
+        <svg viewBox="0 0 760 130" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
+          <!-- W=760 | group1 x[40..360]: title y=28 (dg-t), rule y=40 x40..360, bars x=100 scale {px/단위}: before {w1} (y=56 h=22), after {w2} (y=96 h=22) | group2 x[420..740]: rule x420..740, bars x=480 -->
+          <line class="dg-rule" x1="40" y1="40" x2="360" y2="40"/>
+          <line class="dg-rule" x1="420" y1="40" x2="740" y2="40"/>
+          <rect class="dg-bar" x="100" y="56" width="132" height="22" rx="3"/>
+          <rect class="dg-bar em" x="100" y="96" width="192" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="56" width="182" height="22" rx="3"/>
+          <rect class="dg-bar" x="480" y="96" width="187" height="22" rx="3"/>
+          <text class="dg-t" x="40" y="28">{잰 것 1}</text>
+          <text class="dg-l dg-row" x="40" y="72">AS-IS</text>
+          <text class="dg-l dg-row" x="40" y="112">TO-BE</text>
+          <text class="dg-l" x="240" y="72">{11자}</text>
+          <text class="dg-l dg-em" x="300" y="112">{16자}</text>
+          <text class="dg-t" x="420" y="28">{잰 것 2}</text>
+          <text class="dg-l dg-row" x="420" y="72">AS-IS</text>
+          <text class="dg-l dg-row" x="420" y="112">TO-BE</text>
+          <text class="dg-l" x="670" y="72">{1.65초}</text>
+          <text class="dg-l" x="675" y="112">{1.70초}</text>
         </svg>
         <!-- 선택: 이 줄이 없으면 그림을 잘못 읽게 되는 조건(모집단, 단위, 기준)이 있을 때만. 그리지 않은 수치는 여기도 넣지 않고 보고서로 보낸다.
         <details class="res-more"><summary>{무엇이 들었는지: 측정 조건}</summary><p>{어느 집합의 어떤 값인지 한두 문장}</p></details> -->

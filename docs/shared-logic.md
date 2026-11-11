@@ -63,9 +63,11 @@
 
 ### 6. 문장 규칙
 
-- 범위: 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기)
+- 범위: 문장 규칙 (한 대상에 한 이름, 행위자를 주어로, 횟수는 숫자로, 붙인 이름은 풀이 뒤에만, 조사는 앞말에 붙여 쓰기, 수량 표현 묶기)
 - 관련 스킬: `visual-doc`, `explain-diff`, `micro-world`, `eli5`
 - 네 SKILL.md에 `One name per thing`으로 시작하는 항목과 `A particle is part of the word before it`으로 시작하는 항목이 들어 있다. 앞 항목은 micro-world만 적용 범위 문구(미션 칩, 액션 라벨, 해설, 세계 상태)가 다르고, 뒤 항목(영문, 숫자, 코드 뒤 조사 붙여 쓰기, 숫자+단위 붙여 쓰기, 수 관형사+단위 `&nbsp;`, 조사 앞 공백 grep 검사)은 네 파일이 같은 글이다. 한쪽 수정 시 나머지 셋도 갱신. 문단 `text-wrap:pretty`와 제목 `text-wrap:balance`도 네 템플릿에 공통이다 (선택자는 템플릿마다 다르다). 정본: docs/decisions/2026-07-html-shared-design-rules.md (개정 2026-10-03 2차, 3차)
+
+- 붙인 이름 문장(`A name the author coined`)은 `One name per thing` 항목 끝에 네 파일 같은 글로 들어 있다. 검사(Render check 6 `Coined names`)는 eli5에만 있다. 배경: docs/decisions/2026-08-eli5-history.md (개정 2026-11-11 3차)
 
 ### 7. 손으로 쓴 SVG 그림 규칙
 

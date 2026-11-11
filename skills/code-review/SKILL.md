@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: >-
-  Review a diff, branch, or PR and report findings by severity. Use when the user asks for a code review. To answer review comments already left on a PR, use review-reply.
+  Review code changes (a working tree, a branch, a PR, or a path) for defects and report findings by severity. Use when the user wants changes checked for problems. To answer review comments already left on a PR, use review-reply.
 argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [-a|--all] [--wd] [--full-scan] [--no-codex|--codex|--codex-general|--codex-both]"
 version: "1.12.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage

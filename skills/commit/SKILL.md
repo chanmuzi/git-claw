@@ -1,7 +1,7 @@
 ---
 name: commit
 description: >-
-  Create a git commit that follows the project's conventions. Use when the user asks to commit, including as one step of a larger request (commit and push, commit and open a PR).
+  Create a git commit that follows the project's conventions. Use when the user asks to commit, including as one step of a larger request.
 version: "1.6.0"
 allowed-tools: Bash(git *), Read, Grep, Glob
 ---

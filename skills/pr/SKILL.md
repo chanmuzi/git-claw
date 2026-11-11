@@ -1,7 +1,7 @@
 ---
 name: pr
 description: >-
-  Create a pull request, or a release PR, that follows the project's conventions. Use when the user asks to open a PR, including push-and-PR requests.
+  Create a pull request, or a release PR, that follows the project's conventions. Use when the user asks to open a PR, including as one step of a larger request.
 argument-hint: "[release] [--base <branch>] [-g|--graph]"
 version: "1.6.0"
 allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob

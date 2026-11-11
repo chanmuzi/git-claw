@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+**Changed**
+- `/eli5` 그림 안 제목은 굵게, 막대 묶음 제목에는 밑줄: 막대 묶음이 잰 것의 이름과 시스템 상자의 이름을 `.dg-t`(13px, 굵기 700)로 쓰고, 막대 묶음 제목 아래에는 묶음 폭만큼 가는 선(`.dg-rule`)을 긋는다. 제목이 값 라벨과 같은 `.dg-l`이나 행 이름보다 작은 `.dg-s`로 그려져 아래 행이 어느 제목에 속하는지 읽기 어렵던 문제. Render check 9번에 제목과 선의 개수 검사를 넣었다. 배경: docs/decisions/2026-08-eli5-history.md (개정 2026-11-11 2차)
+
 **Fixed**
+- `/eli5` SKILL.md에 남아 있던 옛 문장 두 곳: 막대 행 이름을 `.dg-s`로, 그리지 않은 수치를 그림 맨 아래 `.dg-s` 줄로 적던 문장을 v1.27.0 규칙(`dg-l dg-row`, 그림 밖)과 맞췄다.
 - cache 정리 스크립트(`docs/ops/plugin-sync.md`, `docs/testing.md`)가 `installed_plugins.json`의 git-claw 항목 중 첫 번째 `installPath`만 남기던 것: user 범위와 project 범위처럼 항목이 여러 개면 전부 남긴다. 동기화 3번도 모든 항목의 `installPath`를 바꾸도록 적었다.
 
 ## v1.27.0 (2026-11-11)

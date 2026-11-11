@@ -24,7 +24,7 @@
 | 14 | 텍스트 스킬 글쓰기 규칙 | `commit`, `pr`, `issue`, `review-reply`, `code-review`, `handoff` | `Writing rules (shared across commit` | docs/decisions/2026-10-machine-writing-symbols.md, docs/decisions/2026-10-heading-hierarchy.md |
 | 15 | 제목 규칙과 산출물 언어 구성안 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `Headings are answers, not frames` | docs/decisions/2026-10-heading-hierarchy.md |
 | 16 | 위치 표시 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `section hierarchy (SHARED` | docs/decisions/2026-10-heading-hierarchy.md, docs/decisions/2026-08-eli5.md |
-| 17 | 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 해설 머리 표시 | `eli5` (현재 단독) | `One stroke set` | docs/decisions/2026-08-eli5.md |
+| 17 | 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 그림 안 제목, 해설 머리 표시 | `eli5` (현재 단독) | `One stroke set` | docs/decisions/2026-08-eli5.md |
 | 18 | 조작할 수 있는 그림의 조건 | `eli5`, `visual-doc`, `explain-diff` | `Static first` | docs/decisions/2026-08-eli5.md |
 | 19 | 근거 카드, 번호 배지, 캡션 칩, 해설 목록 | `eli5` (현재 단독) | `Evidence card` | docs/decisions/2026-08-eli5.md |
 | 20 | 산출물 독자 구분 | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | `DO NOT TRIGGER` | docs/decisions/2026-08-eli5.md |
@@ -127,11 +127,11 @@
 - 관련 스킬: `eli5`, `visual-doc`, `explain-diff`, `micro-world`
 - 네 템플릿에 같은 코드로 들어 있다. 제목 글자 크기(`.g-name`, `.sub-h h2`, `.sub-h h3`)와 마크업의 쓰임은 템플릿마다 다르다: eli5는 beat 4개 이하면 beat마다 번호 줄(하위 없음), 5개 이상이고 묶음이 있으면 묶음이 상위(`<section class="sec-top">` + h2)이고 beat가 하위(`.sub-h` + h3)이며 beat 하나뿐인 묶음은 `sec-top single`, visual-doc은 챕터가 상위이고 카드가 하위, explain-diff는 Part가 상위이고 섹션 카드가 하위이며 기존 TOC 카드가 차례 역할(`.outline` 미사용), micro-world는 진행바만. 사이드 TOC rail과 섹션 이름이 붙은 고정 머리는 두지 않는다 (visual-doc의 `.toc-rail`은 2026-10-29 제거). 차례 바로 아래 첫 상위 섹션은 `.hero + .sec-top, .outline + .sec-top`으로 윗여백 28px, 차례의 상위 줄은 굵고 하위 줄(`li.sub`)은 들여 쓴다 (2026-11-08). eli5만 묶음 안의 beat 사이에 왼쪽 120px 선(`.sec-top .beat + .beat::before`)이 더 있다 (2026-11-10 2차): 나머지 셋의 블록을 eli5에 복사하지 않는다. 정본: docs/decisions/2026-10-heading-hierarchy.md, docs/decisions/2026-08-eli5-history.md (개정 2026-11-08, 2026-11-10 2차)
 
-### 17. 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 해설 머리 표시
+### 17. 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 그림 안 제목, 해설 머리 표시
 
-- 범위: 그림의 선 한 벌(`--dg-line`, `--dg-flow` 토큰, `.dg-box`, `.dg-arrow`, `.dg-head`, `.dg-cell`, 강조 `em`/`bad`, 없는 것 `absent`, 행 이름 `dg-l dg-row`), 마무리 줄 배지 두 종류(형광 `.lab`은 정리 머리 문장이 다시 말하는 줄에만, 테두리 `.lab.q`는 문구 목록 없이 판정 기준), 그림 안의 글(그린 것과 이름만, 읽는 데 필요한 조건은 접힌 `.res-more`, 나머지 수치는 보고서), 해설 머리 표시(번호 배지, 행 칩, 색 조각 `.sw`, 같은 글자), 구성안의 선행 확인
+- 범위: 그림의 선 한 벌(`--dg-line`, `--dg-flow` 토큰, `.dg-box`, `.dg-arrow`, `.dg-head`, `.dg-cell`, 강조 `em`/`bad`, 없는 것 `absent`, 행 이름 `dg-l dg-row`), 마무리 줄 배지 두 종류(형광 `.lab`은 정리 머리 문장이 다시 말하는 줄에만, 테두리 `.lab.q`는 문구 목록 없이 판정 기준), 그림 안의 글(그린 것과 이름만, 읽는 데 필요한 조건은 접힌 `.res-more`, 나머지 수치는 보고서), 그림 안 제목(막대 묶음이 잰 것의 이름과 시스템 상자 이름은 `.dg-t` 13px 700, 막대 묶음 제목 아래 묶음 폭의 `.dg-rule` 선), 해설 머리 표시(번호 배지, 행 칩, 색 조각 `.sw`, 같은 글자), 구성안의 선행 확인
 - 관련 스킬: `eli5` (현재 단독)
-- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스는 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차)
+- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A title inside a figure is bold", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스와 `.dg-t`, `.dg-rule`은 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차, 2026-11-11 2차)
 
 ### 18. 조작할 수 있는 그림의 조건
 

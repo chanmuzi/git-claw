@@ -90,10 +90,13 @@
      The band is the one place the brand tint is used as a surface; it is what says "this is an Upstage document". */
   .band{ background:var(--tint); }
   .hero{ padding-block:56px 40px; }
-  .eyebrow{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--brand-ink); margin-bottom:18px; }
-  .eyebrow i{ width:8px; height:8px; border-radius:2px; background:var(--brand); flex:none; }
+  .eyebrow{ font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.04em; color:var(--faint); margin-bottom:14px; }
   .hero h1{ font-size:clamp(26px,3.6vw,32px); font-weight:800; line-height:1.3; letter-spacing:-0.035em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px; }
   .hero .lede{ font-size:16px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0; max-width:720px; }
+  /* fact rows: what the reader takes away, one row per result or conclusion (name, fact). A page with one takeaway uses .lede instead. */
+  .hero .facts{ margin:0; display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 16px; max-width:720px; }
+  .hero .facts dt{ font-size:13px; font-weight:600; color:var(--brand-ink); padding-top:3px; white-space:nowrap; }
+  .hero .facts dd{ margin:0; font-size:16px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
 
   /* ── outline: a nested table of contents inside the cover. Top-level rows are separated by hairlines; a sub-row is a
      nested <ol> under its parent's title and uses the same 32px number column, so every title starts on one of two
@@ -408,9 +411,13 @@
 <div class="band">
   <div class="shell">
     <div class="hero">
-      <div class="eyebrow"><i aria-hidden="true"></i>{출처 한 가지, YYYY-MM-DD}</div>
-      <h1>{주제의 실제 이름이 들어간 명사구, 25자 안팎. 비유와 식별자 금지}</h1>
-      <p class="lede">{그 하나의 생각을 한두 문장으로. 읽는 사람이 나중에 그대로 옮길 수 있는 문장.}</p>
+      <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
+      <h1>{주제의 실제 이름이 들어간 명사구, 25자 안팎. 비유와 붙인 이름 금지}</h1>
+      <!-- 읽는 사람이 가져갈 결과나 결론마다 한 줄. 줄 수는 그 개수만큼이고, 하나뿐이면 <dl> 대신 <p class="lede">한 문장</p>을 쓴다 -->
+      <dl class="facts">
+        <dt>{이 주제의 낱말로 지은 줄 이름}</dt><dd>{사실 하나, 숫자는 잰 그대로}</dd>
+        <dt>{줄 이름}</dt><dd>{사실 하나}</dd>
+      </dl>
       <!-- 차례: 상위 섹션마다 한 줄, 제목은 h2와 같은 글. 하위 beat는 상위 li 안의 <ol>로 중첩한다. 마지막 .close에는 제목이 없으므로 넣지 않는다.
            묶음이 없는 평평한 페이지는 상위 줄만 있다 -->
       <nav class="outline" aria-label="차례">

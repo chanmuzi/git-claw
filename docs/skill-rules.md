@@ -4,8 +4,9 @@
 
 ## 스킬 공통 규칙
 
-모든 스킬(commit, pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
+모든 스킬에 적용되는 공통 원칙:
 
+- **description은 고르는 기준만**: frontmatter의 `description`은 무엇을 만드는지와 어떤 상황에 누구를 위해 쓰는지를 한두 문장(250자 안)으로 쓴다. 다른 agent가 스킬을 고를 때 읽는 글이므로 트리거 문구 예시, `TRIGGER when`과 `DO NOT TRIGGER when` 목록, 실행 지침은 넣지 않는다. 헷갈리는 스킬이 있을 때만 그 스킬을 가리키는 한 문장을 둔다. 배경: docs/decisions/2026-11-skill-descriptions.md
 - **Assignee / Label**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me`와 적용 가능한 `--label`을 포함. 권한 부족 등으로 `--assignee`/`--label` fallback이 발생하면, drop된 플래그가 무엇이고 왜 빠졌는지 사용자에게 명시적으로 고지한다 (silent drop 금지)
 - **참조 라벨 구분**: "관련" 표기 시 유형을 명시한다. `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
 - **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지

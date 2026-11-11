@@ -27,7 +27,7 @@
 | 17 | 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 그림 안 제목, 해설 머리 표시 | `eli5` (현재 단독) | `One stroke set` | docs/decisions/2026-08-eli5.md |
 | 18 | 조작할 수 있는 그림의 조건 | `eli5`, `visual-doc`, `explain-diff` | `Static first` | docs/decisions/2026-08-eli5.md |
 | 19 | 근거 카드, 번호 배지, 캡션 칩, 해설 목록 | `eli5` (현재 단독) | `Evidence card` | docs/decisions/2026-08-eli5.md |
-| 20 | 산출물 독자 구분 | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | `DO NOT TRIGGER` | docs/decisions/2026-08-eli5.md |
+| 20 | 산출물 독자 구분 | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | `The reader` | docs/decisions/2026-08-eli5.md, docs/decisions/2026-11-skill-descriptions.md |
 
 ## 상세
 
@@ -150,4 +150,4 @@
 
 - 범위: 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람)
 - 관련 스킬: `explain-diff`, `micro-world`, `visual-doc`, `eli5`
-- 네 스킬의 DO NOT TRIGGER 절이 서로를 가리키므로 한쪽 경계 수정 시 나머지 세 스킬의 description도 함께 갱신. 정본: docs/decisions/2026-08-eli5.md
+- 네 스킬의 description은 `The reader`로 시작하는 문장 하나로 독자를 말하고, 이 문장이 넷을 가르는 기준이다. 한쪽의 독자를 고치면 나머지 셋과 겹치지 않는지 확인한다. 정본: docs/decisions/2026-08-eli5.md, docs/decisions/2026-11-skill-descriptions.md

@@ -13,6 +13,7 @@
 | [2026-10-heading-hierarchy.md](./2026-10-heading-hierarchy.md) | 제목 규칙, 산출물 언어 구성안, 위치 표시 | 스킬 10개 | 확정 |
 | [2026-10-machine-writing-symbols.md](./2026-10-machine-writing-symbols.md) | 기계 문장 기호 금지 | 스킬 10개 | 확정 |
 | [2026-11-doc-routing.md](./2026-11-doc-routing.md) | `AGENTS.md`의 작업별 문서 표와 문서 분리 (계획 문서: [html](./2026-11-doc-routing.html)) | 저장소 전체 | 확정 |
+| [2026-11-skill-descriptions.md](./2026-11-skill-descriptions.md) | 스킬 description의 길이와 내용, 문서 스킬 네 개의 독자 문장 | 스킬 10개 | 확정 |
 
 옛 이름: `2026-07-html-shared-design-rules.md`는 `2026-07-visual-doc.md`, `2026-07-explain-diff-micro-world-design.md`는
 `2026-07-explain-diff-design-system.md`였다 (2026-11-11 개명).

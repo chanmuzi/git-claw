@@ -71,7 +71,7 @@
 
 - 범위: 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록)
 - 관련 스킬: `eli5`, `visual-doc`, `explain-diff`
-- 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 이름으로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`, `.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). 값은 2026-11-09 Lift 개정 뒤 eli5만 다르다(`.dg-s` 본문 글꼴 11.5px와 `.dg-s.code`, `.dg-q` 14px 600, `.dg-cap` 11.5px 700과 `.dg-pill`의 가는 테두리): visual-doc, explain-diff 블록을 eli5에 복사하지 않는다. 글자 폭 표의 `.dg-cap` 행도 eli5만 11.5px 실측값(한글 11.5, 숫자 7, 공백 3.5)이고 나머지 둘은 12px 행(한글 13, 영숫자 10, 공백 5)이다: CSS 크기를 바꾸면 표 행을 같이 바꾼다 (2026-11-09 캡션 칩 폭 사고). `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다
+- 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 이름으로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`, `.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). 값은 2026-11-09 Lift 개정 뒤 eli5만 다르다(`.dg-s` 본문 글꼴 11.5px와 `.dg-s.code`, `.dg-q` 14px 600, `.dg-cap` 11.5px 700과 `.dg-pill`의 가는 테두리): visual-doc, explain-diff 블록을 eli5에 복사하지 않는다. 글자 폭 표의 `.dg-cap` 행도 eli5만 11.5px 실측값(한글 11.5, 숫자 7, 공백 3.5)이고 나머지 둘은 12px 행(한글 13, 영숫자 10, 공백 5)이다: CSS 크기를 바꾸면 표 행을 같이 바꾼다 (2026-11-09 캡션 칩 폭 사고). 글자 폭 표의 `.dg-t` 행과 4번 규칙의 `.dg-t` 세로 범위도 eli5에만 있다 (2026-11-11 2차): visual-doc, explain-diff의 산술 문단을 eli5에 덮어쓰지 않는다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다
 
 ### 8. 렌더 측정
 

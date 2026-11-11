@@ -1,9 +1,7 @@
 ---
 name: code-review
 description: >-
-  Review code changes using context-aware multi-agent pipeline with severity-based findings.
-  TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
-  DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
+  Review a diff, branch, or PR and report findings by severity. Use when the user asks for a code review. To answer review comments already left on a PR, use review-reply.
 argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [-a|--all] [--wd] [--full-scan] [--no-codex|--codex|--codex-general|--codex-both]"
 version: "1.12.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage

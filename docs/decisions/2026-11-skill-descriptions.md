@@ -7,7 +7,7 @@
 
 ## 문제
 
-스킬 10개의 description이 333~835자였다. 한 문장의 설명 뒤에 `TRIGGER when`과 `DO NOT TRIGGER when` 목록이 붙고,
+스킬 10개의 description이 330~832자였다. 한 문장의 설명 뒤에 `TRIGGER when`과 `DO NOT TRIGGER when` 목록이 붙고,
 목록의 대부분은 요청 문구 예시(`"커밋해줘"`, `"리뷰 돌려줘"`)였다.
 
 - description은 스킬을 고르는 단계에서 모든 세션에 실리는 글이다. 길수록 그 단계에서 읽을 것이 늘어난다.
@@ -27,18 +27,18 @@
 
 | 스킬 | 전 | 후 |
 |---|---|---|
-| commit | 333 | 176 |
-| pr | 337 | 148 |
-| issue | 359 | 142 |
-| review-reply | 357 | 221 |
-| code-review | 418 | 169 |
-| handoff | 415 | 162 |
-| explain-diff | 633 | 210 |
-| micro-world | 666 | 177 |
-| visual-doc | 835 | 183 |
-| eli5 | 695 | 140 |
+| commit | 330 | 136 |
+| pr | 334 | 159 |
+| issue | 356 | 142 |
+| review-reply | 354 | 221 |
+| code-review | 415 | 228 |
+| handoff | 412 | 162 |
+| explain-diff | 630 | 210 |
+| micro-world | 663 | 177 |
+| visual-doc | 832 | 205 |
+| eli5 | 692 | 177 |
 
-합계 5,048자에서 1,728자.
+합계 5,018자에서 1,817자.
 
 ## 확인하지 못한 것
 

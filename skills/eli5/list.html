@@ -251,8 +251,11 @@
   if (!LM_CFG.filter) $("lm-filter-box").hidden = true;
 
   /* review marks: a draft in this browser until copied or sent */
-  var L = {}, LS = "lm-review:" + LM_CFG.name;
+  var L = {}, LS = "lm-review:" + LM_CFG.name, IDS = {};
+  D.forEach(function(r){ IDS[r.id] = 1; });
   try{ L = JSON.parse(localStorage.getItem(LS) || "{}") || {}; }catch(e){ L = {}; }
+  /* a mark whose row is gone (the list was rebuilt) is dropped: it could not be seen or undone, yet it would be copied and sent */
+  L = Object.keys(L).reduce(function(o, k){ if (IDS[k] && L[k] && L[k].v) o[k] = L[k]; return o; }, {});
   function save(){ try{ localStorage.setItem(LS, JSON.stringify(L)); }catch(e){} }
   function tally(){ var ok = 0, bad = 0; Object.keys(L).forEach(function(k){ if (L[k].v === "ok") ok++; else bad++; }); return { ok:ok, bad:bad }; }
   function sum(){ var t = tally(); return "타당 " + t.ok + "건, 문제 " + t.bad + "건"; }
@@ -279,7 +282,7 @@
       var n = all.filter(function(r){ return k === "all" || r.state === k; }).length;
       return '<button type="button" role="tab" data-tab="' + k + '" aria-selected="' + (S.tab === k) + '">' + (k === "all" ? "전체" : esc(ST[k][1])) + "<i>" + n + "</i></button>";
     }).join("");
-    var rows = S.tab === "all" ? ORDER.reduce(function(a, k){ return a.concat(all.filter(function(r){ return r.state === k; })); }, []) : all.filter(function(r){ return r.state === S.tab; });
+    var rows = S.tab === "all" ? ORDER.reduce(function(a, k){ return a.concat(all.filter(function(r){ return r.state === k; })); }, []).concat(all.filter(function(r){ return !ST[r.state]; })) : all.filter(function(r){ return r.state === S.tab; });
     var per = LM_CFG.per, pages = Math.max(1, Math.ceil(rows.length / per)); S.page = Math.min(Math.max(0, S.page), pages - 1);
     var a = S.page * per, part = rows.slice(a, a + per), pg = "", last = -1;
     $("lm-list").innerHTML = part.map(row).join("") || '<div class="lm-empty">조건에 맞는 항목이 없어요</div>';

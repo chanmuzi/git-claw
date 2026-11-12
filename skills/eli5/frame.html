@@ -96,8 +96,30 @@
   .hero .lede{ font-size:16px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0; max-width:720px; }
   /* fact rows: what the reader takes away, one row per result or conclusion (name, fact). A page with one takeaway uses .lede instead. */
   .hero .facts{ margin:0; display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 16px; max-width:720px; }
-  .hero .facts dt{ font-size:13px; font-weight:600; color:var(--brand-ink); padding-top:3px; white-space:nowrap; }
-  .hero .facts dd{ margin:0; font-size:16px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
+  .hero .facts dt{ font-size:13px; font-weight:600; color:var(--brand-ink); padding-top:2px; white-space:nowrap; }
+  .hero .facts dd{ margin:0; font-size:14.5px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
+  /* a number is shown, not narrated (SKILL.md "The cover"). Everything on the value side is one size (14.5px, the size of the notes); only color and weight differ.
+     .v: one value, or a pair `before → after` (<s> before in the secondary color, <i> the arrow, <b> after). An unchanged value is written once.
+     .pairs: one row that has a value per condition; each .pair is the condition name (<em>) and its .v; pairs are parted by space.
+     table.fg: the cover grid, only when two or more rows run over the same conditions and every cell fills. Conditions in the head once;
+     the corner cell says once what a pair is (`v5 → v7`) or what all rows are out of. A verdict row spans the columns (td.txt).
+     No sub-label under a row name and no note under the grid. */
+  .hero .v{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .hero .v s{ text-decoration:none; color:var(--sub); }
+  .hero .v i{ font-style:normal; color:var(--n400); margin:0 5px; }
+  .hero .v b{ font-weight:600; }
+  .hero .pairs{ display:flex; flex-wrap:wrap; gap:2px 28px; }   /* parted by space, not a rule: a rule is left hanging at the line end when the pairs wrap */
+  .hero .pair{ display:inline-flex; align-items:baseline; gap:8px; white-space:nowrap; }
+  .hero .pair em{ font-style:normal; color:var(--sub); }
+  .hero .fg-wrap{ overflow-x:auto; }
+  .hero .fg{ border-collapse:collapse; font-size:14.5px; line-height:1.5; color:var(--ink); }
+  .hero .fg th, .hero .fg td{ text-align:left; vertical-align:top; padding:7px 28px 7px 0; word-break:keep-all; }
+  .hero .fg th:last-child, .hero .fg td:last-child{ padding-right:0; }
+  .hero .fg thead th{ font-size:13px; font-weight:600; color:var(--sub); padding-top:0; padding-bottom:6px; border-bottom:1px solid var(--brand-100); white-space:nowrap; }
+  .hero .fg thead th:first-child{ font-weight:500; color:var(--faint); }
+  .hero .fg tbody th{ font-size:13px; font-weight:600; color:var(--brand-ink); white-space:nowrap; padding-top:10px; }
+  .hero .fg tbody tr + tr th, .hero .fg tbody tr + tr td{ border-top:1px solid var(--brand-100); }
+  .hero .fg.num td:not(.txt), .hero .fg.num thead th:not(:first-child){ text-align:right; }   /* single values, no pairs: numbers right-aligned */
 
   /* ── outline: a nested table of contents inside the cover. Top-level rows are separated by hairlines; a sub-row is a
      nested <ol> under its parent's title and uses the same 36px number column, so every title starts on one of two
@@ -299,6 +321,17 @@
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
   .res tr:last-child td{ border-bottom:none; }
+  /* presence table (.res.ox; SKILL.md "which setting has which part"): parts as column heads once, one row per setting, a drawn
+     mark in every cell. .mk.o present, .mk.x absent: both in the same 12px box with the same stroke, because the characters ○ and ×
+     differ in size from font to font. The x is one step lighter; td.p marks the present cells of the column the beat is about. */
+  .res.ox th:not(:first-child), .res.ox td:not(:first-child){ text-align:center; padding-left:12px; padding-right:12px; }
+  .res.ox td:not(:first-child){ color:var(--n500); }
+  .res.ox td.x{ color:var(--n400); }
+  .res.ox td.p{ color:var(--brand); }
+  .mk{ display:inline-block; position:relative; width:12px; height:12px; vertical-align:-1px; }
+  .mk.o{ border:1.5px solid currentColor; border-radius:50%; }
+  .mk.x::before, .mk.x::after{ content:""; position:absolute; left:50%; top:50%; width:14px; height:1.5px; background:currentColor; transform:translate(-50%,-50%) rotate(45deg); }
+  .mk.x::after{ transform:translate(-50%,-50%) rotate(-45deg); }
   /* two-level header (.res.h2): a group name (th.grp) is centered over its columns with a rule only as wide as the group; the first
      column of each group takes .g0 (th and td) so a gap parts the groups; a column outside any group spans both header rows.
      two-level rows: the outer condition once (td.outer, rowspan) with tr.gs on the first row of its group, the inner one in td.inner. */
@@ -409,6 +442,18 @@
   .pc-b pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; overflow-wrap:anywhere; }
   @media (max-width:600px){ .pc-h .src{ display:none; } }
 
+  /* ── named rows (SKILL.md "Evidence card", a case with its fields): one item of the data shown whole, in a .fig.tab panel ──
+     a name column and a text column, one thing per row, no card of its own design. Several items in an order that matters are one row
+     each, and the order is in the row name (`이전 질문 1`, `이전 질문 2`), never a number inside the text. No colored row: an outcome is
+     one .cap at the end of its row. The row the others are compared against is dd.ref (secondary color). */
+  .rows{ margin:0; display:grid; grid-template-columns:max-content minmax(0,1fr); font-size:14.5px; line-height:1.6; color:var(--ink); }
+  .rows dt, .rows dd{ margin:0; padding:8px 0; border-top:1px solid var(--line); word-break:keep-all; overflow-wrap:anywhere; }
+  .rows dt:first-of-type, .rows dt:first-of-type + dd{ border-top:none; padding-top:0; }
+  .rows dt{ padding-right:28px; font-size:13px; line-height:1.78; color:var(--sub); white-space:nowrap; }
+  .rows dd.ref{ color:var(--sub); }
+  .rows .cap{ margin:0 0 0 8px; }
+  @media (max-width:560px){ .rows{ grid-template-columns:minmax(0,1fr); } .rows dt{ padding-bottom:0; } .rows dd{ border-top:none; padding-top:0; } }
+
   /* ── prompt card (SKILL.md "Evidence card", the prompt form): a prompt with what went in and what came out, as ONE card ──
      head: the name, and every toggle at the right edge (what is shown first: version, model; how it is shown last: language).
      rows: the stages the source has, in order, named in the left column (system, user, the output, a result stage when there is one).
@@ -501,11 +546,25 @@
     <div class="hero">
       <div class="eyebrow">{출처 한 가지, YYYY-MM-DD}</div>
       <h1>{주제의 실제 이름이 들어간 명사구, 25자 안팎. 비유와 붙인 이름 금지}</h1>
-      <!-- 읽는 사람이 가져갈 결과나 결론마다 한 줄. 줄 수는 그 개수만큼이고, 하나뿐이면 <dl> 대신 <p class="lede">한 문장</p>을 쓴다 -->
+      <!-- 읽는 사람이 가져갈 결과나 결론마다 한 줄. 줄 수는 그 개수만큼이고, 하나뿐이면 <dl> 대신 <p class="lede">한 문장</p>을 쓴다.
+           수치는 풀어 쓰지 않고 보여 준다: 값 앞에 풀이 문장 없음, "에서", "그대로" 없음. 결론 줄은 판정 한 마디(`반영하지 않음`, `충족`)이고 이유는 본문에 둔다.
+           줄 이름 아래 작은 글씨와 격자 아래 설명은 두지 않는다. 모양은 줄이 가진 값에 맞는 가장 단순한 것을 고른다. -->
       <dl class="facts">
         <dt>{이 주제의 낱말로 지은 줄 이름}</dt><dd>{사실 하나, 숫자는 잰 그대로. 개조식}</dd>
-        <dt>{줄 이름}</dt><dd>{사실 하나}</dd>
+        <dt>{전후 한 쌍}</dt><dd><span class="v"><s>{6.0초}</s><i>→</i><b>{1.2초}</b></span></dd>
+        <dt>{이 줄만 조건별 값}</dt><dd><span class="pairs"><span class="pair"><em>{조건 1}</em><span class="v"><s>{820ms}</s><i>→</i><b>{310ms}</b></span></span><span class="pair"><em>{조건 2}</em><span class="v"><b>{300ms}</b></span></span></span></dd>
+        <dt>{결론}</dt><dd>{판정 한 마디}</dd>
       </dl>
+      <!-- 선택: 두 줄 이상이 같은 조건을 공유하고 칸이 모두 채워질 때만 <dl> 대신 표지 격자. 조건이 4개를 넘으면 결론이 기대는 조건만 올리고 전체는 본문 결과 표에 둔다.
+           전후가 없는 값만 있으면 class="fg num"(숫자 오른쪽 정렬). 왼쪽 위 칸에는 쌍이 무엇인지(v5 → v7)나 공통 분모(400명 중)를 한 번 적고, 없으면 비운다.
+      <div class="fg-wrap"><table class="fg">
+        <thead><tr><th>{전 → 후의 이름}</th><th>{조건 1}</th><th>{조건 2}</th><th>{조건 3}</th></tr></thead>
+        <tbody>
+          <tr><th>{측정 1}</th><td class="v"><s>{56.4%}</s><i>→</i><b>{81.4%}</b></td><td class="v"><s>{65.0%}</s><i>→</i><b>{90.0%}</b></td><td class="v"><b>{95.7%}</b></td></tr>
+          <tr><th>{측정 2}</th><td class="v"><s>{0.79초}</s><i>→</i><b>{0.84초}</b></td><td class="v"><s>{1.51초}</s><i>→</i><b>{1.64초}</b></td><td class="v"><b>{2.19초}</b></td></tr>
+          <tr><th>{결론}</th><td class="txt" colspan="3">{판정 한 마디}</td></tr>
+        </tbody>
+      </table></div> -->
       <!-- 차례: 상위 섹션마다 한 줄, 제목은 h2와 같은 글. 하위 beat는 상위 li 안의 <ol>로 중첩한다. 마지막 .close에는 제목이 없으므로 넣지 않는다.
            묶음이 없는 평평한 페이지는 상위 줄만 있다 -->
       <nav class="outline" aria-label="차례">
@@ -578,6 +637,18 @@
 }</pre>
         </div>
       </div>
+      named rows: 자료의 한 건(문항, 요청, 사례)을 통째로 보일 때. 이름 열과 내용 열, 한 행에 한 가지. 순서가 있는 여러 항목은 항목마다 한 행이고 순서는 행 이름에 적는다(본문에 번호 없음, 하나면 번호 없음).
+      줄에 색을 칠하지 않고 결과는 줄 끝의 .cap 하나. 기준이 되는 줄은 dd.ref.
+      <figure class="fig tab">
+        <div class="res-cap"><span class="res-t">{건의 이름}</span></div>
+        <dl class="rows">
+          <dt>{입력 1}</dt><dd>{원문 그대로}</dd>
+          <dt>{입력 2}</dt><dd>{원문 그대로}</dd>
+          <dt>{기대값}</dt><dd class="ref">{원문 그대로}</dd>
+          <dt>{조건 1}</dt><dd>{그 조건이 낸 것, 그대로}<span class="cap em">{결과 이름}</span></dd>
+          <dt>{조건 2}</dt><dd>{그 조건이 낸 것, 그대로}<span class="cap bad">{결과 이름}</span></dd>
+        </dl>
+      </figure>
       prompt card: 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나오면 산문 카드를 늘어놓지 않고 이 카드 하나로 묶는다. 토글은 모두 머리줄 오른쪽 끝(버전, 모델 먼저, 언어 마지막).
       토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
       <div class="pv" data-ver="v5" data-lang="en">
@@ -698,6 +769,17 @@
         </tbody>
       </table>
       <details class="res-more"><summary>주석: 단위, 빈칸, 승패, 계산</summary><p>{값은 %이고 높을수록 좋아요. 빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
+    </figure>
+    선택: 조건마다 같은 부품의 있고 없음만 다른 경우는 상자를 행마다 반복하지 않고 포함 표(class="res ox")로 쓴다. 칸마다 그린 기호(.mk o, .mk x), 요점인 열의 있음 칸은 td.p.
+    칸의 답이 있음과 없음이 아니면 값(3개, 0.2)이나 낱말(일부)을 적는다.
+    <figure class="fig tab">
+      <table class="res ox">
+        <thead><tr><th>{조건}</th><th>{부품 1}</th><th>{부품 2}</th><th>{부품 3}</th></tr></thead>
+        <tbody>
+          <tr><td>{조건 1}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td></tr>
+          <tr><td>{조건 2}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="p"><span class="mk o" role="img" aria-label="있음"></span></td><td><span class="mk o" role="img" aria-label="있음"></span></td></tr>
+        </tbody>
+      </table>
     </figure>
     선택: 열이 묶음으로 나뉘거나 조건이 두 단계(모델과 프롬프트)인 표는 class="res h2". 묶음 이름은 th.grp(가운데, 묶음 폭만큼의 밑줄), 묶음의 첫 열은 th와 td에 g0, 묶음 밖의 열은 rowspan="2".
     바깥 조건은 한 번만(td.outer, rowspan), 그 묶음의 첫 행에 tr.gs, 안쪽 조건은 td.inner. 조건이 한 단계면 지금처럼 한 열이다.

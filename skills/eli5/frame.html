@@ -126,28 +126,30 @@
      vertical lines. No label, no card. */
   .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
   .outline ol{ list-style:none; margin:0; padding:0; }
-  .outline > ol > li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
-  .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); }
-  .outline ol ol{ grid-column:2; margin-top:6px; display:flex; flex-direction:column; gap:3px; }
-  .outline ol ol li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
-  .outline ol ol li b{ color:var(--faint); font-size:14px; }
+  .outline > ol > li{ padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); margin-right:10px; }
+  .outline li b::after{ content:"."; }                      /* `1. 제목`: the number and the title on one line; the period comes from here */
+  .outline ol ol{ margin:6px 0 0; padding-left:28px; display:flex; flex-direction:column; gap:3px; }
+  .outline ol ol li{ font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
+  .outline ol ol li b{ color:var(--faint); font-size:14px; margin-right:12px; }
   .outline a{ color:inherit; text-decoration:none; }
   .outline a:hover{ color:var(--brand); }
 
   /* ── section hierarchy (eli5 copy; the other three skills still carry the pre-Lift block) ──
      Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills with the scroll
-     ratio, every top-level section opens with a hairline and a number line (`1 / 4`), and a beat inside a grouped
-     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text.
-     A number is set at the size of the text it sits beside (outline 15px and 14px) or one step under its heading
-     (section 16px under a 21px h2, beat 14.5px under a 17.5px h3). */
+     ratio, every top-level section opens with a hairline and its number set on one line with the h2 (`1. 제목`), and a
+     beat inside a grouped section opens with its number on one line with the h3 (`1-1. 제목`). The number is its own
+     element (.sec-no, .sub-no) at the size of the heading beside it; the period comes from the CSS, and the heading text
+     never carries the number. eli5 only (2026-11-12): the other three skills keep the number line above the heading. */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--brand); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:1px solid var(--line); padding-top:28px; margin-top:56px; }
   .shell > .sec-top:first-child{ border-top:none; margin-top:44px; padding-top:0; }  /* the first section sits under the cover without a second rule */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 6px; font-family:var(--mono); font-size:16px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
-  .sec-no b{ color:var(--brand); font-weight:700; }
-  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; }
-  /* deck: the fact under a short heading. The heading names what the figure is about (a noun phrase, about 20 characters);
-     the deck states the fact or the number in one line. The outline lists headings only, so it stays scannable. */
+  .sec-no{ float:left; margin:0 10px 0 0; font-family:var(--mono); font-size:21px; font-weight:700; line-height:1.4; color:var(--brand); }
+  .sec-no b{ font-weight:700; }
+  .sec-no b::after{ content:"."; }
+  .sec-no span{ display:none; }                              /* pages before 2026-11-12 carried the section count (`/ 4`) here */
+  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; overflow:hidden; }   /* its own block beside the floated number, so a second line hangs under the title, not under the number */
+  /* deck: removed 2026-11-10. New pages put no line under a heading; the CSS stays only so older pages still render. */
   .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
   .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
   .sec-top .beat{ margin-top:36px; }
@@ -156,8 +158,9 @@
      beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
   .sec-top .beat + .beat{ position:relative; padding-top:28px; }
   .sec-top .beat + .beat::before{ content:""; position:absolute; top:0; left:0; width:120px; height:1px; background:var(--line); }
-  .sub-h{ margin:0 0 14px; }
-  .sub-no{ font-family:var(--mono); font-size:14.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
+  .sub-h{ margin:0 0 14px; display:flex; align-items:baseline; gap:8px; }
+  .sub-no{ font-family:var(--mono); font-size:17.5px; font-weight:600; line-height:1.45; color:var(--brand); flex:none; }
+  .sub-no::after{ content:"."; }
   .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
   .sub-h .deck{ margin-bottom:0; }
 
@@ -170,7 +173,7 @@
   /* legend: the part names of a bar split into parts, once, inside the panel under the drawing (same .sw as the notes) */
   .legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin:12px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--sub); }
   .legend li{ display:inline-flex; align-items:center; }
-  .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
+  .fig svg{ display:block; max-width:100%; height:auto; color:var(--ink); }   /* never scaled up: every svg carries width and height equal to its viewBox, and only shrinks when the panel is narrower */
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
   .notes{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
@@ -226,6 +229,8 @@
   .dg-bar{ fill:var(--n300); }
   .dg-bar.em{ fill:var(--brand); }
   .dg-bar.bad{ fill:var(--red); opacity:.75; }
+  .dg-hold{ stroke:var(--cost); stroke-width:2; stroke-linecap:round; }      /* a hold: two 12px vertical bars where the line pauses on purpose (not a failure, so not red) */
+  .dg-s.dg-wait{ fill:var(--cost); opacity:1; font-weight:600; }            /* the one word under a hold mark */
   .dg-bar.mid{ fill:var(--n500); }                         /* a second neutral part of a split bar */
   /* a bar split into parts: the value sits inside its segment (.dg-in; .ink on the plain gray fill). A value that does not fit
      (segment narrower than the label + 8, or zero) goes after the bar's end as .dg-out, in segment order, in its part's color
@@ -585,13 +590,13 @@
 
 <div class="shell">
 
-  <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호 줄은 `1 / 전체 상위 섹션 수`. 제목 글자에는 숫자를 넣지 않는다. -->
+  <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호는 .sec-no에 숫자만 넣는다(프레임이 `1. 제목` 한 줄로 그린다). 제목 글자에는 숫자를 넣지 않는다. -->
   <section class="sec-top single" id="g1">
-    <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>1</b></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 100" role="img" aria-label="{그림이 말하는 주장 한 문장}">
+        <svg viewBox="0 0 760 100" width="760" height="100" role="img" aria-label="{그림이 말하는 주장 한 문장}">
           <!-- W=760 H=100, no empty band: the panel gives the inset, so the drawing runs to the viewBox edge. Boxes start at x=10, y=10
                only because a badge sits 9px outside the corner; without badges they would start at 1.
                row1 y=10 h=88: [10..160] gap145(arrow+label) [305..455] gap165(X on the line) [620..750] -->
@@ -650,7 +655,7 @@
         </dl>
       </figure>
       prompt card: 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나오면 산문 카드를 늘어놓지 않고 이 카드 하나로 묶는다. 토글은 모두 머리줄 오른쪽 끝(버전, 모델 먼저, 언어 마지막).
-      토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
+      토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when, 처음 상태와 맞지 않는 블록에는 hidden도 적는다. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
       <div class="pv" data-ver="v5" data-lang="en">
         <div class="pv-h"><span class="pv-name">{프롬프트 이름}</span>
           <span class="pv-tg">
@@ -660,13 +665,13 @@
         </div>
         <div class="pv-row"><div class="pv-k">system</div><div>
           <div class="pt" data-when="ver=v5 lang=en"><p>{v5 원문 문단, 그대로}</p></div>
-          <div class="pt ko" data-when="ver=v5 lang=ko"><p>{v5 번역 문단}</p></div>
-          <div class="pt" data-when="ver=v7 lang=en"><p>{v7 원문 문단, 그대로}</p></div>
-          <div class="pt ko" data-when="ver=v7 lang=ko"><p>{v7 번역 문단}</p></div>
+          <div class="pt ko" data-when="ver=v5 lang=ko" hidden><p>{v5 번역 문단}</p></div>
+          <div class="pt" data-when="ver=v7 lang=en" hidden><p>{v7 원문 문단, 그대로}</p></div>
+          <div class="pt ko" data-when="ver=v7 lang=ko" hidden><p>{v7 번역 문단}</p></div>
         </div></div>
-        <div class="pv-row"><div class="pv-k">user <span>{입력 예의 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 입력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 입력, 그대로}</pre></div></div>
-        <div class="pv-row"><div class="pv-k">출력 <span>{모델 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 출력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 출력, 그대로}</pre></div></div>
-        <div class="pv-row"><div class="pv-k">{결과 단계의 이름: 판정, 검증}</div><div><span class="cap bad" data-when="ver=v5">{결과 이름}</span><span class="cap em" data-when="ver=v7">{결과 이름}</span></div></div>
+        <div class="pv-row"><div class="pv-k">user <span>{입력 예의 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 입력, 그대로}</pre><pre class="js" data-when="ver=v7" hidden>{v7 입력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">출력 <span>{모델 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 출력, 그대로}</pre><pre class="js" data-when="ver=v7" hidden>{v7 출력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">{결과 단계의 이름: 판정, 검증}</div><div><span class="cap bad" data-when="ver=v5">{결과 이름}</span><span class="cap em" data-when="ver=v7" hidden>{결과 이름}</span></div></div>
       </div>
       선택지가 4개 이상인 토글은 .tg 자리에 이 드롭다운:
       <span class="pop"><button type="button" class="pop-b" aria-haspopup="listbox" aria-expanded="false" aria-label="버전"><span class="pop-v">v7</span></button>
@@ -708,12 +713,12 @@
 
   <!-- SECTION 2 (묶음: 상위 섹션이 h2를 갖고, beat는 .sub-h로 연다) -->
   <section class="sec-top" id="g2">
-    <div class="sec-no"><b>2</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>2</b></div>
     <h2>{상위 섹션의 대상, 짧은 명사구}</h2>
     <div class="beat" id="b21">
       <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3></div>
       <figure class="fig">
-        <svg viewBox="0 0 760 42" role="img" aria-label="{주장 한 문장}">
+        <svg viewBox="0 0 760 42" width="760" height="42" role="img" aria-label="{주장 한 문장}">
           <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다 -->
           <rect class="dg-box absent" x="1" y="1" width="758" height="40" rx="6" opacity=".6"/>
           <text class="dg-s" x="380" y="25" text-anchor="middle">{이 자리에 주제의 그림}</text>
@@ -731,11 +736,11 @@
           <output id="in-count-out" for="in-count">{기본값과 단위}</output>
         </div>
       </div>
-      <figure class="fig"><svg viewBox="0 0 760 200" role="img" aria-labelledby="fig-live-say"><g id="fig-live"></g></svg></figure>
+      <figure class="fig"><svg viewBox="0 0 760 200" width="760" height="200" role="img" aria-labelledby="fig-live-say"><g id="fig-live"></g></svg></figure>
       <p class="say" id="fig-live-say" aria-live="polite">{기본값일 때 무슨 일이 일어나는지 1~2문장.}</p>
       -->
       <figure class="fig">
-        <svg viewBox="0 0 760 42" role="img" aria-label="{주장 한 문장}">
+        <svg viewBox="0 0 760 42" width="760" height="42" role="img" aria-label="{주장 한 문장}">
           <rect class="dg-box absent" x="1" y="1" width="758" height="40" rx="6" opacity=".6"/>
           <text class="dg-s" x="380" y="25" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
@@ -805,11 +810,11 @@
 
   <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 숫자 타일은 없다. 조건 x 측정값 격자는 위의 결과 표 beat가 맡는다. -->
   <section class="sec-top single" id="g3">
-    <div class="sec-no"><b>3</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>3</b></div>
     <h2>{대가와 현황}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 105" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
+        <svg viewBox="0 0 760 105" width="760" height="105" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
           <!-- W=760 H=105, no empty band (text starts at x=1, the top baseline is y=14) | group1 x[1..340]: title y=14 (dg-t), rule y=26 x1..340, bars x=60 scale {px/단위}: before {w1} (y=42 h=22), after {w2} (y=82 h=22) | group2 x[400..760]: rule x400..760, bars x=460 -->
           <line class="dg-rule" x1="1" y1="26" x2="340" y2="26"/>
           <line class="dg-rule" x1="400" y1="26" x2="759" y2="26"/>
@@ -828,9 +833,21 @@
           <text class="dg-l" x="650" y="58">{1.65초}</text>
           <text class="dg-l" x="655" y="98">{1.70초}</text>
         </svg>
+        <!-- 선택: 일부러 멈춘 단계 (SKILL.md "a hold"). 선은 회색 그대로 멈춤 표시(.dg-hold, 세로 막대 둘)까지 가고 화살촉은 없다. 그 뒤는 점선 화살표와 점선 상자(흐리게 하지 않음).
+             "보류" 한 마디는 표시 가운데, 막대 아래 14px. 빨간색은 쓰지 않는다.
+        <svg viewBox="0 0 458 56" width="458" height="56" role="img" aria-label="{어느 단계 앞에서 멈춰 있는지 한 문장}">
+          <rect class="dg-box" x="1" y="1" width="150" height="40" rx="6"/>
+          <line class="dg-arrow" x1="157" y1="21" x2="182" y2="21"/>
+          <g class="dg-hold"><line x1="188" y1="15" x2="188" y2="27"/><line x1="194" y1="15" x2="194" y2="27"/></g>
+          <line class="dg-arrow absent" x1="202" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
+          <rect class="dg-box absent" x="306" y="1" width="150" height="40" rx="6"/>
+          <text class="dg-l" x="76" y="25" text-anchor="middle">{끝난 단계}</text>
+          <text class="dg-l" x="381" y="25" text-anchor="middle">{아직 시작하지 않은 단계}</text>
+          <text class="dg-s dg-wait" x="191" y="41" text-anchor="middle">보류</text>
+        </svg> -->
         <!-- 선택: 한 전체를 부분으로 나눈 막대 (SKILL.md "A bar split into parts"). 한 행에 막대 하나, 조각 사이 1px, 값은 조각 안(.dg-in, 회색 조각은 .dg-in ink).
              조각이 값의 글자 폭 + 8보다 좁거나 값이 0이면 그 값만 막대 끝 6px 뒤에 .dg-out으로, 조각 순서대로, 그 부분의 색(dg-out dg-em, dg-out dg-bad)으로 적는다. 부분의 이름은 막대 옆에 쓰지 않고 그림 아래 범례에 한 번 쓴다.
-        <svg viewBox="0 0 760 91" role="img" aria-label="{전체 N건이 조건마다 어떻게 나뉘는지 한 문장}">
+        <svg viewBox="0 0 760 91" width="760" height="91" role="img" aria-label="{전체 N건이 조건마다 어떻게 나뉘는지 한 문장}">
           <text class="dg-t" x="1" y="14">{전체의 이름과 크기}</text><line class="dg-rule" x1="1" y1="26" x2="759" y2="26"/>
           <text class="dg-l dg-row" x="1" y="58">{조건 1}</text>
           <rect class="dg-bar em" x="110" y="42" width="340" height="22" rx="2"/><rect class="dg-bar bad" x="451" y="42" width="211" height="22" rx="2"/><rect class="dg-bar" x="663" y="42" width="57" height="22" rx="2"/>
@@ -852,7 +869,7 @@
   <!-- CLOSE: 상자 없음. 위에 h2를 두지 않는다. 페이지는 여기서 끝난다. -->
   <div class="close">
     <div class="k">정리</div>
-    <div class="t">{결정 하나를 말하는 한 문장, 45자 안, 쉼표 1개 이하. 조건과 대안은 아래 문단으로}</div>
+    <div class="t">{읽는 사람이 가져갈 한 문장: 결정, 판정, 또는 동작의 요점. 45자 안, 쉼표 1개 이하. 조건과 대안은 아래 문단으로}</div>
     <p>{그 결정의 이유나 조건 한두 문장. 남은 확인이 있으면 마지막 문장. 진행 메모는 여기 아니라 해당 beat에}</p>
   </div>
 

@@ -99,26 +99,28 @@
   .hero .facts dd{ margin:0; font-size:16px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
 
   /* ── outline: a nested table of contents inside the cover. Top-level rows are separated by hairlines; a sub-row is a
-     nested <ol> under its parent's title and uses the same 32px number column, so every title starts on one of two
+     nested <ol> under its parent's title and uses the same 36px number column, so every title starts on one of two
      vertical lines. No label, no card. */
   .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
   .outline ol{ list-style:none; margin:0; padding:0; }
-  .outline > ol > li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
-  .outline li b{ font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--brand); }
+  .outline > ol > li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); }
   .outline ol ol{ grid-column:2; margin-top:6px; display:flex; flex-direction:column; gap:3px; }
-  .outline ol ol li{ display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
-  .outline ol ol li b{ color:var(--faint); font-size:11.5px; }
+  .outline ol ol li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
+  .outline ol ol li b{ color:var(--faint); font-size:14px; }
   .outline a{ color:inherit; text-decoration:none; }
   .outline a:hover{ color:var(--brand); }
 
   /* ── section hierarchy (eli5 copy; the other three skills still carry the pre-Lift block) ──
      Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills with the scroll
      ratio, every top-level section opens with a hairline and a number line (`1 / 4`), and a beat inside a grouped
-     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text. */
+     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text.
+     A number is set at the size of the text it sits beside (outline 15px and 14px) or one step under its heading
+     (section 16px under a 21px h2, beat 14.5px under a 17.5px h3). */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--brand); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:1px solid var(--line); padding-top:28px; margin-top:56px; }
   .shell > .sec-top:first-child{ border-top:none; margin-top:44px; padding-top:0; }  /* the first section sits under the cover without a second rule */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 8px; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
+  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 6px; font-family:var(--mono); font-size:16px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
   .sec-no b{ color:var(--brand); font-weight:700; }
   .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; }
   /* deck: the fact under a short heading. The heading names what the figure is about (a noun phrase, about 20 characters);
@@ -132,7 +134,7 @@
   .sec-top .beat + .beat{ position:relative; padding-top:28px; }
   .sec-top .beat + .beat::before{ content:""; position:absolute; top:0; left:0; width:120px; height:1px; background:var(--line); }
   .sub-h{ margin:0 0 14px; }
-  .sub-no{ font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
+  .sub-no{ font-family:var(--mono); font-size:14.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
   .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
   .sub-h .deck{ margin-bottom:0; }
 
@@ -455,9 +457,11 @@
           <line class="dg-arrow" x1="205" y1="100" x2="320" y2="100" marker-end="url(#ar1)"/>
           <rect class="dg-box" x="335" y="56" width="150" height="88" rx="6"/>
           <!-- shapes take the stroke classes (dg-box, dg-arrow, dg-head, dg-cell), never stroke="currentColor" with a width of their own.
-               a failure: the line leaves the box in red, stops short, and the X sits ON the line where it stops; the unreachable box is dashed (absent), opacity .6 at the least -->
-          <line class="dg-arrow bad" x1="500" y1="100" x2="518" y2="100"/>
-          <g stroke="var(--red)" stroke-width="2.6" stroke-linecap="round"><line x1="520" y1="91" x2="538" y2="109"/><line x1="538" y1="91" x2="520" y2="109"/></g>
+               a failure: the line leaves the box in red and stops at a small X ON the line (10px, stroke 1.6: close to the line's own weight, never the heaviest mark of the figure);
+               a dashed arrow (absent) carries on from 8px past the X to the unreachable box, so the reader sees where the line was going; that box is dashed (absent), opacity .6 at the least -->
+          <line class="dg-arrow bad" x1="500" y1="100" x2="522" y2="100"/>
+          <g stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"><line x1="524" y1="95" x2="534" y2="105"/><line x1="534" y1="95" x2="524" y2="105"/></g>
+          <line class="dg-arrow absent" x1="542" y1="100" x2="588" y2="100" marker-end="url(#ar1)"/>
           <rect class="dg-box absent" x="590" y="56" width="130" height="88" rx="6" opacity=".6"/>
           <!-- labels last: text paints over the shapes (rule 6) -->
           <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>

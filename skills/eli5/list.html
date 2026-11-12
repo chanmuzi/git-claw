@@ -1,0 +1,391 @@
+<!--
+  eli5 list (2026-11-12). Read this file only when the page needs a list (SKILL.md "A list of many items").
+  It uses the tokens of frame.html and adds no color of its own.
+
+  How to use: copy the style block below into the page's own style element, the .lm block into a .beat (the beat's
+  heading, then this block, nothing after it), and the data and script blocks to the end of the body. Fill the caption, the column names,
+  the search field's placeholder and aria-label, the three column widths on .lm, LM_CFG and the rows. Delete every
+  comment that starts with `eli5 list` and the sample rows; leave the rest of the markup as it is, including the parts a
+  setting hides.
+
+  One list per page (the ids are fixed).
+
+  Rules (LOCKED; the reasons are in docs/decisions/2026-08-eli5-history.md, 개정 2026-11-12):
+  1. Text. One caption line above the list says what the list is and how many items it has. Nothing is written
+     under the list or beside the caption: no legend, no reading guide, no gloss of an abbreviation. The
+     caption does not repeat the beat heading: when the heading already gives the count, the caption names what the
+     rows are. Text inside a row is the source's own wording or a noun-ended fragment, not a sentence.
+  2. Splitting. The first thing the reader splits by is the tab row: 5 values or fewer, each with its count, `전체`
+     first. A second criterion goes into the filter menu (LM_CFG.filter). Anything else is left to the search field.
+     The `전체` tab runs the states in LM_CFG.states order with no group heading between them: exceptions first when
+     a state is an outcome (failed, set aside, passed); the source's own order when it is only a kind, and then
+     every tone is "".
+  3. Columns. A short-value column is fixed to the width of its common values (--c-id, --c-kind, --c-state); the
+     one long-text column takes all the rest. Fixed columns plus gaps stay at 45% of the list width or less; when
+     they do not, shorten a value or move a column into the opened row. A few values longer than the common one wrap
+     inside their cell; the width is not raised for them. A category is a column, a state is a badge.
+     A short-value cell holds its value and nothing else: no reason or second label under a badge or a number. Why
+     a row got its state is an entry of the opened row; a reason the reader splits by is a state of its own.
+  4. The long-text cell. Several texts in one cell are named lines, and every row carries the same names in the
+     same order. A line with no value still appears and says so (`필요 없음`), flagged "none". The line the reader
+     judges is flagged "main"; a supporting line is flagged "dim" and is cut to one line while the row is closed.
+     A line name is 3 Hangul characters or fewer (its column is 40px). Several texts of one kind share one name with
+     a number (`이전 1`, `이전 2`), one line each.
+  5. Color. The most common state is gray. Red marks only a failed state ("bad"); green and red mark only what the
+     reader pressed in the review column.
+  6. Pages. 8 rows per page, numbered pager.
+  7. The opened row holds only what the row does not show, with no box, under the long-text column, in the
+     order the source produced it. An entry name is 9 Hangul characters or fewer. "hi" (dark text, red verdict)
+     marks only the entries that gave the row a state other than the common one; a list with no verdicts uses none.
+  8. Controls. Every control is 30px tall. Only a field that takes typing has a border; icon buttons have none. A
+     button answers through a bubble attached to it: above the button when it only reports, below when it asks.
+  9. Review column (LM_CFG.review). Set it to true only when the user said they will judge the rows themselves.
+     If they did not say so and the list looks like something a person will sign off row by row, ask before
+     building. Marks stay in the browser as a draft; the copy button copies them as text. The send button appears
+     only where the page runs as a published artifact with a database and asks before sending: when you publish a
+     page whose review column is on, declare the capabilities `db` and `user`; each send adds one document to the
+     `submissions` collection, which the session reads back. A local file only copies.
+-->
+
+<style>
+  /* ── list (optional; SKILL.md "A list of many items") ── */
+  .lm{ --ctl:30px; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:18px 20px 12px; }
+  .lm button, .lm input{ font:inherit; letter-spacing:inherit; }
+  .lm :focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
+  .lm svg.ic{ width:14px; height:14px; display:block; flex:none; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .lm-top{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px 12px; min-height:var(--ctl); }
+  .lm .res-cap{ margin:0; }
+  .lm .rv{ display:inline-flex; align-items:center; gap:6px; }
+  .lm .anc{ position:relative; display:inline-flex; }
+  /* icon button: no border. A field that takes typing is the only bordered control. */
+  .lm .ib{ display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:var(--ctl); height:var(--ctl); padding:0 7px; border:0; border-radius:var(--r); background:none; color:var(--sub); font-size:12.5px; cursor:pointer; white-space:nowrap; }
+  .lm .ib:hover:not(:disabled), .lm .ib[aria-expanded="true"]{ background:var(--n100); color:var(--ink); }
+  .lm .ib:disabled{ color:var(--n300); cursor:default; }
+  .lm .ib[data-on]{ background:var(--n100); color:var(--ink); padding:0 10px 0 8px; }
+  .lm .ib.done{ color:var(--green); }
+  .lm .gb{ display:inline-flex; align-items:center; justify-content:center; height:var(--ctl); padding:0 10px; font-size:12.5px; font-weight:500; border:1px solid var(--line); border-radius:var(--r); background:var(--bg); color:var(--ink); cursor:pointer; white-space:nowrap; }
+  .lm .gb:hover{ border-color:var(--n300); }
+  .lm .gb.fill{ background:var(--ink); border-color:var(--ink); color:var(--bg); font-weight:600; }
+  .lm .gb.fill:hover{ background:var(--n700); border-color:var(--n700); }
+  /* bubbles: a menu or a question hangs below its button, a report sits above it; both point at the button */
+  .lm .pop{ position:absolute; top:calc(100% + 6px); right:0; z-index:20; min-width:168px; background:var(--bg); border:1px solid var(--line); border-radius:var(--r); box-shadow:0 6px 20px rgba(0,0,0,.10); padding:4px; font-size:13px; color:var(--ink); }
+  .lm .pop.menu button{ display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; height:var(--ctl); padding:0 8px; border:0; border-radius:6px; background:none; color:var(--sub); font-size:13px; cursor:pointer; text-align:left; }
+  .lm .pop.menu button:hover{ background:var(--n100); color:var(--ink); }
+  .lm .pop.menu button svg{ visibility:hidden; }
+  .lm .pop.menu button[aria-checked="true"]{ color:var(--ink); font-weight:600; }
+  .lm .pop.menu button[aria-checked="true"] svg{ visibility:visible; }
+  .lm .pop.ask{ width:216px; padding:14px; right:-6px; top:calc(100% + 9px); }
+  .lm .pop.ask::before{ content:""; position:absolute; top:-5px; right:16px; width:8px; height:8px; background:var(--bg); border-left:1px solid var(--line); border-top:1px solid var(--line); transform:rotate(45deg); }
+  .lm .pop.ask > b{ display:block; font-size:13.5px; font-weight:600; line-height:1.4; }
+  .lm .ask-n{ display:flex; gap:16px; margin:10px 0 14px; padding:8px 10px; border-radius:6px; background:var(--panel); font-size:12.5px; color:var(--sub); font-variant-numeric:tabular-nums; }
+  .lm .ask-n span{ display:inline-flex; align-items:center; gap:5px; }
+  .lm .ask-n b{ color:var(--ink); font-weight:600; }
+  .lm .ask-n .ok svg{ color:var(--green); }
+  .lm .ask-n .bad svg{ color:var(--red); }
+  .lm .ask-b{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .lm .tip{ position:absolute; bottom:calc(100% + 8px); right:-6px; z-index:20; padding:5px 9px; border-radius:6px; background:var(--n800); color:var(--n0); font-size:12px; white-space:nowrap; pointer-events:none; }
+  .lm .tip::after{ content:""; position:absolute; top:100%; right:16px; border:5px solid transparent; border-top-color:var(--n800); }
+  .lm .tip.err{ background:var(--red); color:#fff; }
+  .lm .tip.err::after{ border-top-color:var(--red); }
+
+  /* toolbar: tabs on the left, the filter button and the search field on the right, on the rule that opens the table */
+  .lm .tb{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:8px 16px; margin-top:10px; border-bottom:1px solid var(--n300); }
+  .lm .tabs{ display:flex; gap:22px; }
+  .lm .tabs button{ display:inline-flex; align-items:baseline; gap:6px; padding:8px 0 9px; margin-bottom:-1px; border:0; border-bottom:2px solid transparent; background:none; font-size:13.5px; color:var(--faint); cursor:pointer; white-space:nowrap; }
+  .lm .tabs button:hover{ color:var(--ink); }
+  .lm .tabs button[aria-selected="true"]{ color:var(--ink); font-weight:600; border-bottom-color:var(--ink); }
+  .lm .tabs button i{ font-style:normal; font-weight:400; font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums; }
+  .lm .tabs button:focus-visible{ outline-offset:-2px; }
+  .lm .tb-r{ display:flex; gap:8px; align-items:center; padding-bottom:8px; }
+  .lm .find{ display:inline-flex; align-items:center; gap:7px; width:200px; height:var(--ctl); padding-left:9px; border:1px solid var(--line); border-radius:var(--r); background:var(--bg); color:var(--sub); }
+  .lm .find:focus-within{ border-color:var(--brand); }
+  .lm .find input{ flex:1; min-width:0; height:100%; padding:0 10px 0 0; border:0; background:none; color:var(--ink); font-size:12.5px; outline:none; }
+  .lm .find input::placeholder{ color:var(--faint); }
+  .lm .find input::-webkit-search-cancel-button{ -webkit-appearance:none; }
+
+  /* rows. Gaps: 14px between columns, 8px between the state and the review column (they are read as a pair). */
+  .lm-head, .lm .rw{ display:grid; grid-template-columns:minmax(0,1fr) 58px; column-gap:8px; }
+  .lm-head > span:first-child, .lm .rw-open{ display:grid; grid-template-columns:var(--c-id) var(--c-kind) minmax(0,1fr) var(--c-state); column-gap:14px; }
+  .lm-head{ padding:8px 0; border-bottom:1px solid var(--line); font-size:11.5px; font-weight:600; letter-spacing:.03em; color:var(--faint); }
+  .lm-empty{ padding:28px 0; text-align:center; color:var(--faint); font-size:13px; border-bottom:1px solid var(--line); }
+  .lm .rw{ border-bottom:1px solid var(--line); align-items:start; }
+  .lm .rw-open{ align-items:start; text-align:left; padding:12px 0; border:0; background:none; color:inherit; cursor:pointer; min-width:0; }
+  .lm .rw-open:focus-visible{ outline-offset:-2px; }
+  .lm .rw-id{ font-family:var(--mono); font-size:11.5px; line-height:1.6; color:var(--sub); overflow-wrap:anywhere; padding-top:1px; }
+  .lm .rw-kind{ font-size:12.5px; line-height:1.55; color:var(--sub); word-break:keep-all; }
+  .lm .rw-c{ display:grid; row-gap:2px; min-width:0; }
+  .lm .ql{ display:grid; grid-template-columns:40px minmax(0,1fr); column-gap:8px; align-items:baseline; font-size:13px; line-height:1.55; color:var(--sub); }
+  .lm .ql i{ font-style:normal; font-size:11.5px; color:var(--faint); white-space:nowrap; }
+  .lm .ql > span{ min-width:0; word-break:keep-all; overflow-wrap:anywhere; color:var(--ink); }
+  .lm .ql.dim > span{ display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:1; overflow:hidden; color:var(--faint); }  /* a clamp, not nowrap: nothing scrolls sideways */
+  .lm .rw[data-open] .ql.dim > span{ display:block; overflow:visible; }
+  .lm .ql.main > span{ font-size:14px; font-weight:600; }
+  .lm .ql.none > span{ color:var(--faint); }
+  .lm .rw-open:hover .ql.main > span{ text-decoration:underline; text-decoration-color:var(--n300); text-underline-offset:3px; }
+  .lm .rw-res{ display:grid; justify-items:start; row-gap:4px; font-size:11.5px; line-height:1.4; color:var(--faint); word-break:keep-all; }
+  .lm .bd{ display:inline-block; height:20px; line-height:20px; padding:0 8px; border-radius:10px; font-size:11.5px; font-weight:600; white-space:nowrap; color:var(--sub); box-shadow:inset 0 0 0 1px var(--line); }
+  .lm .bd.mute{ background:var(--n200); box-shadow:none; }
+  .lm .bd.bad{ background:var(--red-soft); color:var(--red); box-shadow:none; }
+  .lm .rw-lab{ display:flex; gap:2px; padding-top:8px; }
+  .lm .mk{ width:28px; height:28px; padding:0; display:grid; place-items:center; border:0; border-radius:var(--r); background:none; color:var(--n500); cursor:pointer; }
+  .lm .mk:hover{ background:var(--n100); color:var(--ink); }
+  .lm .mk.ok[aria-pressed="true"]{ background:var(--green-soft); color:var(--green); }
+  .lm .mk.bad[aria-pressed="true"]{ background:var(--red-soft); color:var(--red); }
+  /* a row opens by growing its grid track, so it slides instead of jumping */
+  .lm .rw-fold{ grid-column:1 / -1; display:grid; grid-template-rows:0fr; transition:grid-template-rows .22s ease; }
+  .lm .rw[data-open] .rw-fold{ grid-template-rows:1fr; }
+  .lm .rw-fold > div{ min-height:0; overflow:hidden; opacity:0; transition:opacity .22s ease; }
+  .lm .rw[data-open] .rw-fold > div{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){ .lm .rw-fold, .lm .rw-fold > div{ transition:none; } }
+  .lm .rw-more{ margin:0 66px 16px calc(var(--c-id) + var(--c-kind) + 28px); padding-top:12px; border-top:1px solid var(--line); }
+  .lm .dt{ margin:0; display:grid; grid-template-columns:118px minmax(0,1fr); gap:6px 14px; font-size:13px; line-height:1.55; }
+  .lm .dt dt{ color:var(--faint); font-size:12px; padding-top:1px; overflow-wrap:anywhere; }
+  .lm .dt dd{ margin:0; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; }
+  .lm .dt dd b{ font-weight:600; margin-right:6px; }
+  .lm .dt dd.hi{ color:var(--ink); }
+  .lm .dt dd.hi b{ color:var(--red); }
+  .lm .dt .h{ grid-column:1 / -1; padding-top:8px; margin-top:4px; border-top:1px solid var(--line); font-size:12px; font-weight:600; color:var(--sub); }
+  .lm .dt .h:first-child{ padding-top:0; margin-top:0; border-top:0; }
+  .lm .memo{ margin-top:10px; }
+  .lm .memo input{ width:100%; height:var(--ctl); font-size:13px; padding:0 10px; border:1px solid var(--line); border-radius:var(--r); background:var(--bg); color:var(--ink); }
+  .lm .memo input::placeholder{ color:var(--faint); }
+  .lm-foot{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 12px; padding-top:10px; font-size:12.5px; color:var(--faint); font-variant-numeric:tabular-nums; }
+  .lm .pg{ display:inline-flex; align-items:center; gap:2px; }
+  .lm .pg button{ min-width:var(--ctl); height:var(--ctl); padding:0 8px; border:0; border-radius:var(--r); background:none; font-size:12.5px; color:var(--sub); cursor:pointer; font-variant-numeric:tabular-nums; }
+  .lm .pg button:hover:not(:disabled){ background:var(--n100); color:var(--ink); }
+  .lm .pg button[aria-current="page"]{ background:var(--n200); color:var(--ink); font-weight:600; }
+  .lm .pg button:disabled{ color:var(--n300); cursor:default; }
+  .lm .pg span{ padding:0 4px; }
+  /* a list without a category column, a list without the review column */
+  .lm.no-kind .h-kind, .lm.no-kind .rw-kind{ display:none; }
+  .lm.no-kind .lm-head > span:first-child, .lm.no-kind .rw-open{ grid-template-columns:var(--c-id) minmax(0,1fr) var(--c-state); }
+  .lm.no-kind .rw-more{ margin-left:calc(var(--c-id) + 14px); }
+  .lm.no-review .rv, .lm.no-review .h-review, .lm.no-review .rw-lab, .lm.no-review .memo{ display:none; }
+  .lm.no-review .lm-head, .lm.no-review .rw{ grid-template-columns:minmax(0,1fr); }
+  .lm.no-review .rw-more{ margin-right:0; }
+  .lm [hidden]{ display:none !important; }
+  @media (max-width:720px){
+    .lm{ padding:14px 14px 12px; }
+    .lm .tabs{ gap:16px; }
+    .lm .tb-r{ width:100%; }
+    .lm .pop.menu{ right:auto; left:0; }
+    .lm .find{ flex:1; width:auto; }
+    .lm-head{ display:none; }
+    .lm .rw{ grid-template-columns:minmax(0,1fr) auto; }
+    .lm .rw-open, .lm.no-kind .rw-open{ grid-template-columns:auto minmax(0,1fr); row-gap:6px; }
+    .lm .rw-c{ grid-column:1 / -1; }
+    .lm .rw-res{ grid-column:1 / -1; grid-auto-flow:column; justify-content:start; column-gap:8px; align-items:center; }
+    .lm .rw-more, .lm.no-kind .rw-more{ margin:0 0 14px; }
+    .lm .dt{ grid-template-columns:minmax(0,1fr); gap:2px; }
+    .lm .dt dt{ margin-top:6px; }
+  }
+</style>
+
+<!-- eli5 list markup: goes inside a .beat, after the beat's heading. The three widths are this list's fixed columns (rule 3). -->
+<div class="lm" id="lm" style="--c-id:108px; --c-kind:76px; --c-state:64px;">
+  <div class="lm-top">
+    <p class="res-cap"><b>{무엇의 목록인지와 건수}</b></p>
+    <div class="rv">
+      <span class="anc"><button type="button" class="ib" id="lm-copy" aria-label="검수 결과 복사" title="검수 결과 복사"></button><span class="tip" id="lm-tip-copy" role="status" hidden></span></span>
+      <span class="anc" id="lm-send-box" hidden><button type="button" class="ib" id="lm-send" aria-label="검수 결과 보내기" title="검수 결과 보내기" aria-haspopup="dialog" aria-expanded="false"></button><span class="tip" id="lm-tip-send" role="status" hidden></span>
+        <div class="pop ask" id="lm-ask" role="dialog" aria-label="검수 결과 보내기" hidden><b>세션에 보낼까요?</b><div class="ask-n" id="lm-ask-n"></div><div class="ask-b"><button type="button" class="gb" id="lm-ask-no">취소</button><button type="button" class="gb fill" id="lm-ask-yes">보내기</button></div></div></span>
+    </div>
+  </div>
+  <div class="tb">
+    <div class="tabs" role="tablist" id="lm-tabs"></div>
+    <div class="tb-r">
+      <span class="anc" id="lm-filter-box"><button type="button" class="ib" id="lm-filter" aria-haspopup="menu" aria-expanded="false" aria-label="거르기" title="거르기"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M4.5 8h7M6.5 12h3"/></svg><span id="lm-filter-cur" hidden></span></button><div class="pop menu" id="lm-menu" role="menu" hidden></div></span>
+      <label class="find"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg><input type="search" id="lm-q" placeholder="{무엇을 찾는지: 번호, 질문 검색}" aria-label="{무엇을 찾는지}"></label>
+    </div>
+  </div>
+  <div class="lm-head" aria-hidden="true"><span><span>{번호 열 이름}</span><span class="h-kind">{분류 열 이름}</span><span>{긴 글 열 이름}</span><span>{상태 열 이름}</span></span><span class="h-review">검수</span></div>
+  <div id="lm-list"></div>
+  <div class="lm-foot"><span id="lm-count"></span><span class="pg" id="lm-pg"></span></div>
+</div>
+
+<!-- eli5 list rows: one object per item.
+     id     the item's own identifier, as the source writes it. Unique across rows (it keys the review marks): when
+            the source has none or repeats one, number the rows
+     kind   its category (leave it out of every row when the list has no category column)
+     state  a key of LM_CFG.states (the badge is the whole cell; the reason goes into `more`)
+     f      the first element of one of LM_CFG.filter.options (leave out when LM_CFG.filter is null)
+     lines  [name, text, flag]: the named lines of the long-text cell, same names and order in every row.
+            flag "main" = the line the reader judges, "dim" = a supporting line, "none" = no value (text says so)
+     more   the opened row: ["#", heading] or [name, verdict, text, flag]. verdict may be ""; flag "hi" = to be judged -->
+<script type="application/json" id="lm-data">[
+  {"id":"{번호}","kind":"{분류}","state":"fail","f":"a",
+   "lines":[["{이름 1}","{보조 글}","dim"],["{이름 2}","{독자가 판단할 글}","main"],["{이름 3}","필요 없음","none"]],
+   "more":[["{상태의 이유}","","{왜 이 상태인지}","hi"],["#","{묶음 이름}"],["{누가}","{판정}","{근거}","hi"],["{누가}","{판정}","{근거}"]]},
+  {"id":"{번호}","kind":"{분류}","state":"pass","f":"b",
+   "lines":[["{이름 1}","{보조 글}","dim"],["{이름 2}","{독자가 판단할 글}","main"],["{이름 3}","{값}"]],
+   "more":[["#","{묶음 이름}"],["{누가}","{판정}","{근거}"]]}
+]</script>
+<script>
+/* list: tabs, filter menu, search, pages, rows that slide open, review marks with copy and send */
+(function(){
+  var LM_CFG = {
+    name: "{복사한 글의 첫 줄에 들어갈 목록 이름}",
+    /* [key, label, tone] in the order the `전체` tab shows them: exceptions first, the common state last.
+       tone "bad" = failed (red), "mute" = set aside (gray fill), "" = the common state (outline) */
+    states: [["fail", "{실패}", "bad"], ["pass", "{통과}", ""]],
+    /* the second criterion, or null: { all: label of "no filter", options: [[value of row.f, label], ...] } */
+    filter: { all: "{기준 전체}", options: [["a", "{값 1}"], ["b", "{값 2}"]] },
+    review: false,   /* true only when the user will judge the rows themselves (rule 9) */
+    per: 8
+  };
+
+  var D = JSON.parse(document.getElementById("lm-data").textContent), el = document.getElementById("lm");
+  var IC = {
+    ok:'<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>',
+    bad:'<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
+    copy:'<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M3 10.5V4A1.5 1.5 0 0 1 4.5 2.5H10"/></svg>',
+    send:'<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 2L7 9M14 2L9.5 14 7 9 2 6.5z"/></svg>'
+  };
+  var ST = {}, ORDER = LM_CFG.states.map(function(s){ ST[s[0]] = s; return s[0]; });
+  var S = { tab:"all", f:"all", q:"", page:0 };
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); }
+  function hay(r){ return (r.id + " " + r.lines.map(function(l){ return l[1]; }).join(" ")).toLowerCase(); }
+  if (!D.some(function(r){ return r.kind; })) el.classList.add("no-kind");
+  if (!LM_CFG.review) el.classList.add("no-review");
+  if (!LM_CFG.filter) $("lm-filter-box").hidden = true;
+
+  /* review marks: a draft in this browser until copied or sent */
+  var L = {}, LS = "lm-review:" + LM_CFG.name;
+  try{ L = JSON.parse(localStorage.getItem(LS) || "{}") || {}; }catch(e){ L = {}; }
+  function save(){ try{ localStorage.setItem(LS, JSON.stringify(L)); }catch(e){} }
+  function tally(){ var ok = 0, bad = 0; Object.keys(L).forEach(function(k){ if (L[k].v === "ok") ok++; else bad++; }); return { ok:ok, bad:bad }; }
+  function sum(){ var t = tally(); return "타당 " + t.ok + "건, 문제 " + t.bad + "건"; }
+
+  function more(r){
+    return '<dl class="dt">' + (r.more || []).map(function(m){
+      if (m[0] === "#") return '<div class="h">' + esc(m[1]) + "</div>";
+      return "<dt>" + esc(m[0]) + "</dt><dd" + (m[3] === "hi" ? ' class="hi"' : "") + ">" + (m[1] ? "<b>" + esc(m[1]) + "</b>" : "") + esc(m[2]) + "</dd>";
+    }).join("") + "</dl>";
+  }
+  function row(r){
+    var s = ST[r.state] || [r.state, r.state, ""], id = esc(r.id);
+    return '<div class="rw" data-id="' + id + '"><button type="button" class="rw-open" aria-expanded="false">' +
+      '<span class="rw-id">' + id + '</span><span class="rw-kind">' + esc(r.kind) + '</span><span class="rw-c">' +
+      r.lines.map(function(l){ return '<span class="ql ' + (l[2] || "") + '"><i>' + esc(l[0]) + "</i><span>" + esc(l[1]) + "</span></span>"; }).join("") +
+      '</span><span class="rw-res"><span class="bd ' + s[2] + '">' + esc(s[1]) + "</span></span></button>" +
+      '<div class="rw-lab"><button type="button" class="mk ok" data-mark="ok" aria-label="타당" title="타당" aria-pressed="false">' + IC.ok + '</button><button type="button" class="mk bad" data-mark="bad" aria-label="문제" title="문제" aria-pressed="false">' + IC.bad + "</button></div>" +
+      '<div class="rw-fold" inert><div><div class="rw-more">' + more(r) +
+      '<div class="memo" hidden><input type="text" id="lm-memo-' + id + '" data-memo placeholder="무엇이 문제인지 (선택)" aria-label="문제 메모"></div></div></div></div></div>';
+  }
+  function draw(){
+    var all = D.filter(function(r){ return (S.f === "all" || r.f === S.f) && (!S.q || hay(r).indexOf(S.q) >= 0); });
+    $("lm-tabs").innerHTML = ["all"].concat(ORDER).map(function(k){
+      var n = all.filter(function(r){ return k === "all" || r.state === k; }).length;
+      return '<button type="button" role="tab" data-tab="' + k + '" aria-selected="' + (S.tab === k) + '">' + (k === "all" ? "전체" : esc(ST[k][1])) + "<i>" + n + "</i></button>";
+    }).join("");
+    var rows = S.tab === "all" ? ORDER.reduce(function(a, k){ return a.concat(all.filter(function(r){ return r.state === k; })); }, []) : all.filter(function(r){ return r.state === S.tab; });
+    var per = LM_CFG.per, pages = Math.max(1, Math.ceil(rows.length / per)); S.page = Math.min(Math.max(0, S.page), pages - 1);
+    var a = S.page * per, part = rows.slice(a, a + per), pg = "", last = -1;
+    $("lm-list").innerHTML = part.map(row).join("") || '<div class="lm-empty">조건에 맞는 항목이 없어요</div>';
+    $("lm-count").textContent = rows.length ? rows.length + "건 중 " + (a + 1) + "~" + (a + part.length) : "0건";
+    for (var i = 0; i < pages; i++){
+      if (pages > 9 && i > 0 && i < pages - 1 && Math.abs(i - S.page) > 2) continue;   /* long lists: first, last, and two on each side */
+      if (i - last > 1) pg += "<span>…</span>";
+      pg += '<button type="button" data-page="' + i + '"' + (i === S.page ? ' aria-current="page"' : "") + ">" + (i + 1) + "</button>"; last = i;
+    }
+    $("lm-pg").innerHTML = pages > 1 ? '<button type="button" data-page="' + (S.page - 1) + '"' + (S.page === 0 ? " disabled" : "") + ' aria-label="이전 쪽">‹</button>' + pg + '<button type="button" data-page="' + (S.page + 1) + '"' + (S.page >= pages - 1 ? " disabled" : "") + ' aria-label="다음 쪽">›</button>' : "";
+    sync();
+  }
+  /* marks change in place: no redraw, so an open row stays open and nothing jumps */
+  function sync(){
+    Array.prototype.forEach.call($("lm-list").querySelectorAll(".rw"), function(rw){
+      var l = L[rw.getAttribute("data-id")], v = l && l.v, m = rw.querySelector(".memo"), inp = m.querySelector("input");
+      Array.prototype.forEach.call(rw.querySelectorAll("[data-mark]"), function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-mark") === v); });
+      m.hidden = v !== "bad";
+      if (l && inp.value !== l.memo && document.activeElement !== inp) inp.value = l.memo || "";
+    });
+    var t = tally(), none = t.ok + t.bad === 0;
+    $("lm-copy").disabled = none; $("lm-send").disabled = none;
+  }
+  function open(rw, on){
+    if (on) rw.setAttribute("data-open", ""); else rw.removeAttribute("data-open");
+    rw.querySelector(".rw-open").setAttribute("aria-expanded", on);
+    rw.querySelector(".rw-fold").inert = !on;
+  }
+  el.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var rw = b.closest(".rw");
+    if (b.hasAttribute("data-tab")){ S.tab = b.getAttribute("data-tab"); S.page = 0; draw(); }
+    else if (b.hasAttribute("data-page")){ S.page = +b.getAttribute("data-page"); draw(); }
+    else if (b.classList.contains("rw-open")) open(rw, !rw.hasAttribute("data-open"));
+    else if (b.hasAttribute("data-mark")){
+      var id = rw.getAttribute("data-id"), v = b.getAttribute("data-mark");
+      if (L[id] && L[id].v === v) delete L[id]; else L[id] = { v:v, memo:(L[id] && L[id].memo) || "" };
+      save(); sync();
+      if (L[id] && v === "bad") open(rw, true);
+    }
+  });
+  el.addEventListener("input", function(e){
+    if (!e.target.hasAttribute || !e.target.hasAttribute("data-memo")) return;
+    var id = e.target.closest(".rw").getAttribute("data-id");
+    if (L[id]){ L[id].memo = e.target.value; save(); }
+  });
+  $("lm-q").addEventListener("input", function(e){ S.q = e.target.value.trim().toLowerCase(); S.page = 0; draw(); });
+
+  /* copy answers with a check and a bubble that says what was copied; send asks first */
+  var db = null, timers = {};
+  if (LM_CFG.review && window.claude && window.claude.use) window.claude.use("db").then(function(d){ db = d; $("lm-send-box").hidden = !d; }, function(){});
+  $("lm-copy").innerHTML = IC.copy; $("lm-send").innerHTML = IC.send;
+  function tip(id, text, err){
+    var t = $(id); t.textContent = text; t.className = "tip" + (err ? " err" : ""); t.hidden = false;
+    clearTimeout(timers[id]); timers[id] = setTimeout(function(){ t.hidden = true; }, 2400);
+  }
+  function done(btn, icon){ btn.innerHTML = IC.ok; btn.classList.add("done"); setTimeout(function(){ btn.innerHTML = icon; btn.classList.remove("done"); }, 1600); }
+  function closePops(){
+    $("lm-ask").hidden = true; $("lm-send").setAttribute("aria-expanded", "false");
+    $("lm-menu").hidden = true; $("lm-filter").setAttribute("aria-expanded", "false");
+  }
+  function asText(){
+    var ids = Object.keys(L), out = ["[검수 결과] " + LM_CFG.name + ", " + ids.length + "건"];
+    ids.forEach(function(k){ out.push(k + " " + (L[k].v === "ok" ? "타당" : "문제") + (L[k].memo ? ": " + L[k].memo : "")); });
+    return out.join("\n");
+  }
+  $("lm-copy").addEventListener("click", function(){
+    var b = this; closePops();
+    function fail(){ tip("lm-tip-copy", "복사하지 못했어요", true); }
+    try{ navigator.clipboard.writeText(asText()).then(function(){ done(b, IC.copy); tip("lm-tip-copy", sum() + " 복사됨"); }, fail); }catch(e){ fail(); }
+  });
+  $("lm-send").addEventListener("click", function(){
+    var was = !$("lm-ask").hidden, t = tally(); closePops(); if (was) return;
+    $("lm-ask-n").innerHTML = '<span class="ok">' + IC.ok + "타당 <b>" + t.ok + '</b></span><span class="bad">' + IC.bad + "문제 <b>" + t.bad + "</b></span>";
+    $("lm-ask").hidden = false; this.setAttribute("aria-expanded", "true"); $("lm-ask-yes").focus();
+  });
+  $("lm-ask-no").addEventListener("click", function(){ closePops(); $("lm-send").focus(); });
+  $("lm-ask-yes").addEventListener("click", function(){
+    var b = $("lm-send"), s = sum(), labels = {}; closePops();
+    Object.keys(L).forEach(function(k){ labels[k] = { v:L[k].v, memo:L[k].memo || "" }; });
+    b.disabled = true;
+    db.collection("submissions").add({ at:new Date().toISOString(), list:LM_CFG.name, total:D.length, labels:labels }).then(
+      function(){ b.disabled = false; done(b, IC.send); tip("lm-tip-send", s + " 보냄"); },
+      function(){ b.disabled = false; tip("lm-tip-send", "보내지 못했어요. 복사를 써 주세요", true); }
+    );
+  });
+
+  /* the second criterion is a menu behind the filter button; the chosen value stays on the button */
+  function menu(){
+    if (!LM_CFG.filter) return;
+    var opts = [["all", LM_CFG.filter.all]].concat(LM_CFG.filter.options), on = S.f !== "all", cur = $("lm-filter-cur"), btn = $("lm-filter");
+    $("lm-menu").innerHTML = opts.map(function(o){ return '<button type="button" role="menuitemradio" data-f="' + esc(o[0]) + '" aria-checked="' + (S.f === o[0]) + '">' + esc(o[1]) + IC.ok + "</button>"; }).join("");
+    cur.hidden = !on; cur.textContent = on ? opts.filter(function(o){ return o[0] === S.f; })[0][1] : "";
+    if (on) btn.setAttribute("data-on", ""); else btn.removeAttribute("data-on");
+  }
+  $("lm-filter").addEventListener("click", function(){
+    var was = !$("lm-menu").hidden; closePops(); if (was) return;
+    $("lm-menu").hidden = false; this.setAttribute("aria-expanded", "true");
+  });
+  $("lm-menu").addEventListener("click", function(e){
+    var b = e.target.closest("[data-f]"); if (!b) return;
+    S.f = b.getAttribute("data-f"); S.page = 0; closePops(); menu(); draw(); $("lm-filter").focus();
+  });
+  document.addEventListener("click", function(e){ if (!e.target.closest(".lm .anc")) closePops(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closePops(); });
+
+  menu(); draw();
+})();
+</script>

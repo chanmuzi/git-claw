@@ -9,7 +9,7 @@
 | [2026-07-explain-diff-micro-world-design.md](./2026-07-explain-diff-micro-world-design.md) | 두 스킬의 디자인 토큰, 산출물 구조, 퀴즈 규격 | explain-diff, micro-world | 확정 |
 | [2026-07-html-shared-design-rules.md](./2026-07-html-shared-design-rules.md) | visual-doc의 두 층 구조와 HTML 스킬 공유 디자인 규칙 (전환 버튼, 코드 블록, 문장 규칙, 렌더 측정) | HTML 스킬 4개 | 확정, 개정 7건 |
 | [2026-08-eli5.md](./2026-08-eli5.md) | eli5 결정의 현재 상태와 개정 목록 | eli5 | 확정 |
-| [2026-08-eli5-history.md](./2026-08-eli5-history.md) | eli5 원본 결정과 개정 본문 21건 | eli5 | 기록 |
+| [2026-08-eli5-history.md](./2026-08-eli5-history.md) | eli5 원본 결정과 개정 본문 22건 | eli5 | 기록 |
 | [2026-10-heading-hierarchy.md](./2026-10-heading-hierarchy.md) | 제목 규칙, 산출물 언어 구성안, 위치 표시 | 스킬 10개 | 확정 |
 | [2026-10-machine-writing-symbols.md](./2026-10-machine-writing-symbols.md) | 기계 문장 기호 금지 | 스킬 10개 | 확정 |
 | [2026-11-doc-routing.md](./2026-11-doc-routing.md) | `AGENTS.md`의 작업별 문서 표와 문서 분리 (계획 문서: [html](./2026-11-doc-routing.html)) | 저장소 전체 | 확정 |

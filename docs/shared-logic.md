@@ -20,7 +20,7 @@
 | 10 | 코드 칩 줄바꿈 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `inline code chip wrapping (SHARED` | docs/decisions/2026-07-html-shared-design-rules.md |
 | 11 | 부가 텍스트 금지와 말투 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `No redundant or meta text` | docs/decisions/2026-08-eli5.md |
 | 12 | 제목 아래 줄 없음과 숫자 한 곳 | `eli5` (현재 단독) | `One number, one place` | docs/decisions/2026-08-eli5.md |
-| 13 | 산문 원문 카드 | `eli5` (현재 단독) | `.prose-card` | docs/decisions/2026-08-eli5.md |
+| 13 | 산문 원문 카드와 프롬프트 카드 | `eli5` (현재 단독) | `.prose-card` | docs/decisions/2026-08-eli5.md |
 | 14 | 텍스트 스킬 글쓰기 규칙 | `commit`, `pr`, `issue`, `review-reply`, `code-review`, `handoff` | `Writing rules (shared across commit` | docs/decisions/2026-10-machine-writing-symbols.md, docs/decisions/2026-10-heading-hierarchy.md |
 | 15 | 제목 규칙과 산출물 언어 구성안 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `Headings are answers, not frames` | docs/decisions/2026-10-heading-hierarchy.md |
 | 16 | 위치 표시 | `eli5`, `visual-doc`, `explain-diff`, `micro-world` | `section hierarchy (SHARED` | docs/decisions/2026-10-heading-hierarchy.md, docs/decisions/2026-08-eli5.md |
@@ -73,7 +73,7 @@
 
 - 범위: 손으로 쓴 SVG 그림 규칙 (그리기 규칙 6항목, `Fit the text before you draw` 산술, `figure labels (SHARED` CSS 블록)
 - 관련 스킬: `eli5`, `visual-doc`, `explain-diff`
-- 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 이름으로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`, `.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). 값은 2026-11-09 Lift 개정 뒤 eli5만 다르다(`.dg-s` 본문 글꼴 11.5px와 `.dg-s.code`, `.dg-q` 14px 600, `.dg-cap` 11.5px 700과 `.dg-pill`의 가는 테두리): visual-doc, explain-diff 블록을 eli5에 복사하지 않는다. 글자 폭 표의 `.dg-cap` 행도 eli5만 11.5px 실측값(한글 11.5, 숫자 7, 공백 3.5)이고 나머지 둘은 12px 행(한글 13, 영숫자 10, 공백 5)이다: CSS 크기를 바꾸면 표 행을 같이 바꾼다 (2026-11-09 캡션 칩 폭 사고). 글자 폭 표의 `.dg-t` 행과 4번 규칙의 `.dg-t` 세로 범위도 eli5에만 있다 (2026-11-11 2차): visual-doc, explain-diff의 산술 문단을 eli5에 덮어쓰지 않는다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다
+- 산술 문단은 세 SKILL.md에 같은 글로 들어 있고 viewBox 상한과 그 상한에 맞춘 배치 계획 예시만 다르다 (eli5 840, visual-doc 750, explain-diff 720). 상한은 카드 안 그림의 실제 폭(782, 700, 668px) × 13/12 이하로 잡는다. `.dg-*` 라벨 CSS는 세 템플릿에 같은 이름으로 들어 있다 (두 상태 비교 그림용 선택 클래스 `.dg-pill`, `.dg-cap` 상태 캡션과 `.dg-q` 주인공 문자열 포함). 값은 2026-11-09 Lift 개정 뒤 eli5만 다르다(`.dg-s` 본문 글꼴 11.5px와 `.dg-s.code`, `.dg-q` 14px 600, `.dg-cap` 11.5px 700과 `.dg-pill`의 가는 테두리): visual-doc, explain-diff 블록을 eli5에 복사하지 않는다. 글자 폭 표의 `.dg-cap` 행도 eli5만 11.5px 실측값(한글 11.5, 숫자 7, 공백 3.5)이고 나머지 둘은 12px 행(한글 13, 영숫자 10, 공백 5)이다: CSS 크기를 바꾸면 표 행을 같이 바꾼다 (2026-11-09 캡션 칩 폭 사고). 글자 폭 표의 `.dg-t` 행과 4번 규칙의 `.dg-t` 세로 범위도 eli5에만 있다 (2026-11-11 2차): visual-doc, explain-diff의 산술 문단을 eli5에 덮어쓰지 않는다. `.fig` 컨테이너 CSS는 템플릿마다 다르다 (eli5는 카드 자체, 나머지는 카드 안). eli5는 패널이 여백(위아래 16px, 좌우 20px)을 주고 그림은 viewBox 가장자리까지 그리므로 행 예산 문장에 좌우 20이 없다 (2026-11-12 2차): 나머지 둘의 문단을 eli5에 덮어쓰지 않는다. visual-doc의 mermaid는 손으로 배치하기 어려운 큰 다이어그램용 대체 수단이다
 
 ### 8. 렌더 측정
 
@@ -109,6 +109,7 @@
 
 - 범위: 산문 원문 카드 (`.prose-card`: 프롬프트, 에러 메시지, 안내문처럼 문장으로 쓰인 원문. `.pc-h` 종류, 이름, 파일, `.pc-b` 원문 문단마다 `<p>`, 모노 12.5px, 줄 간격 1.75, 76ch, 공백만 바꿈, 강조와 꼬리표와 접기와 요약 없음)
 - 관련 스킬: `eli5` (현재 단독)
+- 프롬프트 카드(`.pv`, 2026-11-12 2차): 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나올 때의 카드 하나. 단계 이름 열, 결과는 `.cap` 하나, 토글(`.tg`, 4개부터 `.pop`)은 머리줄 오른쪽 끝, 바뀌는 블록은 `data-when`, 스크립트는 `frame.html` 끝의 `prompt card` 블록. 번역은 이 카드의 토글로만 둔다
 - 근거 카드의 네 번째 형태. 코드 인용 형태(`.ln`)로 산문을 넣거나 스킬 밖의 상자(`.prompt`)를 만들던 산출물을 대체한다. `.close` 머리 문장 규칙(45자, 쉼표 1개, 조건은 문단으로, 진행 메모 금지)도 같은 개정. visual-doc, explain-diff 이식은 eli5에서 검증한 뒤. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-09 5차)
 
 ### 14. 텍스트 스킬 글쓰기 규칙
@@ -133,7 +134,7 @@
 
 - 범위: 그림의 선 한 벌(`--dg-line`, `--dg-flow` 토큰, `.dg-box`, `.dg-arrow`, `.dg-head`, `.dg-cell`, 강조 `em`/`bad`, 없는 것 `absent`, 행 이름 `dg-l dg-row`), 마무리 줄 배지 두 종류(형광 `.lab`은 정리 머리 문장이 다시 말하는 줄에만, 테두리 `.lab.q`는 문구 목록 없이 판정 기준), 그림 안의 글(그린 것과 이름만, 읽는 데 필요한 조건은 접힌 `.res-more`, 나머지 수치는 보고서), 그림 안 제목(막대 묶음이 잰 것의 이름과 시스템 상자 이름은 `.dg-t` 13px 700, 막대 묶음 제목 아래 묶음 폭의 `.dg-rule` 선), 해설 머리 표시(번호 배지, 행 칩, 색 조각 `.sw`, 같은 글자), 구성안의 선행 확인
 - 관련 스킬: `eli5` (현재 단독)
-- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A title inside a figure is bold", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스와 `.dg-t`, `.dg-rule`은 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차, 2026-11-11 2차)
+- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A title inside a figure is bold", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. 나뉜 막대의 조각 안 값(`.dg-in`, `.dg-out`)과 그림 안 범례(`.legend`), 문장 안 색 조각, 패널 여백과 블록 간격 한 값, 표 캡션(`.res-no`, `.res-t`)과 두 단 머리글(`.res.h2`)도 eli5에만 있다 (2026-11-12 2차). `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스와 `.dg-t`, `.dg-rule`은 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차, 2026-11-11 2차)
 
 ### 18. 조작할 수 있는 그림의 조건
 

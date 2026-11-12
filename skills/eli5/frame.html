@@ -655,7 +655,7 @@
         </dl>
       </figure>
       prompt card: 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나오면 산문 카드를 늘어놓지 않고 이 카드 하나로 묶는다. 토글은 모두 머리줄 오른쪽 끝(버전, 모델 먼저, 언어 마지막).
-      토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
+      토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when, 처음 상태와 맞지 않는 블록에는 hidden도 적는다. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
       <div class="pv" data-ver="v5" data-lang="en">
         <div class="pv-h"><span class="pv-name">{프롬프트 이름}</span>
           <span class="pv-tg">
@@ -665,13 +665,13 @@
         </div>
         <div class="pv-row"><div class="pv-k">system</div><div>
           <div class="pt" data-when="ver=v5 lang=en"><p>{v5 원문 문단, 그대로}</p></div>
-          <div class="pt ko" data-when="ver=v5 lang=ko"><p>{v5 번역 문단}</p></div>
-          <div class="pt" data-when="ver=v7 lang=en"><p>{v7 원문 문단, 그대로}</p></div>
-          <div class="pt ko" data-when="ver=v7 lang=ko"><p>{v7 번역 문단}</p></div>
+          <div class="pt ko" data-when="ver=v5 lang=ko" hidden><p>{v5 번역 문단}</p></div>
+          <div class="pt" data-when="ver=v7 lang=en" hidden><p>{v7 원문 문단, 그대로}</p></div>
+          <div class="pt ko" data-when="ver=v7 lang=ko" hidden><p>{v7 번역 문단}</p></div>
         </div></div>
-        <div class="pv-row"><div class="pv-k">user <span>{입력 예의 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 입력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 입력, 그대로}</pre></div></div>
-        <div class="pv-row"><div class="pv-k">출력 <span>{모델 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 출력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 출력, 그대로}</pre></div></div>
-        <div class="pv-row"><div class="pv-k">{결과 단계의 이름: 판정, 검증}</div><div><span class="cap bad" data-when="ver=v5">{결과 이름}</span><span class="cap em" data-when="ver=v7">{결과 이름}</span></div></div>
+        <div class="pv-row"><div class="pv-k">user <span>{입력 예의 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 입력, 그대로}</pre><pre class="js" data-when="ver=v7" hidden>{v7 입력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">출력 <span>{모델 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 출력, 그대로}</pre><pre class="js" data-when="ver=v7" hidden>{v7 출력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">{결과 단계의 이름: 판정, 검증}</div><div><span class="cap bad" data-when="ver=v5">{결과 이름}</span><span class="cap em" data-when="ver=v7" hidden>{결과 이름}</span></div></div>
       </div>
       선택지가 4개 이상인 토글은 .tg 자리에 이 드롭다운:
       <span class="pop"><button type="button" class="pop-b" aria-haspopup="listbox" aria-expanded="false" aria-label="버전"><span class="pop-v">v7</span></button>
@@ -833,6 +833,18 @@
           <text class="dg-l" x="650" y="58">{1.65초}</text>
           <text class="dg-l" x="655" y="98">{1.70초}</text>
         </svg>
+        <!-- 선택: 일부러 멈춘 단계 (SKILL.md "a hold"). 선은 회색 그대로 멈춤 표시(.dg-hold, 세로 막대 둘)까지 가고 화살촉은 없다. 그 뒤는 점선 화살표와 점선 상자(흐리게 하지 않음).
+             "보류" 한 마디는 표시 가운데, 막대 아래 14px. 빨간색은 쓰지 않는다.
+        <svg viewBox="0 0 458 56" width="458" height="56" role="img" aria-label="{어느 단계 앞에서 멈춰 있는지 한 문장}">
+          <rect class="dg-box" x="1" y="1" width="150" height="40" rx="6"/>
+          <line class="dg-arrow" x1="157" y1="21" x2="182" y2="21"/>
+          <g class="dg-hold"><line x1="188" y1="15" x2="188" y2="27"/><line x1="194" y1="15" x2="194" y2="27"/></g>
+          <line class="dg-arrow absent" x1="202" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
+          <rect class="dg-box absent" x="306" y="1" width="150" height="40" rx="6"/>
+          <text class="dg-l" x="76" y="25" text-anchor="middle">{끝난 단계}</text>
+          <text class="dg-l" x="381" y="25" text-anchor="middle">{아직 시작하지 않은 단계}</text>
+          <text class="dg-s dg-wait" x="191" y="41" text-anchor="middle">보류</text>
+        </svg> -->
         <!-- 선택: 한 전체를 부분으로 나눈 막대 (SKILL.md "A bar split into parts"). 한 행에 막대 하나, 조각 사이 1px, 값은 조각 안(.dg-in, 회색 조각은 .dg-in ink).
              조각이 값의 글자 폭 + 8보다 좁거나 값이 0이면 그 값만 막대 끝 6px 뒤에 .dg-out으로, 조각 순서대로, 그 부분의 색(dg-out dg-em, dg-out dg-bad)으로 적는다. 부분의 이름은 막대 옆에 쓰지 않고 그림 아래 범례에 한 번 쓴다.
         <svg viewBox="0 0 760 91" width="760" height="91" role="img" aria-label="{전체 N건이 조건마다 어떻게 나뉘는지 한 문장}">

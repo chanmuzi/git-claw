@@ -100,7 +100,7 @@
   .hero .facts dd{ margin:0; font-size:14.5px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
   /* a number is shown, not narrated (SKILL.md "The cover"). Everything on the value side is one size (14.5px, the size of the notes); only color and weight differ.
      .v: one value, or a pair `before → after` (<s> before in the secondary color, <i> the arrow, <b> after). An unchanged value is written once.
-     .pairs: one row that has a value per condition; each .pair is the condition name (<em>) and its .v, parted by a hairline.
+     .pairs: one row that has a value per condition; each .pair is the condition name (<em>) and its .v; pairs are parted by space.
      table.fg: the cover grid, only when two or more rows run over the same conditions and every cell fills. Conditions in the head once;
      the corner cell says once what a pair is (`v5 → v7`) or what all rows are out of. A verdict row spans the columns (td.txt).
      No sub-label under a row name and no note under the grid. */
@@ -108,9 +108,8 @@
   .hero .v s{ text-decoration:none; color:var(--sub); }
   .hero .v i{ font-style:normal; color:var(--n400); margin:0 5px; }
   .hero .v b{ font-weight:600; }
-  .hero .pairs{ display:flex; flex-wrap:wrap; gap:2px 0; }
-  .hero .pair{ display:inline-flex; align-items:baseline; gap:8px; padding-right:16px; margin-right:16px; border-right:1px solid var(--brand-100); white-space:nowrap; }
-  .hero .pair:last-child{ border-right:0; padding-right:0; margin-right:0; }
+  .hero .pairs{ display:flex; flex-wrap:wrap; gap:2px 28px; }   /* parted by space, not a rule: a rule is left hanging at the line end when the pairs wrap */
+  .hero .pair{ display:inline-flex; align-items:baseline; gap:8px; white-space:nowrap; }
   .hero .pair em{ font-style:normal; color:var(--sub); }
   .hero .fg-wrap{ overflow-x:auto; }
   .hero .fg{ border-collapse:collapse; font-size:14.5px; line-height:1.5; color:var(--ink); }

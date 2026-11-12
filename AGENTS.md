@@ -61,6 +61,7 @@ git-claw/
 │   └── eli5/
 │       ├── SKILL.md                  # /eli5
 │       ├── frame.html                # 프레임 + beat primitive (토큰 고정, 그림은 bespoke)
+│       ├── list.html                 # 대량 목록과 검수 열 (목록이 있는 페이지에서만 읽음)
 │       ├── measure.html              # 렌더 측정 스크립트 (네 HTML 스킬 공통)
 │       └── LICENSE.txt
 ├── docs/

@@ -28,6 +28,7 @@
 | 18 | 조작할 수 있는 그림의 조건 | `eli5`, `visual-doc`, `explain-diff` | `Static first` | docs/decisions/2026-08-eli5.md |
 | 19 | 근거 카드, 번호 배지, 캡션 칩, 해설 목록 | `eli5` (현재 단독) | `Evidence card` | docs/decisions/2026-08-eli5.md |
 | 20 | 산출물 독자 구분 | `explain-diff`, `micro-world`, `visual-doc`, `eli5` | `The reader` | docs/decisions/2026-08-eli5.md, docs/decisions/2026-11-skill-descriptions.md |
+| 21 | 대량 목록과 검수 열 | `eli5` (현재 단독) | `A list of many items` | docs/decisions/2026-08-eli5.md |
 
 ## 상세
 
@@ -126,7 +127,7 @@
 
 - 범위: 위치 표시 (`section hierarchy (SHARED` CSS 블록: `.progress` 3px 진행바, `.outline` 차례, `.sec-top`과 `.sec-no` 상위 번호 줄, `.sub-h`와 `.sub-no` 하위 번호, 그리고 body 끝의 같은 이름 스크립트)
 - 관련 스킬: `eli5`, `visual-doc`, `explain-diff`, `micro-world`
-- 네 템플릿에 같은 코드로 들어 있다. 제목 글자 크기(`.g-name`, `.sub-h h2`, `.sub-h h3`)와 마크업의 쓰임은 템플릿마다 다르다: eli5는 beat 4개 이하면 beat마다 번호 줄(하위 없음), 5개 이상이고 묶음이 있으면 묶음이 상위(`<section class="sec-top">` + h2)이고 beat가 하위(`.sub-h` + h3)이며 beat 하나뿐인 묶음은 `sec-top single`, visual-doc은 챕터가 상위이고 카드가 하위, explain-diff는 Part가 상위이고 섹션 카드가 하위이며 기존 TOC 카드가 차례 역할(`.outline` 미사용), micro-world는 진행바만. 사이드 TOC rail과 섹션 이름이 붙은 고정 머리는 두지 않는다 (visual-doc의 `.toc-rail`은 2026-10-29 제거). 차례 바로 아래 첫 상위 섹션은 `.hero + .sec-top, .outline + .sec-top`으로 윗여백 28px, 차례의 상위 줄은 굵고 하위 줄(`li.sub`)은 들여 쓴다 (2026-11-08). eli5만 묶음 안의 beat 사이에 왼쪽 120px 선(`.sec-top .beat + .beat::before`)이 더 있다 (2026-11-10 2차): 나머지 셋의 블록을 eli5에 복사하지 않는다. 정본: docs/decisions/2026-10-heading-hierarchy.md, docs/decisions/2026-08-eli5-history.md (개정 2026-11-08, 2026-11-10 2차)
+- 네 템플릿에 같은 코드로 들어 있다. 제목 글자 크기(`.g-name`, `.sub-h h2`, `.sub-h h3`)와 마크업의 쓰임은 템플릿마다 다르다: eli5는 beat 4개 이하면 beat마다 번호 줄(하위 없음), 5개 이상이고 묶음이 있으면 묶음이 상위(`<section class="sec-top">` + h2)이고 beat가 하위(`.sub-h` + h3)이며 beat 하나뿐인 묶음은 `sec-top single`, visual-doc은 챕터가 상위이고 카드가 하위, explain-diff는 Part가 상위이고 섹션 카드가 하위이며 기존 TOC 카드가 차례 역할(`.outline` 미사용), micro-world는 진행바만. 사이드 TOC rail과 섹션 이름이 붙은 고정 머리는 두지 않는다 (visual-doc의 `.toc-rail`은 2026-10-29 제거). 차례 바로 아래 첫 상위 섹션은 `.hero + .sec-top, .outline + .sec-top`으로 윗여백 28px, 차례의 상위 줄은 굵고 하위 줄(`li.sub`)은 들여 쓴다 (2026-11-08). eli5만 묶음 안의 beat 사이에 왼쪽 120px 선(`.sec-top .beat + .beat::before`)이 더 있다 (2026-11-10 2차): 나머지 셋의 블록을 eli5에 복사하지 않는다. 번호 글자 크기도 eli5만 다르다 (차례 15px와 하위 14px, 번호 칸 36px, `.sec-no` 16px, `.sub-no` 14.5px, 2026-11-12). 정본: docs/decisions/2026-10-heading-hierarchy.md, docs/decisions/2026-08-eli5-history.md (개정 2026-11-08, 2026-11-10 2차, 2026-11-12)
 
 ### 17. 그림의 선 한 벌, 마무리 줄 배지, 그림 안의 글, 그림 안 제목, 해설 머리 표시
 
@@ -151,3 +152,9 @@
 - 범위: 산출물 독자 구분 (explain-diff=머지할 개발자, micro-world=조작하며 익히는 사람, visual-doc=도메인 아는 동료, eli5=도메인 밖 사람)
 - 관련 스킬: `explain-diff`, `micro-world`, `visual-doc`, `eli5`
 - 네 스킬의 description은 `The reader`로 시작하는 문장 하나로 독자를 말하고, 이 문장이 넷을 가르는 기준이다. 표식은 frontmatter의 description 줄에서 찾는다 (본문에도 같은 말이 있다). 한쪽의 독자를 고치면 나머지 셋과 겹치지 않는지 확인한다. 정본: docs/decisions/2026-08-eli5.md, docs/decisions/2026-11-skill-descriptions.md
+
+### 21. 대량 목록과 검수 열
+
+- 범위: 대량 목록 (`list.html`: 캡션 한 줄, 탭과 거르기 메뉴와 검색, 고정 열과 긴 글 열, 이름 붙은 줄, 8건씩 쪽 나눔, 미끄러지듯 열리는 상세)과 검수 열 (`LM_CFG.review`: 타당과 문제 표시, 복사, 아티팩트 저장소가 있을 때만 보내기)
+- 관련 스킬: `eli5` (현재 단독)
+- SKILL.md에는 언제 쓰는지, `list.html`을 그때만 읽는다는 것, 검수 열을 켜는 조건만 있고 규칙 9개는 `list.html` 머리 주석에 있다. 규칙을 고치면 머리 주석을 고치고 SKILL.md의 요약 괄호와 Render check 12번이 맞는지 본다. 색은 `frame.html`의 토큰만 쓰므로 visual-doc으로 옮기려면 토큰 이름을 먼저 맞춰야 한다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-12)

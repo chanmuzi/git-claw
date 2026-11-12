@@ -6,7 +6,8 @@
     the base primitives, and the blocks below (.band/.hero/.outline cover, .beat, .fig, .notes, .say,
     .close, the optional .ev evidence card, .prose-card and .pv prompt card, the .res table, .ctl controls, the .m / .dg-m badges,
     the .dg-bar bars and .legend),
-    the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
+    the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>; the same script
+    element also holds the table width function, which is eli5 only)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
     (viewBox sizing, the stroke classes dg-box/dg-arrow/dg-head/dg-cell, labeled arrows, one accent per picture, the layout-plan comment as
@@ -153,6 +154,7 @@
   .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
   .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
   .sec-top .beat{ margin-top:36px; }
+  .sec-top > h2 + .beat{ margin-top:0; }                     /* the first beat sits 16px under the section heading (the h2's own margin), close to the 14px between a beat heading and its figure */
   .sec-top.single .beat{ margin-top:0; }
   /* three levels of separation, all in the hairline color: a full rule opens a section, a 120px rule sits between the
      beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
@@ -165,15 +167,16 @@
   .sub-h .deck{ margin-bottom:0; }
 
   /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
-  /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and the drawing or
-     table inside runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding).
+  /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and a drawing or
+     table as wide as the panel runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding);
+     a narrower one sits in the middle.
      one gap: the blocks of a beat are 16px apart in any order. */
   .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:16px 20px; overflow-x:auto; }
   .beat > * + .fig, .beat > * + .pv{ margin-top:16px; }
   /* legend: the part names of a bar split into parts, once, inside the panel under the drawing (same .sw as the notes) */
-  .legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin:12px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--sub); }
+  .legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 18px; margin:12px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--sub); }
   .legend li{ display:inline-flex; align-items:center; }
-  .fig svg{ display:block; max-width:100%; height:auto; color:var(--ink); }   /* never scaled up: every svg carries width and height equal to its viewBox, and only shrinks when the panel is narrower */
+  .fig svg{ display:block; max-width:100%; height:auto; margin:0 auto; color:var(--ink); }   /* never scaled up: every svg carries width and height equal to its viewBox, and only shrinks when the panel is narrower. A drawing narrower than the panel sits in the middle, and the legend under it with it */
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
   .notes{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
@@ -304,24 +307,35 @@
 
   /* ── results table (optional; SKILL.md "Results table") ──
      The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
-     run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned, equal
-     width, tabular). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
+     run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned,
+     tabular). No table, column or cell has a width of its own: the script at the end of <body> sets .fill or .narrow (below). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
      deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column; one table uses one direction),
      <u> the second when three or more values are compared; a tie shares the mark. A column or row with no value is
      not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
      folded .res-more under the table, never in a visible line. No adjective in a cell. */
-  /* caption: the number line (.res-no, like a section's .sub-no) over the title (.res-t). No unit, population or direction here:
+  /* caption: `표 1. 제목` on one line at the panel's top left, wherever the table sits. The number (.res-no) is a separate element
+     smaller than the title (.res-t), and the period comes from the CSS; a wrapped title hangs after the number. No unit, population or direction here:
      a unit rides in the cells or the column header, the rest goes in the folded .res-more. */
-  .res-cap{ margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
-  .res-cap b{ color:var(--ink); font-weight:600; }           /* pages before 2026-11-12: `<b>표 1. 제목</b>` on one line */
-  .res-no{ display:block; margin-bottom:2px; font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); }
-  .res-t{ font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.45; color:var(--ink); }
-  .res{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
+  .res-cap{ display:flex; align-items:baseline; gap:10px; margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
+  .res-cap b{ color:var(--ink); font-weight:600; }           /* the caption of a list (list.html), and pages before 2026-11-12 */
+  .res-no{ flex:none; white-space:nowrap; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; line-height:1.45; color:var(--brand); }
+  .res-no::after{ content:"."; }
+  .res-t{ min-width:0; font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.45; color:var(--ink); }
+  /* width: a table is as wide as its content and sits in the middle of the panel. When the content reaches 70% of the panel the
+     script adds .fill: the table fills the panel and every column shares the spare width in proportion to its content. A table
+     that stays in the middle gets .narrow: 36px between columns instead of 24px (a presence table .res.ox keeps its own 24px). */
+  .res{ width:auto; max-width:100%; margin:0 auto; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
+  .res.fill{ width:100%; }
   .res th, .res td{ padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; word-break:keep-all; }
   .res th{ font-size:11.5px; font-weight:600; letter-spacing:.03em; color:var(--faint); border-bottom:1px solid var(--n300); white-space:nowrap; }
-  .res th.n, .res td.n{ text-align:right; white-space:nowrap; width:12%; font-variant-numeric:tabular-nums; }
+  .res th.n, .res td.n{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
   .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; padding-left:0; }
   .res th:last-child, .res td:last-child{ padding-right:0; }
+  @media (min-width:601px){                                   /* at phone width every table keeps the phone padding below */
+    .res.narrow th, .res.narrow td{ padding-left:18px; padding-right:18px; }
+    .res.narrow th:first-child, .res.narrow td:first-child{ padding-left:0; }
+    .res.narrow th:last-child, .res.narrow td:last-child{ padding-right:0; }
+  }
   .res td{ color:var(--sub); }
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
@@ -346,7 +360,8 @@
   .res.h2 th.grp i{ font-style:normal; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--brand); margin-right:7px; }
   .res.h2 tr.leaf th{ color:var(--faint); font-weight:500; padding-top:7px; padding-right:12px; }
   .res.h2 th.g0, .res.h2 td.g0{ padding-left:28px; }
-  .res.h2 td.outer{ font-weight:600; color:var(--ink); width:1%; padding-right:28px; }   /* the outer column hugs its text; spare width goes to the inner one */
+  @media (min-width:601px){ .res.h2.narrow tr.leaf th, .res.h2.narrow th.grp{ padding-right:18px; } }   /* headers keep the cells' right edge in a centered table */
+  .res.h2 td.outer{ font-weight:600; color:var(--ink); padding-right:28px; }
   .res.h2 td.inner{ color:var(--sub); font-weight:400; font-family:var(--mono); font-size:12.5px; padding-left:12px; }
   .res.h2 tr.gs td:not(.outer){ border-bottom-color:var(--line-soft); }
   .res.h2 tr.gs:nth-last-child(2) td.outer{ border-bottom:none; }
@@ -755,7 +770,7 @@
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>
     <figure class="fig tab">
-      <div class="res-cap"><span class="res-no">표 1</span><span class="res-t">세팅</span></div>   (표가 하나뿐인 페이지는 res-no 줄 없이 res-t만)
+      <div class="res-cap"><span class="res-no">표 1</span><span class="res-t">세팅</span></div>   (표가 하나뿐인 페이지는 res-no 없이 res-t만. 프레임이 `표 1. 제목` 한 줄로 그린다)
       <table class="res">
         <thead><tr><th>세팅</th><th>{분해 조건}</th><th class="n">{하위 질문}</th><th class="n">{추가 호출}</th></tr></thead>
         <tbody>
@@ -834,16 +849,17 @@
           <text class="dg-l" x="655" y="98">{1.70초}</text>
         </svg>
         <!-- 선택: 일부러 멈춘 단계 (SKILL.md "a hold"). 선은 회색 그대로 멈춤 표시(.dg-hold, 세로 막대 둘)까지 가고 화살촉은 없다. 그 뒤는 점선 화살표와 점선 상자(흐리게 하지 않음).
+             멈춤 표시는 두 상자 사이의 가운데에 둔다(실선과 점선 화살표의 길이가 같다).
              "보류" 한 마디는 표시 가운데, 막대 아래 14px. 빨간색은 쓰지 않는다.
         <svg viewBox="0 0 458 56" width="458" height="56" role="img" aria-label="{어느 단계 앞에서 멈춰 있는지 한 문장}">
           <rect class="dg-box" x="1" y="1" width="150" height="40" rx="6"/>
-          <line class="dg-arrow" x1="157" y1="21" x2="182" y2="21"/>
-          <g class="dg-hold"><line x1="188" y1="15" x2="188" y2="27"/><line x1="194" y1="15" x2="194" y2="27"/></g>
-          <line class="dg-arrow absent" x1="202" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
+          <line class="dg-arrow" x1="157" y1="21" x2="220" y2="21"/>
+          <g class="dg-hold"><line x1="226" y1="15" x2="226" y2="27"/><line x1="232" y1="15" x2="232" y2="27"/></g>
+          <line class="dg-arrow absent" x1="240" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
           <rect class="dg-box absent" x="306" y="1" width="150" height="40" rx="6"/>
           <text class="dg-l" x="76" y="25" text-anchor="middle">{끝난 단계}</text>
           <text class="dg-l" x="381" y="25" text-anchor="middle">{아직 시작하지 않은 단계}</text>
-          <text class="dg-s dg-wait" x="191" y="41" text-anchor="middle">보류</text>
+          <text class="dg-s dg-wait" x="229" y="41" text-anchor="middle">보류</text>
         </svg> -->
         <!-- 선택: 한 전체를 부분으로 나눈 막대 (SKILL.md "A bar split into parts"). 한 행에 막대 하나, 조각 사이 1px, 값은 조각 안(.dg-in, 회색 조각은 .dg-in ink).
              조각이 값의 글자 폭 + 8보다 좁거나 값이 0이면 그 값만 막대 끝 6px 뒤에 .dg-out으로, 조각 순서대로, 그 부분의 색(dg-out dg-em, dg-out dg-bad)으로 적는다. 부분의 이름은 막대 옆에 쓰지 않고 그림 아래 범례에 한 번 쓴다.
@@ -893,6 +909,37 @@
     e.preventDefault();
     window.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
   });
+})();
+/* table width: a .res table whose content reaches 70% of its panel fills the panel (.fill); a narrower one stays in the
+   middle with wider column gaps (.narrow). Measured at the base gaps, again after the fonts load and on resize.
+   It writes the two classes only and adds no text. */
+(function(){
+  function fit(){
+    Array.prototype.forEach.call(document.querySelectorAll("table.res"), function(t){
+      t.classList.remove("fill", "narrow");
+      var room = t.parentNode.clientWidth;
+      if (!room) return;
+      var s = getComputedStyle(t.parentNode);
+      room -= parseFloat(s.paddingLeft) + parseFloat(s.paddingRight);
+      t.classList.add(t.offsetWidth >= room * 0.7 ? "fill" : "narrow");
+    });
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  window.addEventListener("resize", fit);
+  /* a table inside a block that starts hidden has no width yet: measure it when its panel gets one */
+  if (window.ResizeObserver){
+    var seen = new WeakMap();
+    var ro = new ResizeObserver(function(entries){
+      var changed = false;
+      entries.forEach(function(e){
+        var w = Math.round(e.contentRect.width);
+        if (seen.get(e.target) !== w){ seen.set(e.target, w); changed = true; }
+      });
+      if (changed) fit();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("table.res"), function(t){ ro.observe(t.parentNode); });
+  }
 })();
 </script>
 <!-- prompt card (optional): copy this script only when the page has a .pv card.

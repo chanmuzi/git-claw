@@ -6,7 +6,8 @@
     the base primitives, and the blocks below (.band/.hero/.outline cover, .beat, .fig, .notes, .say,
     .close, the optional .ev evidence card, .prose-card and .pv prompt card, the .res table, .ctl controls, the .m / .dg-m badges,
     the .dg-bar bars and .legend),
-    the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
+    the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>; the same script
+    element also holds the table width function, which is eli5 only)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
     (viewBox sizing, the stroke classes dg-box/dg-arrow/dg-head/dg-cell, labeled arrows, one accent per picture, the layout-plan comment as
@@ -166,8 +167,9 @@
   .sub-h .deck{ margin-bottom:0; }
 
   /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
-  /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and the drawing or
-     table inside runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding).
+  /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and a drawing or
+     table as wide as the panel runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding);
+     a narrower one sits in the middle.
      one gap: the blocks of a beat are 16px apart in any order. */
   .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:16px 20px; overflow-x:auto; }
   .beat > * + .fig, .beat > * + .pv{ margin-top:16px; }
@@ -321,7 +323,7 @@
   .res-t{ min-width:0; font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.45; color:var(--ink); }
   /* width: a table is as wide as its content and sits in the middle of the panel. When the content reaches 70% of the panel the
      script adds .fill: the table fills the panel and every column shares the spare width in proportion to its content. A table
-     that stays in the middle gets .narrow: 36px between columns instead of 24px. */
+     that stays in the middle gets .narrow: 36px between columns instead of 24px (a presence table .res.ox keeps its own 24px). */
   .res{ width:auto; max-width:100%; margin:0 auto; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
   .res.fill{ width:100%; }
   .res th, .res td{ padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; word-break:keep-all; }
@@ -329,9 +331,11 @@
   .res th.n, .res td.n{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
   .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; padding-left:0; }
   .res th:last-child, .res td:last-child{ padding-right:0; }
-  .res.narrow th, .res.narrow td{ padding-left:18px; padding-right:18px; }
-  .res.narrow th:first-child, .res.narrow td:first-child{ padding-left:0; }
-  .res.narrow th:last-child, .res.narrow td:last-child{ padding-right:0; }
+  @media (min-width:601px){                                   /* at phone width every table keeps the phone padding below */
+    .res.narrow th, .res.narrow td{ padding-left:18px; padding-right:18px; }
+    .res.narrow th:first-child, .res.narrow td:first-child{ padding-left:0; }
+    .res.narrow th:last-child, .res.narrow td:last-child{ padding-right:0; }
+  }
   .res td{ color:var(--sub); }
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
@@ -356,6 +360,7 @@
   .res.h2 th.grp i{ font-style:normal; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--brand); margin-right:7px; }
   .res.h2 tr.leaf th{ color:var(--faint); font-weight:500; padding-top:7px; padding-right:12px; }
   .res.h2 th.g0, .res.h2 td.g0{ padding-left:28px; }
+  @media (min-width:601px){ .res.h2.narrow tr.leaf th, .res.h2.narrow th.grp{ padding-right:18px; } }   /* headers keep the cells' right edge in a centered table */
   .res.h2 td.outer{ font-weight:600; color:var(--ink); padding-right:28px; }
   .res.h2 td.inner{ color:var(--sub); font-weight:400; font-family:var(--mono); font-size:12.5px; padding-left:12px; }
   .res.h2 tr.gs td:not(.outer){ border-bottom-color:var(--line-soft); }
@@ -922,6 +927,19 @@
   fit();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   window.addEventListener("resize", fit);
+  /* a table inside a block that starts hidden has no width yet: measure it when its panel gets one */
+  if (window.ResizeObserver){
+    var seen = new WeakMap();
+    var ro = new ResizeObserver(function(entries){
+      var changed = false;
+      entries.forEach(function(e){
+        var w = Math.round(e.contentRect.width);
+        if (seen.get(e.target) !== w){ seen.set(e.target, w); changed = true; }
+      });
+      if (changed) fit();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("table.res"), function(t){ ro.observe(t.parentNode); });
+  }
 })();
 </script>
 <!-- prompt card (optional): copy this script only when the page has a .pv card.

@@ -4,7 +4,8 @@
 
   Layer 1 (LOCKED): the :root tokens (Upstage Lift neutral + brand, both themes, plus the legacy aliases),
     the base primitives, and the blocks below (.band/.hero/.outline cover, .beat, .fig, .notes, .say,
-    .close, the optional .ev evidence card and .prose-card, .ctl controls, the .m / .dg-m badges, the .dg-bar bars),
+    .close, the optional .ev evidence card, .prose-card and .pv prompt card, the .res table, .ctl controls, the .m / .dg-m badges,
+    the .dg-bar bars and .legend),
     the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
@@ -139,11 +140,18 @@
   .sub-h .deck{ margin-bottom:0; }
 
   /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
-  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:26px 24px 20px; overflow-x:auto; }
+  /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and the drawing or
+     table inside runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding).
+     one gap: the blocks of a beat are 16px apart in any order. */
+  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:16px 20px; overflow-x:auto; }
+  .beat > * + .fig, .beat > * + .pv{ margin-top:16px; }
+  /* legend: the part names of a bar split into parts, once, inside the panel under the drawing (same .sw as the notes) */
+  .legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin:12px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--sub); }
+  .legend li{ display:inline-flex; align-items:center; }
   .fig svg{ display:block; width:100%; min-width:460px; height:auto; color:var(--ink); }
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
-  .notes{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+  .notes{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
   .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
   .note .m{ margin-top:4px; }
   .note b{ font-weight:600; color:var(--ink); }
@@ -162,9 +170,10 @@
   .say .lab.q{ background:transparent; color:var(--sub); font-weight:500; box-shadow:inset 0 0 0 1px var(--n200); }
   .say .lab.warn{ background:transparent; color:var(--cost); padding:0; }
   /* color key: a note about a part the drawing marks by fill opens with the same fill */
-  .sw{ display:inline-block; width:10px; height:10px; border-radius:2px; background:var(--n300); margin-right:7px; }
+  .sw{ display:inline-block; width:10px; height:10px; border-radius:2px; background:var(--n300); margin-right:7px; vertical-align:1px; flex:none; }  /* inline before the bold name, on the text line */
   .sw.em{ background:var(--brand); }
-  .sw.bad{ background:var(--red); }
+  .sw.bad{ background:var(--red); opacity:.75; }
+  .sw.mid{ background:var(--n500); }
   .say .cost{ font-weight:700; color:var(--cost); }
 
   /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
@@ -195,6 +204,13 @@
   .dg-bar{ fill:var(--n300); }
   .dg-bar.em{ fill:var(--brand); }
   .dg-bar.bad{ fill:var(--red); opacity:.75; }
+  .dg-bar.mid{ fill:var(--n500); }                         /* a second neutral part of a split bar */
+  /* a bar split into parts: the value sits inside its segment (.dg-in; .ink on the plain gray fill). A value that does not fit
+     (segment narrower than the label + 8, or zero) goes after the bar's end as .dg-out, in segment order, in its part's color
+     (dg-out dg-em, dg-out dg-bad). The part names are in the .legend, never beside the bar. */
+  .dg-in{ font-size:12px; font-weight:600; fill:var(--n0); text-anchor:middle; font-variant-numeric:tabular-nums; }
+  .dg-in.ink{ fill:var(--ink); }
+  .dg-out{ font-size:12px; fill:var(--sub); font-variant-numeric:tabular-nums; }
 
   /* ── evidence card (optional; SKILL.md "Evidence card") ──
      The real file verbatim, between the figure and the notes. Hairline border, a neutral head strip that reads the file, a kind word,
@@ -202,7 +218,7 @@
      about gets a neutral wash (.hi) and its .tag says why (.hi.bad: a red tag). A line that should be there and is not
      (.ghost) is hollow: faint text in a gray dashed outline, tag `이 줄이 없음`. A change at one place is one card in diff
      form: .del red minus, .add green plus, context lines plain. Cards stack one per row; .evs.pair puts two short cards side by side. */
-  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .evs{ display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:16px; }
   .evs.pair{ grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
   .ev{
     --sx-base:color-mix(in srgb, var(--ink) 55%, var(--n700));
@@ -263,27 +279,43 @@
      The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
      run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned, equal
      width, tabular). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
-     deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column: the caption says which),
+     deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column; one table uses one direction),
      <u> the second when three or more values are compared; a tie shares the mark. A column or row with no value is
      not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
      folded .res-more under the table, never in a visible line. No adjective in a cell. */
-  .fig.tab{ padding:20px 24px 16px; }
-  .beat .fig + .fig{ margin-top:14px; }
-  .res-cap{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
-  .res-cap b{ color:var(--ink); font-weight:600; }
+  /* caption: the number line (.res-no, like a section's .sub-no) over the title (.res-t). No unit, population or direction here:
+     a unit rides in the cells or the column header, the rest goes in the folded .res-more. */
+  .res-cap{ margin:0 0 10px; font-size:13px; color:var(--sub); word-break:keep-all; }
+  .res-cap b{ color:var(--ink); font-weight:600; }           /* pages before 2026-11-12: `<b>표 1. 제목</b>` on one line */
+  .res-no{ display:block; margin-bottom:2px; font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); }
+  .res-t{ font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.45; color:var(--ink); }
   .res{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.45; }
   .res th, .res td{ padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; word-break:keep-all; }
   .res th{ font-size:11.5px; font-weight:600; letter-spacing:.03em; color:var(--faint); border-bottom:1px solid var(--n300); white-space:nowrap; }
   .res th.n, .res td.n{ text-align:right; white-space:nowrap; width:12%; font-variant-numeric:tabular-nums; }
-  .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; }
+  .res th:first-child, .res td:first-child{ white-space:nowrap; color:var(--ink); font-weight:500; padding-left:0; }
+  .res th:last-child, .res td:last-child{ padding-right:0; }
   .res td{ color:var(--sub); }
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
   .res tr:last-child td{ border-bottom:none; }
+  /* two-level header (.res.h2): a group name (th.grp) is centered over its columns with a rule only as wide as the group; the first
+     column of each group takes .g0 (th and td) so a gap parts the groups; a column outside any group spans both header rows.
+     two-level rows: the outer condition once (td.outer, rowspan) with tr.gs on the first row of its group, the inner one in td.inner. */
+  .res.h2 thead th{ vertical-align:bottom; }
+  .res.h2 th.grp{ border-bottom:none; padding:4px 12px 0 28px; text-align:center; font-size:12.5px; letter-spacing:0; color:var(--ink); }
+  .res.h2 th.grp span{ display:block; padding-bottom:6px; border-bottom:1px solid var(--n300); }
+  .res.h2 th.grp i{ font-style:normal; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--brand); margin-right:7px; }
+  .res.h2 tr.leaf th{ color:var(--faint); font-weight:500; padding-top:7px; padding-right:12px; }
+  .res.h2 th.g0, .res.h2 td.g0{ padding-left:28px; }
+  .res.h2 td.outer{ font-weight:600; color:var(--ink); width:1%; padding-right:28px; }   /* the outer column hugs its text; spare width goes to the inner one */
+  .res.h2 td.inner{ color:var(--sub); font-weight:400; font-family:var(--mono); font-size:12.5px; padding-left:12px; }
+  .res.h2 tr.gs td:not(.outer){ border-bottom-color:var(--line-soft); }
+  .res.h2 tr.gs:nth-last-child(2) td.outer{ border-bottom:none; }
   /* notes fold away: a <details> whose summary names what it holds; nothing else sits under the table */
   /* ── folded detail (optional, SKILL.md "The word budget"): the one place for an explanation the notes cannot hold.
      Closed by default; the summary names what is inside; at most 3 sentences; never a figure number said again. ── */
-  .more{ margin:12px 0 0; font-size:14px; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .more{ margin:16px 0 0; font-size:14px; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
   .more summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-weight:600; font-size:13px; }
   .more summary::-webkit-details-marker{ display:none; }
   .more summary::before{ content:""; width:0; height:0; border:4px solid transparent; border-left:5px solid var(--faint); margin-left:2px; transition:transform .12s; }
@@ -365,17 +397,71 @@
 
   /* ── prose card (SKILL.md "Evidence card", the prose form: a prompt, an error message, a notice) ──
      the words are verbatim and only whitespace changes; nothing is added inside (no highlight, tag, fold, gloss). */
-  .prose-card{ margin-top:14px; border:1px solid var(--line-soft); border-radius:var(--r-lg); background:var(--panel); overflow:hidden; }
-  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px 16px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
+  .prose-card{ margin-top:16px; border:1px solid var(--line-soft); border-radius:var(--r-lg); background:var(--panel); overflow:hidden; }
+  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px 20px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
   .pc-h .kind{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
   .pc-h .name{ color:var(--ink); font-weight:600; }
   .pc-h .src{ margin-left:auto; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-  .pc-b{ padding:14px 20px 16px; max-width:76ch; }
+  .pc-b{ padding:16px 20px; max-width:76ch; }
   .pc-b p{ margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
   .pc-b p + p, .pc-b pre + p, .pc-b p + pre{ margin-top:12px; }
   .pc-b p.gap{ color:var(--faint); font-style:italic; }
   .pc-b pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; overflow-wrap:anywhere; }
   @media (max-width:600px){ .pc-h .src{ display:none; } }
+
+  /* ── prompt card (SKILL.md "Evidence card", the prompt form): a prompt with what went in and what came out, as ONE card ──
+     head: the name, and every toggle at the right edge (what is shown first: version, model; how it is shown last: language).
+     rows: the stages the source has, in order, named in the left column (system, user, the output, a result stage when there is one).
+     The prompt is verbatim text, input and output sit in a gray inset, a result is one .cap pill and nothing else. Every switched block carries data-when ("ver=v5", "lang=ko", or both);
+     the script at the end of this file shows the blocks that match the card's data-* state.
+     .tg is the toggle (up to three choices); .pop is the same piece as a dropdown (four or more).
+     .pv.cmp is the side-by-side form (a column per version), only when the user asks to see the versions together. */
+  .pv{ border:1px solid var(--line); border-radius:var(--r-lg); background:var(--panel); }
+  .pv [hidden]{ display:none !important; }                 /* .cap and .pop-m set a display of their own, which would undo the hidden attribute */
+  .pv button{ font:inherit; cursor:pointer; }
+  .pv-h{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:7px 20px; border-bottom:1px solid var(--line); background:var(--bg); border-radius:var(--r-lg) var(--r-lg) 0 0; }
+  .pv-name{ font-size:14.5px; font-weight:700; letter-spacing:-0.02em; }
+  .pv-tg{ margin-left:auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px 10px; }
+  .tg{ display:inline-flex; gap:1px; padding:2px; border-radius:7px; background:var(--n200); flex:none; }
+  .tg button{ border:0; background:none; padding:3px 9px; border-radius:5px; font-size:12px; line-height:1.2; color:var(--sub); white-space:nowrap; }
+  .tg button:hover{ color:var(--ink); }
+  .tg button[aria-pressed="true"], .pop-v{ background:var(--bg); color:var(--ink); font-weight:600; box-shadow:0 1px 2px color-mix(in srgb, var(--n900) 14%, transparent); }
+  .tg.mono button, .pop-v, .pop-m button{ font-family:var(--mono); }
+  .pop{ position:relative; display:inline-flex; }
+  .pop-b{ display:inline-flex; align-items:center; padding:2px; border:0; border-radius:7px; background:var(--n200); }
+  .pop-v{ padding:3px 9px; border-radius:5px; font-size:12px; line-height:1.2; }
+  .pop-b::after{ content:""; width:5px; height:5px; margin:0 8px 2px 7px; border-right:1.5px solid var(--sub); border-bottom:1.5px solid var(--sub); transform:rotate(45deg); }
+  .pop-m{ position:absolute; top:calc(100% + 4px); right:0; z-index:20; min-width:100%; display:flex; flex-direction:column; gap:1px; padding:3px; border-radius:8px; background:var(--bg); border:1px solid var(--line); box-shadow:0 6px 16px color-mix(in srgb, var(--n900) 12%, transparent); }
+  .pop-m button{ border:0; background:none; text-align:left; padding:4px 10px; border-radius:5px; font-size:12px; color:var(--sub); white-space:nowrap; }
+  .pop-m button:hover, .pop-m button[aria-selected="true"]{ background:var(--n100); color:var(--ink); }
+  .pop-m button[aria-selected="true"]{ font-weight:700; }
+  .pv button:focus-visible{ outline:2px solid var(--brand); outline-offset:1px; }
+  .pv-row{ display:grid; grid-template-columns:88px minmax(0,1fr); gap:16px; padding:16px 20px; }
+  .pv-row + .pv-row{ border-top:1px solid var(--line); }
+  .pv-k{ display:flex; flex-direction:column; gap:2px; margin:2px 0 0; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
+  .pv-k span{ font-family:var(--sans); font-size:12px; font-weight:500; letter-spacing:0; text-transform:none; color:var(--faint); }
+  .pv .pt{ max-width:76ch; }
+  .pv .pt p{ margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink); overflow-wrap:anywhere; }
+  .pv .pt p + p{ margin-top:12px; }
+  .pv .pt.ko p{ font-family:var(--sans); font-size:13.5px; line-height:1.7; word-break:keep-all; }   /* a translation is set in the body face */
+  .pv pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; }
+  .pv .cap{ margin-right:0; }
+  .cmp-head, .cmp-row{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .cmp-head > div{ padding:9px 20px; font-size:13.5px; font-weight:700; border-bottom:1px solid var(--line); }
+  .cmp-head > div + div, .cmp-row > div + div{ border-left:1px solid var(--line); }
+  .cmp-sub{ display:flex; gap:8px; align-items:baseline; padding:7px 20px; font-size:12px; font-weight:600; color:var(--sub); background:var(--n100); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .cmp-head + .cmp-sub{ border-top:none; }
+  .cmp-sub span{ font-weight:400; color:var(--faint); }
+  .cmp-row > div{ padding:16px 20px; min-width:0; }
+  .cmp-row .vtag{ display:none; margin-bottom:6px; font-family:var(--mono); font-size:11px; font-weight:700; color:var(--brand); }
+  @media (max-width:680px){
+    .pv-row{ grid-template-columns:minmax(0,1fr); gap:8px; }
+    .pv-k{ flex-direction:row; align-items:baseline; gap:8px; }
+    .cmp-head{ display:none; }
+    .cmp-row{ grid-template-columns:minmax(0,1fr); }
+    .cmp-row > div + div{ border-left:none; border-top:1px solid var(--line-soft); }
+    .cmp-row .vtag{ display:block; }
+  }
 
   /* ── code block (SHARED names) ── on this page quoted source goes in the evidence card; these classes color its tokens.
      sx-k keyword, sx-f function name, sx-s string, sx-n number or constant, sx-c comment. */
@@ -446,34 +532,36 @@
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 200" role="img" aria-label="{그림이 말하는 주장 한 문장}">
-          <!-- W=760 | row1 y=56 h=88: [40..190] gap145(arrow+label) [335..485] gap105(X on the line) [590..720] -->
+        <svg viewBox="0 0 760 100" role="img" aria-label="{그림이 말하는 주장 한 문장}">
+          <!-- W=760 H=100, no empty band: the panel gives the inset, so the drawing runs to the viewBox edge. Boxes start at x=10, y=10
+               only because a badge sits 9px outside the corner; without badges they would start at 1.
+               row1 y=10 h=88: [10..160] gap145(arrow+label) [305..455] gap165(X on the line) [620..750] -->
           <defs>
             <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <polygon class="dg-head" points="0,0 10,5 0,10"/>
             </marker>
           </defs>
-          <rect class="dg-box" x="40" y="56" width="150" height="88" rx="6"/>
-          <line class="dg-arrow" x1="205" y1="100" x2="320" y2="100" marker-end="url(#ar1)"/>
-          <rect class="dg-box" x="335" y="56" width="150" height="88" rx="6"/>
+          <rect class="dg-box" x="10" y="10" width="150" height="88" rx="6"/>
+          <line class="dg-arrow" x1="175" y1="54" x2="290" y2="54" marker-end="url(#ar1)"/>
+          <rect class="dg-box" x="305" y="10" width="150" height="88" rx="6"/>
           <!-- shapes take the stroke classes (dg-box, dg-arrow, dg-head, dg-cell), never stroke="currentColor" with a width of their own.
                a failure: the line leaves the box in red and stops at a small X ON the line (10px, stroke 1.6: close to the line's own weight, never the heaviest mark of the figure);
                a dashed arrow (absent) carries on from 8px past the X to the unreachable box, so the reader sees where the line was going; that box is dashed (absent), opacity .6 at the least -->
-          <line class="dg-arrow bad" x1="500" y1="100" x2="522" y2="100"/>
-          <g stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"><line x1="524" y1="95" x2="534" y2="105"/><line x1="534" y1="95" x2="524" y2="105"/></g>
-          <line class="dg-arrow absent" x1="542" y1="100" x2="588" y2="100" marker-end="url(#ar1)"/>
-          <rect class="dg-box absent" x="590" y="56" width="130" height="88" rx="6" opacity=".6"/>
+          <line class="dg-arrow bad" x1="470" y1="54" x2="492" y2="54"/>
+          <g stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"><line x1="494" y1="49" x2="504" y2="59"/><line x1="504" y1="49" x2="494" y2="59"/></g>
+          <line class="dg-arrow absent" x1="512" y1="54" x2="618" y2="54" marker-end="url(#ar1)"/>
+          <rect class="dg-box absent" x="620" y="10" width="130" height="88" rx="6" opacity=".6"/>
           <!-- labels last: text paints over the shapes (rule 6) -->
-          <text class="dg-l" x="115" y="104" text-anchor="middle">{들어오는 것}</text>
-          <text class="dg-s" x="262" y="88" text-anchor="middle">{화살표에 붙는 라벨}</text>
-          <text class="dg-l" x="410" y="95" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="410" dy="18">{데이터 한 조각: 숫자, 식별자(code), 값. 없으면 이 tspan을 지우고 y를 104로}</tspan></text>
-          <text class="dg-s dg-bad" x="529" y="128" text-anchor="middle" style="opacity:1">{상태 코드나 한 마디}</text>
-          <text class="dg-l" x="655" y="104" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
+          <text class="dg-l" x="85" y="58" text-anchor="middle">{들어오는 것}</text>
+          <text class="dg-s" x="232" y="42" text-anchor="middle">{화살표에 붙는 라벨}</text>
+          <text class="dg-l" x="380" y="49" text-anchor="middle">{좁은 관문}<tspan class="dg-s" x="380" dy="18">{데이터 한 조각: 숫자, 식별자(code), 값. 없으면 이 tspan을 지우고 y를 58로}</tspan></text>
+          <text class="dg-s dg-bad" x="537" y="82" text-anchor="middle" style="opacity:1">{상태 코드나 한 마디}</text>
+          <text class="dg-l" x="685" y="58" text-anchor="middle" opacity=".6">{못 닿는 곳}</text>
           <!-- badges last of all, on the top-left corner of the box they number, in reading order, same number as the note below.
                Note badge: 18x18 gray square. Terminal badge (an evidence card with code follows): class code, the same 18x18 square
                with a title strip and three dots. Not every box gets one; a badge earns its place. -->
-          <g class="dg-m" transform="translate(40,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
-          <g class="dg-m code" transform="translate(335,56)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
+          <g class="dg-m" transform="translate(10,10)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><text y="4">1</text></g>
+          <g class="dg-m code" transform="translate(305,10)"><rect x="-9" y="-9" width="18" height="18" rx="4"/><rect class="bar" x="-9" y="-9" width="18" height="4.5"/><circle class="d1" cx="-6.6" cy="-6.8" r="1"/><circle class="d2" cx="-3.8" cy="-6.8" r="1"/><circle class="d3" cx="-1" cy="-6.8" r="1"/><text y="6">2</text></g>
         </svg>
       </figure>
       <!-- 선택: 근거 카드 (SKILL.md "Evidence card"). 머리는 파일 이름, 종류 한 마디, 그 상자의 터미널 배지(오른쪽 끝) 순서. 요점 줄은 .hi(회색 바탕, 꼬리표가 이유를 말한다), 깨지는 줄은 .hi.bad(빨간 꼬리표), 있어야 하는데 없는 줄은 .ghost(회색 점선).
@@ -490,6 +578,39 @@
 }</pre>
         </div>
       </div>
+      prompt card: 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나오면 산문 카드를 늘어놓지 않고 이 카드 하나로 묶는다. 토글은 모두 머리줄 오른쪽 끝(버전, 모델 먼저, 언어 마지막).
+      토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
+      <div class="pv" data-ver="v5" data-lang="en">
+        <div class="pv-h"><span class="pv-name">{프롬프트 이름}</span>
+          <span class="pv-tg">
+            <span class="tg mono" role="group" aria-label="버전"><button type="button" data-set="ver=v5" aria-pressed="true">v5</button><button type="button" data-set="ver=v7" aria-pressed="false">v7</button></span>
+            <span class="tg" role="group" aria-label="언어"><button type="button" data-set="lang=en" aria-pressed="true">원문</button><button type="button" data-set="lang=ko" aria-pressed="false">번역</button></span>
+          </span>
+        </div>
+        <div class="pv-row"><div class="pv-k">system</div><div>
+          <div class="pt" data-when="ver=v5 lang=en"><p>{v5 원문 문단, 그대로}</p></div>
+          <div class="pt ko" data-when="ver=v5 lang=ko"><p>{v5 번역 문단}</p></div>
+          <div class="pt" data-when="ver=v7 lang=en"><p>{v7 원문 문단, 그대로}</p></div>
+          <div class="pt ko" data-when="ver=v7 lang=ko"><p>{v7 번역 문단}</p></div>
+        </div></div>
+        <div class="pv-row"><div class="pv-k">user <span>{입력 예의 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 입력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 입력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">출력 <span>{모델 이름}</span></div><div><pre class="js" data-when="ver=v5">{v5 출력, 그대로}</pre><pre class="js" data-when="ver=v7">{v7 출력, 그대로}</pre></div></div>
+        <div class="pv-row"><div class="pv-k">{결과 단계의 이름: 판정, 검증}</div><div><span class="cap bad" data-when="ver=v5">{결과 이름}</span><span class="cap em" data-when="ver=v7">{결과 이름}</span></div></div>
+      </div>
+      선택지가 4개 이상인 토글은 .tg 자리에 이 드롭다운:
+      <span class="pop"><button type="button" class="pop-b" aria-haspopup="listbox" aria-expanded="false" aria-label="버전"><span class="pop-v">v7</span></button>
+        <span class="pop-m" role="listbox" hidden><button type="button" role="option" data-set="ver=v5" aria-selected="false">v5</button><button type="button" role="option" data-set="ver=v6" aria-selected="false">v6</button><button type="button" role="option" data-set="ver=v7" aria-selected="true">v7</button><button type="button" role="option" data-set="ver=v8" aria-selected="false">v8</button></span></span>
+      사용자가 버전을 나란히 보여 달라고 한 경우에만 class="pv cmp": 버전 토글 없이 열이 버전, 회색 띠(.cmp-sub)가 단계 이름.
+      <div class="pv cmp" data-lang="en">
+        <div class="pv-h"><span class="pv-name">{프롬프트 이름 v5와 v7}</span><span class="pv-tg"><span class="tg" role="group" aria-label="언어"><button type="button" data-set="lang=en" aria-pressed="true">원문</button><button type="button" data-set="lang=ko" aria-pressed="false">번역</button></span></span></div>
+        <div class="cmp-head"><div>v5</div><div>v7</div></div>
+        <div class="cmp-sub">system</div>
+        <div class="cmp-row"><div><div class="vtag">v5</div><div class="pt" data-when="lang=en"><p>{…}</p></div><div class="pt ko" data-when="lang=ko"><p>{…}</p></div></div><div><div class="vtag">v7</div><div class="pt" data-when="lang=en"><p>{…}</p></div><div class="pt ko" data-when="lang=ko"><p>{…}</p></div></div></div>
+        <div class="cmp-sub">user <span>{입력 예의 이름}</span></div>
+        <div class="cmp-row"><div><div class="vtag">v5</div><pre class="js">{…}</pre></div><div><div class="vtag">v7</div><pre class="js">{…}</pre></div></div>
+        <div class="cmp-sub">{결과 단계의 이름}</div>
+        <div class="cmp-row"><div><div class="vtag">v5</div><span class="cap bad">{…}</span></div><div><div class="vtag">v7</div><span class="cap em">{…}</span></div></div>
+      </div>
       <div class="evs">
         <div class="ev">
           <div class="ev-head"><span class="loc">{config/config.yaml}</span><span class="kind">설정</span><span class="m code">2</span></div>
@@ -501,7 +622,7 @@
         </div>
       </div> -->
       <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 1~2문장, 80자 이내. 사실만, 본문 크기.
-           해설의 머리는 그림에서 찾을 수 있는 표시다: 번호 배지, 행 칩(.cap), 그림이 채움색으로 구분하면 색 조각(<i class="sw em"></i>), 그림이 이름을 글자로 적고 있으면 그 글자 그대로(굵게, 표시 없음). -->
+           해설의 머리는 그림에서 찾을 수 있는 표시다: 번호 배지, 행 칩(.cap), 그림이 채움색으로 구분하면 범례와 같은 색 조각을 굵은 이름 앞에 문장 안으로(<i class="sw em"></i><b>이름</b>), 그림이 이름을 글자로 적고 있으면 그 글자 그대로(굵게, 표시 없음). -->
       <div class="notes">
         <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
         <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
@@ -521,10 +642,10 @@
     <div class="beat" id="b21">
       <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3></div>
       <figure class="fig">
-        <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
+        <svg viewBox="0 0 760 42" role="img" aria-label="{주장 한 문장}">
           <!-- 같은 .beat 구조를 반복하되 그림은 매번 새로 그린다 -->
-          <rect class="dg-box absent" x="40" y="40" width="680" height="40" rx="6" opacity=".6"/>
-          <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
+          <rect class="dg-box absent" x="1" y="1" width="758" height="40" rx="6" opacity=".6"/>
+          <text class="dg-s" x="380" y="25" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
       </figure>
       <p class="say">{배지가 없는 그림은 해설 없이 .say 두세 문장이에요. 해설 목록이 없어 섞일 것이 없으니 배지도 없어요.}</p>
@@ -543,9 +664,9 @@
       <p class="say" id="fig-live-say" aria-live="polite">{기본값일 때 무슨 일이 일어나는지 1~2문장.}</p>
       -->
       <figure class="fig">
-        <svg viewBox="0 0 760 120" role="img" aria-label="{주장 한 문장}">
-          <rect class="dg-box absent" x="40" y="40" width="680" height="40" rx="6" opacity=".6"/>
-          <text class="dg-s" x="380" y="64" text-anchor="middle">{이 자리에 주제의 그림}</text>
+        <svg viewBox="0 0 760 42" role="img" aria-label="{주장 한 문장}">
+          <rect class="dg-box absent" x="1" y="1" width="758" height="40" rx="6" opacity=".6"/>
+          <text class="dg-s" x="380" y="25" text-anchor="middle">{이 자리에 주제의 그림}</text>
         </svg>
       </figure>
       <p class="say"><span class="lab q">{이 줄이 무엇인지 1~3단어}</span>{결론이 아닌 마무리 줄 한 문장. 테두리 배지예요.}</p>
@@ -558,7 +679,7 @@
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>
     <figure class="fig tab">
-      <p class="res-cap"><b>표 1. 세팅</b></p>
+      <div class="res-cap"><span class="res-no">표 1</span><span class="res-t">세팅</span></div>   (표가 하나뿐인 페이지는 res-no 줄 없이 res-t만)
       <table class="res">
         <thead><tr><th>세팅</th><th>{분해 조건}</th><th class="n">{하위 질문}</th><th class="n">{추가 호출}</th></tr></thead>
         <tbody>
@@ -568,7 +689,7 @@
       </table>
     </figure>
     <figure class="fig tab">
-      <p class="res-cap"><b>표 2. {근거 전부 적중률}</b><span>{%, 높을수록 좋음}</span></p>
+      <div class="res-cap"><span class="res-no">표 2</span><span class="res-t">{근거 전부 적중률}</span></div>
       <table class="res">
         <thead><tr><th>세트</th><th class="n">{원문만}</th><th class="n">{always}</th><th class="n">{judge}</th></tr></thead>
         <tbody>
@@ -576,7 +697,22 @@
           <tr><td>{비교 질문 55, hybrid}</td><td class="n"><u>35.2</u></td><td class="n">31.5</td><td class="n"><b>37.1</b></td></tr>
         </tbody>
       </table>
-      <details class="res-more"><summary>주석: 빈칸, 승패, 계산</summary><p>{빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
+      <details class="res-more"><summary>주석: 단위, 빈칸, 승패, 계산</summary><p>{값은 %이고 높을수록 좋아요. 빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
+    </figure>
+    선택: 열이 묶음으로 나뉘거나 조건이 두 단계(모델과 프롬프트)인 표는 class="res h2". 묶음 이름은 th.grp(가운데, 묶음 폭만큼의 밑줄), 묶음의 첫 열은 th와 td에 g0, 묶음 밖의 열은 rowspan="2".
+    바깥 조건은 한 번만(td.outer, rowspan), 그 묶음의 첫 행에 tr.gs, 안쪽 조건은 td.inner. 조건이 한 단계면 지금처럼 한 열이다.
+    <figure class="fig tab">
+      <div class="res-cap"><span class="res-no">표 3</span><span class="res-t">{표가 담은 것의 이름}</span></div>
+      <table class="res h2">
+        <thead>
+          <tr><th rowspan="2">{바깥 조건}</th><th rowspan="2">{안쪽 조건}</th><th class="grp" colspan="2"><span><i>{1단계}</i>{묶음 1의 이름}</span></th><th class="grp" colspan="2"><span>{묶음 2의 이름, 번호가 없으면 i 없이}</span></th></tr>
+          <tr class="leaf"><th class="n g0">{열 1}</th><th class="n">{열 2}</th><th class="n g0">{열 3}</th><th class="n">{열 4}</th></tr>
+        </thead>
+        <tbody>
+          <tr class="gs"><td class="outer" rowspan="2">{모델 A}</td><td class="inner">{v1}</td><td class="n g0">8.6%</td><td class="n">91.4%</td><td class="n g0">56.4%</td><td class="n">35.0%</td></tr>
+          <tr><td class="inner">{v2}</td><td class="n g0">0.7%</td><td class="n">99.3%</td><td class="n g0"><b>81.4%</b></td><td class="n">17.9%</td></tr>
+        </tbody>
+      </table>
     </figure>
     <div class="notes plain">
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
@@ -591,25 +727,39 @@
     <h2>{대가와 현황}</h2>
     <div class="beat">
       <figure class="fig">
-        <svg viewBox="0 0 760 130" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
-          <!-- W=760 | group1 x[40..360]: title y=28 (dg-t), rule y=40 x40..360, bars x=100 scale {px/단위}: before {w1} (y=56 h=22), after {w2} (y=96 h=22) | group2 x[420..740]: rule x420..740, bars x=480 -->
-          <line class="dg-rule" x1="40" y1="40" x2="360" y2="40"/>
-          <line class="dg-rule" x1="420" y1="40" x2="740" y2="40"/>
-          <rect class="dg-bar" x="100" y="56" width="132" height="22" rx="3"/>
-          <rect class="dg-bar em" x="100" y="96" width="192" height="22" rx="3"/>
-          <rect class="dg-bar" x="480" y="56" width="182" height="22" rx="3"/>
-          <rect class="dg-bar" x="480" y="96" width="187" height="22" rx="3"/>
-          <text class="dg-t" x="40" y="28">{잰 것 1}</text>
-          <text class="dg-l dg-row" x="40" y="72">AS-IS</text>
-          <text class="dg-l dg-row" x="40" y="112">TO-BE</text>
-          <text class="dg-l" x="240" y="72">{11자}</text>
-          <text class="dg-l dg-em" x="300" y="112">{16자}</text>
-          <text class="dg-t" x="420" y="28">{잰 것 2}</text>
-          <text class="dg-l dg-row" x="420" y="72">AS-IS</text>
-          <text class="dg-l dg-row" x="420" y="112">TO-BE</text>
-          <text class="dg-l" x="670" y="72">{1.65초}</text>
-          <text class="dg-l" x="675" y="112">{1.70초}</text>
+        <svg viewBox="0 0 760 105" role="img" aria-label="{무엇이 얼마에서 얼마로 바뀌는지 한 문장}">
+          <!-- W=760 H=105, no empty band (text starts at x=1, the top baseline is y=14) | group1 x[1..340]: title y=14 (dg-t), rule y=26 x1..340, bars x=60 scale {px/단위}: before {w1} (y=42 h=22), after {w2} (y=82 h=22) | group2 x[400..760]: rule x400..760, bars x=460 -->
+          <line class="dg-rule" x1="1" y1="26" x2="340" y2="26"/>
+          <line class="dg-rule" x1="400" y1="26" x2="759" y2="26"/>
+          <rect class="dg-bar" x="60" y="42" width="132" height="22" rx="3"/>
+          <rect class="dg-bar em" x="60" y="82" width="192" height="22" rx="3"/>
+          <rect class="dg-bar" x="460" y="42" width="182" height="22" rx="3"/>
+          <rect class="dg-bar" x="460" y="82" width="187" height="22" rx="3"/>
+          <text class="dg-t" x="1" y="14">{잰 것 1}</text>
+          <text class="dg-l dg-row" x="1" y="58">AS-IS</text>
+          <text class="dg-l dg-row" x="1" y="98">TO-BE</text>
+          <text class="dg-l" x="200" y="58">{11자}</text>
+          <text class="dg-l dg-em" x="260" y="98">{16자}</text>
+          <text class="dg-t" x="400" y="14">{잰 것 2}</text>
+          <text class="dg-l dg-row" x="400" y="58">AS-IS</text>
+          <text class="dg-l dg-row" x="400" y="98">TO-BE</text>
+          <text class="dg-l" x="650" y="58">{1.65초}</text>
+          <text class="dg-l" x="655" y="98">{1.70초}</text>
         </svg>
+        <!-- 선택: 한 전체를 부분으로 나눈 막대 (SKILL.md "A bar split into parts"). 한 행에 막대 하나, 조각 사이 1px, 값은 조각 안(.dg-in, 회색 조각은 .dg-in ink).
+             조각이 값의 글자 폭 + 8보다 좁거나 값이 0이면 그 값만 막대 끝 6px 뒤에 .dg-out으로, 조각 순서대로, 그 부분의 색(dg-out dg-em, dg-out dg-bad)으로 적는다. 부분의 이름은 막대 옆에 쓰지 않고 그림 아래 범례에 한 번 쓴다.
+        <svg viewBox="0 0 760 91" role="img" aria-label="{전체 N건이 조건마다 어떻게 나뉘는지 한 문장}">
+          <text class="dg-t" x="1" y="14">{전체의 이름과 크기}</text><line class="dg-rule" x1="1" y1="26" x2="759" y2="26"/>
+          <text class="dg-l dg-row" x="1" y="58">{조건 1}</text>
+          <rect class="dg-bar em" x="110" y="42" width="340" height="22" rx="2"/><rect class="dg-bar bad" x="451" y="42" width="211" height="22" rx="2"/><rect class="dg-bar" x="663" y="42" width="57" height="22" rx="2"/>
+          <text class="dg-in" x="280" y="57.5">56%</text><text class="dg-in" x="556.5" y="57.5">35%</text><text class="dg-in ink" x="691.5" y="57.5">9%</text>
+          <text class="dg-l dg-row" x="1" y="84">{조건 2}</text>
+          <rect class="dg-bar em" x="110" y="68" width="496" height="22" rx="2"/><rect class="dg-bar bad" x="607" y="68" width="108" height="22" rx="2"/><rect class="dg-bar" x="716" y="68" width="4" height="22" rx="2"/>
+          <text class="dg-in" x="358" y="83.5">81%</text><text class="dg-in" x="661" y="83.5">18%</text><text class="dg-out" x="726" y="83.5">1%</text>
+        </svg>
+        <ul class="legend"><li><i class="sw em"></i>{부분 1}</li><li><i class="sw bad"></i>{부분 2}</li><li><i class="sw"></i>{부분 3}</li></ul>
+        해설은 범례와 같은 색 조각을 굵은 이름 앞에 문장 안으로 넣는다 (.notes.plain):
+        <div class="note"><div><i class="sw em"></i><b>{부분 1}</b>{은 무엇인지 한 문장.}</div></div> -->
         <!-- 선택: 이 줄이 없으면 그림을 잘못 읽게 되는 조건(모집단, 단위, 기준)이 있을 때만. 그리지 않은 수치는 여기도 넣지 않고 보고서로 보낸다.
         <details class="res-more"><summary>{무엇이 들었는지: 측정 조건}</summary><p>{어느 집합의 어떤 값인지 한두 문장}</p></details> -->
       </figure>
@@ -646,5 +796,40 @@
   });
 })();
 </script>
+<!-- prompt card (optional): copy this script only when the page has a .pv card.
+<script>
+/* prompt card: a .tg button or a .pop option carries data-set="key=value" and sets data-key on its card; every block with
+   data-when="key=value ..." shows only while all its pairs match the card. A .pop menu closes on a choice, a click elsewhere, or Escape. */
+(function(){
+  function each(list, fn){ Array.prototype.forEach.call(list, fn); }
+  function apply(pv){
+    each(pv.querySelectorAll("[data-when]"), function(el){
+      el.hidden = el.getAttribute("data-when").split(/\s+/).some(function(kv){ var p = kv.split("="); return pv.getAttribute("data-" + p[0]) !== p[1]; });
+    });
+  }
+  function closeAll(except){
+    each(document.querySelectorAll(".pop"), function(p){
+      if (p === except) return;
+      p.querySelector(".pop-m").hidden = true; p.querySelector(".pop-b").setAttribute("aria-expanded", "false");
+    });
+  }
+  function choose(b){ var pv = b.closest(".pv"), p = b.getAttribute("data-set").split("="); pv.setAttribute("data-" + p[0], p[1]); apply(pv); }
+  each(document.querySelectorAll(".pv"), apply);
+  document.addEventListener("click", function(e){
+    var t = e.target; if (!t.closest) return;
+    var pb = t.closest(".pop-b"), po = t.closest(".pop-m button"), b = t.closest(".tg button[data-set]");
+    closeAll(pb ? pb.parentNode : null);
+    if (po){
+      var pop = po.closest(".pop"); choose(po); pop.querySelector(".pop-v").textContent = po.textContent;
+      each(pop.querySelectorAll(".pop-m button"), function(x){ x.setAttribute("aria-selected", x === po ? "true" : "false"); });
+    } else if (pb){
+      var m = pb.parentNode.querySelector(".pop-m"); m.hidden = !m.hidden; pb.setAttribute("aria-expanded", m.hidden ? "false" : "true");
+    } else if (b){
+      choose(b); each(b.parentNode.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    }
+  });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeAll(null); });
+})();
+</script> -->
 </body>
 </html>

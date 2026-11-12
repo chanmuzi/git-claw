@@ -153,6 +153,7 @@
   .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
   .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
   .sec-top .beat{ margin-top:36px; }
+  .sec-top > h2 + .beat{ margin-top:0; }                     /* the first beat sits 16px under the section heading (the h2's own margin), close to the 14px between a beat heading and its figure */
   .sec-top.single .beat{ margin-top:0; }
   /* three levels of separation, all in the hairline color: a full rule opens a section, a 120px rule sits between the
      beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
@@ -843,16 +844,17 @@
           <text class="dg-l" x="655" y="98">{1.70초}</text>
         </svg>
         <!-- 선택: 일부러 멈춘 단계 (SKILL.md "a hold"). 선은 회색 그대로 멈춤 표시(.dg-hold, 세로 막대 둘)까지 가고 화살촉은 없다. 그 뒤는 점선 화살표와 점선 상자(흐리게 하지 않음).
+             멈춤 표시는 두 상자 사이의 가운데에 둔다(실선과 점선 화살표의 길이가 같다).
              "보류" 한 마디는 표시 가운데, 막대 아래 14px. 빨간색은 쓰지 않는다.
         <svg viewBox="0 0 458 56" width="458" height="56" role="img" aria-label="{어느 단계 앞에서 멈춰 있는지 한 문장}">
           <rect class="dg-box" x="1" y="1" width="150" height="40" rx="6"/>
-          <line class="dg-arrow" x1="157" y1="21" x2="182" y2="21"/>
-          <g class="dg-hold"><line x1="188" y1="15" x2="188" y2="27"/><line x1="194" y1="15" x2="194" y2="27"/></g>
-          <line class="dg-arrow absent" x1="202" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
+          <line class="dg-arrow" x1="157" y1="21" x2="220" y2="21"/>
+          <g class="dg-hold"><line x1="226" y1="15" x2="226" y2="27"/><line x1="232" y1="15" x2="232" y2="27"/></g>
+          <line class="dg-arrow absent" x1="240" y1="21" x2="302" y2="21" marker-end="url(#ar1)"/>
           <rect class="dg-box absent" x="306" y="1" width="150" height="40" rx="6"/>
           <text class="dg-l" x="76" y="25" text-anchor="middle">{끝난 단계}</text>
           <text class="dg-l" x="381" y="25" text-anchor="middle">{아직 시작하지 않은 단계}</text>
-          <text class="dg-s dg-wait" x="191" y="41" text-anchor="middle">보류</text>
+          <text class="dg-s dg-wait" x="229" y="41" text-anchor="middle">보류</text>
         </svg> -->
         <!-- 선택: 한 전체를 부분으로 나눈 막대 (SKILL.md "A bar split into parts"). 한 행에 막대 하나, 조각 사이 1px, 값은 조각 안(.dg-in, 회색 조각은 .dg-in ink).
              조각이 값의 글자 폭 + 8보다 좁거나 값이 0이면 그 값만 막대 끝 6px 뒤에 .dg-out으로, 조각 순서대로, 그 부분의 색(dg-out dg-em, dg-out dg-bad)으로 적는다. 부분의 이름은 막대 옆에 쓰지 않고 그림 아래 범례에 한 번 쓴다.

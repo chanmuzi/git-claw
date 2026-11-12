@@ -109,6 +109,7 @@
 
 - 범위: 산문 원문 카드 (`.prose-card`: 프롬프트, 에러 메시지, 안내문처럼 문장으로 쓰인 원문. `.pc-h` 종류, 이름, 파일, `.pc-b` 원문 문단마다 `<p>`, 모노 12.5px, 줄 간격 1.75, 76ch, 공백만 바꿈, 강조와 꼬리표와 접기와 요약 없음)
 - 관련 스킬: `eli5` (현재 단독)
+- 이름 붙은 행(`dl.rows`, 2026-11-12 3차): 자료의 한 건을 통째로 보일 때의 형태. 이름 열과 내용 열, 순서는 행 이름에, 결과는 줄 끝의 `.cap` 하나
 - 프롬프트 카드(`.pv`, 2026-11-12 2차): 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나올 때의 카드 하나. 단계 이름 열, 결과는 `.cap` 하나, 토글(`.tg`, 4개부터 `.pop`)은 머리줄 오른쪽 끝, 바뀌는 블록은 `data-when`, 스크립트는 `frame.html` 끝의 `prompt card` 블록. 번역은 이 카드의 토글로만 둔다
 - 근거 카드의 네 번째 형태. 코드 인용 형태(`.ln`)로 산문을 넣거나 스킬 밖의 상자(`.prompt`)를 만들던 산출물을 대체한다. `.close` 머리 문장 규칙(45자, 쉼표 1개, 조건은 문단으로, 진행 메모 금지)도 같은 개정. visual-doc, explain-diff 이식은 eli5에서 검증한 뒤. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-09 5차)
 
@@ -134,7 +135,7 @@
 
 - 범위: 그림의 선 한 벌(`--dg-line`, `--dg-flow` 토큰, `.dg-box`, `.dg-arrow`, `.dg-head`, `.dg-cell`, 강조 `em`/`bad`, 없는 것 `absent`, 행 이름 `dg-l dg-row`), 마무리 줄 배지 두 종류(형광 `.lab`은 정리 머리 문장이 다시 말하는 줄에만, 테두리 `.lab.q`는 문구 목록 없이 판정 기준), 그림 안의 글(그린 것과 이름만, 읽는 데 필요한 조건은 접힌 `.res-more`, 나머지 수치는 보고서), 그림 안 제목(막대 묶음이 잰 것의 이름과 시스템 상자 이름은 `.dg-t` 13px 700, 막대 묶음 제목 아래 묶음 폭의 `.dg-rule` 선), 해설 머리 표시(번호 배지, 행 칩, 색 조각 `.sw`, 같은 글자), 구성안의 선행 확인
 - 관련 스킬: `eli5` (현재 단독)
-- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A title inside a figure is bold", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. 나뉜 막대의 조각 안 값(`.dg-in`, `.dg-out`)과 그림 안 범례(`.legend`), 문장 안 색 조각, 패널 여백과 블록 간격 한 값, 표 캡션(`.res-no`, `.res-t`)과 두 단 머리글(`.res.h2`)도 eli5에만 있다 (2026-11-12 2차). `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스와 `.dg-t`, `.dg-rule`은 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차, 2026-11-11 2차)
+- SKILL.md "One stroke set", "Two badges", "A figure holds what it draws", "A title inside a figure is bold", "A note opens with a mark", Step 2 "읽기 전에 알아야 하는 것은 앞에 있다", Render check 7번과 9번. 포함 표(`.res.ox`와 그린 기호 `.mk`, 2026-11-12 3차), 나뉜 막대의 조각 안 값(`.dg-in`, `.dg-out`)과 그림 안 범례(`.legend`), 문장 안 색 조각, 패널 여백과 블록 간격 한 값, 표 캡션(`.res-no`, `.res-t`)과 두 단 머리글(`.res.h2`)도 eli5에만 있다 (2026-11-12 2차). `figure labels (SHARED` 블록의 이름은 세 스킬이 같지만 선 클래스와 `.dg-t`, `.dg-rule`은 eli5에만 있다: visual-doc, explain-diff의 그림은 아직 `stroke="currentColor"`로 그린다. 옮길 때 이 행을 공유 항목으로 바꾼다. 정본: docs/decisions/2026-08-eli5-history.md (개정 2026-11-10 2차, 2026-11-11 2차)
 
 ### 18. 조작할 수 있는 그림의 조건
 

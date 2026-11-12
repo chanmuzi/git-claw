@@ -126,26 +126,29 @@
      vertical lines. No label, no card. */
   .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
   .outline ol{ list-style:none; margin:0; padding:0; }
-  .outline > ol > li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
-  .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); }
-  .outline ol ol{ grid-column:2; margin-top:6px; display:flex; flex-direction:column; gap:3px; }
-  .outline ol ol li{ display:grid; grid-template-columns:36px minmax(0,1fr); column-gap:12px; align-items:baseline; font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
-  .outline ol ol li b{ color:var(--faint); font-size:14px; }
+  .outline > ol > li{ padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
+  .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); margin-right:10px; }
+  .outline li b::after{ content:"."; }                      /* `1. 제목`: the number and the title on one line; the period comes from here */
+  .outline ol ol{ margin:6px 0 0; padding-left:28px; display:flex; flex-direction:column; gap:3px; }
+  .outline ol ol li{ font-size:14px; font-weight:400; color:var(--sub); line-height:1.5; }
+  .outline ol ol li b{ color:var(--faint); font-size:14px; margin-right:12px; }
   .outline a{ color:inherit; text-decoration:none; }
   .outline a:hover{ color:var(--brand); }
 
   /* ── section hierarchy (eli5 copy; the other three skills still carry the pre-Lift block) ──
      Where the reader is on the page, without a floating rail: the 3px .progress bar at the top fills with the scroll
-     ratio, every top-level section opens with a hairline and a number line (`1 / 4`), and a beat inside a grouped
-     section opens with its number (`1-1`) and an h3. Numbers live in these lines, never in the heading text.
-     A number is set at the size of the text it sits beside (outline 15px and 14px) or one step under its heading
-     (section 16px under a 21px h2, beat 14.5px under a 17.5px h3). */
+     ratio, every top-level section opens with a hairline and its number set on one line with the h2 (`1. 제목`), and a
+     beat inside a grouped section opens with its number on one line with the h3 (`1-1. 제목`). The number is its own
+     element (.sec-no, .sub-no) at the size of the heading beside it; the period comes from the CSS, and the heading text
+     never carries the number. eli5 only (2026-11-12): the other three skills keep the number line above the heading. */
   .progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--brand); z-index:60; transition:width .1s linear; }
   .sec-top{ border-top:1px solid var(--line); padding-top:28px; margin-top:56px; }
   .shell > .sec-top:first-child{ border-top:none; margin-top:44px; padding-top:0; }  /* the first section sits under the cover without a second rule */
-  .sec-no{ display:flex; gap:8px; align-items:baseline; margin:0 0 6px; font-family:var(--mono); font-size:16px; font-weight:600; letter-spacing:.04em; color:var(--faint); }
-  .sec-no b{ color:var(--brand); font-weight:700; }
-  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; }
+  .sec-no{ float:left; margin:0 10px 0 0; font-family:var(--mono); font-size:21px; font-weight:700; line-height:1.4; color:var(--brand); }
+  .sec-no b{ font-weight:700; }
+  .sec-no b::after{ content:"."; }
+  .sec-no span{ display:none; }                              /* pages before 2026-11-12 carried the section count (`/ 4`) here */
+  .sec-top > h2{ font-size:21px; font-weight:700; letter-spacing:-0.03em; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 16px; overflow:hidden; }   /* its own block beside the floated number, so a second line hangs under the title, not under the number */
   /* deck: removed 2026-11-10. New pages put no line under a heading; the CSS stays only so older pages still render. */
   .sec-top > h2:has(+ .deck), .sub-h h3:has(+ .deck){ margin-bottom:6px; }
   .deck{ /* kept for pages before 2026-11-10; new pages put no line under a heading */ font-size:14.5px; line-height:1.6; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0 0 16px; }
@@ -155,8 +158,9 @@
      beats of one group, and inside a beat the closing line is set off by its badge (no rule). */
   .sec-top .beat + .beat{ position:relative; padding-top:28px; }
   .sec-top .beat + .beat::before{ content:""; position:absolute; top:0; left:0; width:120px; height:1px; background:var(--line); }
-  .sub-h{ margin:0 0 14px; }
-  .sub-no{ font-family:var(--mono); font-size:14.5px; font-weight:600; letter-spacing:.06em; color:var(--brand); margin:0 0 4px; }
+  .sub-h{ margin:0 0 14px; display:flex; align-items:baseline; gap:8px; }
+  .sub-no{ font-family:var(--mono); font-size:17.5px; font-weight:600; line-height:1.45; color:var(--brand); flex:none; }
+  .sub-no::after{ content:"."; }
   .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
   .sub-h .deck{ margin-bottom:0; }
 
@@ -586,9 +590,9 @@
 
 <div class="shell">
 
-  <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호 줄은 `1 / 전체 상위 섹션 수`. 제목 글자에는 숫자를 넣지 않는다. -->
+  <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호는 .sec-no에 숫자만 넣는다(프레임이 `1. 제목` 한 줄로 그린다). 제목 글자에는 숫자를 넣지 않는다. -->
   <section class="sec-top single" id="g1">
-    <div class="sec-no"><b>1</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>1</b></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
     <div class="beat">
       <figure class="fig">
@@ -709,7 +713,7 @@
 
   <!-- SECTION 2 (묶음: 상위 섹션이 h2를 갖고, beat는 .sub-h로 연다) -->
   <section class="sec-top" id="g2">
-    <div class="sec-no"><b>2</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>2</b></div>
     <h2>{상위 섹션의 대상, 짧은 명사구}</h2>
     <div class="beat" id="b21">
       <div class="sub-h"><div class="sub-no">2-1</div><h3>{짧은 명사구}</h3></div>
@@ -806,7 +810,7 @@
 
   <!-- SECTION 3: 대가. 숫자는 여기 한 번만, 길이로 그린다 (SKILL.md "Numbers are drawn to scale"). 숫자 타일은 없다. 조건 x 측정값 격자는 위의 결과 표 beat가 맡는다. -->
   <section class="sec-top single" id="g3">
-    <div class="sec-no"><b>3</b><span>/ {상위 섹션 수}</span></div>
+    <div class="sec-no"><b>3</b></div>
     <h2>{대가와 현황}</h2>
     <div class="beat">
       <figure class="fig">

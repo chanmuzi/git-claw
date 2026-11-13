@@ -309,8 +309,10 @@
      The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
      run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned,
      tabular). No table, column or cell has a width of its own: the script at the end of <body> sets .fill or .narrow (below). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
-     deltas in the folded .res-more or the drawing. <b> marks the best value of its row (or column; one table uses one direction),
-     <u> the second when three or more values are compared; a tie shares the mark. A column or row with no value is
+     deltas in the folded .res-more or the drawing. A cell that scores a fixed set holds the percentage, not the count; only when the set is
+     small does every scored cell add the count after it (<span class="c">(16)</span>). <b> marks the best value of its row (or column; one table uses one direction),
+     <u> the second when three or more values are compared; a tie shares the mark. No mark on values that are all equal, on a value the page
+     says cannot be compared, or on more than one column of a group whose cells add up to the set. A column or row with no value is
      not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
      folded .res-more under the table, never in a visible line. No adjective in a cell. */
   /* caption: `표 1. 제목` on one line at the panel's top left, wherever the table sits. The number (.res-no) is a separate element
@@ -339,6 +341,7 @@
   .res td{ color:var(--sub); }
   .res td b{ color:var(--ink); font-weight:700; }
   .res td u{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
+  .res td .c{ margin-left:4px; font-size:12.5px; font-weight:400; color:var(--faint); }   /* the count after a percentage, `80% (16)`: only in a table whose set is small; outside the <b> */
   .res tr:last-child td{ border-bottom:none; }
   /* presence table (.res.ox; SKILL.md "which setting has which part"): parts as column heads once, one row per setting, a drawn
      mark in every cell. .mk.o present, .mk.x absent: both in the same 12px box with the same stroke, because the characters ○ and ×
@@ -813,10 +816,12 @@
         </thead>
         <tbody>
           <tr class="gs"><td class="outer" rowspan="2">{모델 A}</td><td class="inner">{v1}</td><td class="n g0">8.6%</td><td class="n">91.4%</td><td class="n g0">56.4%</td><td class="n">35.0%</td></tr>
-          <tr><td class="inner">{v2}</td><td class="n g0">0.7%</td><td class="n">99.3%</td><td class="n g0"><b>81.4%</b></td><td class="n">17.9%</td></tr>
+          <tr><td class="inner">{v2}</td><td class="n g0">0.7%</td><td class="n"><b>99.3%</b></td><td class="n g0"><b>81.4%</b></td><td class="n">17.9%</td></tr>
         </tbody>
       </table>
     </figure>
+    선택: 정해진 집합을 채점한 칸은 퍼센트만 쓴다(위 표 3). 집합이 작아 한 건이 몇 %p씩 움직이면 그 표의 채점 칸마다 개수를 괄호로 붙인다:
+    <td class="n"><b>{80%}</b><span class="c">({16})</span></td>. 굵은 글씨는 퍼센트에만 둔다.
     <div class="notes plain">
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
       <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</div></div>

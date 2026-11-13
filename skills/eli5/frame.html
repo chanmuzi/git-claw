@@ -308,9 +308,9 @@
   /* ── results table (optional; SKILL.md "Results table") ──
      The grid of conditions x measures, in a .fig panel like a drawing (.fig.tab). Rows are the conditions as they were
      run; columns are text (default, left-aligned, header too) or numbers (class="n" on th and td: right-aligned,
-     tabular). No table, column or cell has a width of its own: the script at the end of <body> sets .fill or .narrow (below). A cell holds one number or one short phrase, nothing beside it; n lives in the row label, 승패 and
+     tabular). No table, column or cell has a width of its own: the script at the end of <body> sets .fill or .narrow (below). A cell holds one number or one short phrase, nothing beside it (except the count of a small set, below); n lives in the row label, 승패 and
      deltas in the folded .res-more or the drawing. A cell that scores a fixed set holds the percentage, not the count; only when the set is
-     small does every scored cell add the count after it (<span class="c">(16)</span>). <b> marks the best value of its row (or column; one table uses one direction),
+     small does every scored cell add the count after it in a span of class c, `80% (16)`. <b> marks the best value of its row (or column; one table uses one direction),
      <u> the second when three or more values are compared; a tie shares the mark. No mark on values that are all equal, on a value the page
      says cannot be compared, or on more than one column of a group whose cells add up to the set. A column or row with no value is
      not in the table. A cell the source does not give stays empty; blanks, 승패 and derivations are explained in the
@@ -769,7 +769,7 @@
   </section>
 
   <!-- 선택: 결과 표 beat (SKILL.md "Results table"). 조건 2개 이상 x 측정값 2개 이상(또는 조건 3개 이상)이 있을 때만 대가 beat 앞에 둔다. 격자가 없는 주제(동작, 사고, 설계)에는 없다.
-       표 2(결과, 숫자만)가 본체이고, 표 1(세팅)은 세팅이 둘 이상의 점에서 다를 때만 둔다. 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>.
+       표 2(결과, 숫자만)가 본체이고, 표 1(세팅)은 세팅이 둘 이상의 점에서 다를 때만 둔다. 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>(모두 같은 값, 비교할 수 없다고 밝힌 값, 한 집합을 나눈 열 묶음의 나머지 열에는 두지 않는다). 정해진 집합을 채점한 칸은 퍼센트.
        칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 접힌 res-more에. 값이 하나도 없는 열은 표에 넣지 않는다. 빈칸은 원문에 없는 값이고 채우지 않는다.
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>
@@ -788,11 +788,11 @@
       <table class="res">
         <thead><tr><th>세트</th><th class="n">{원문만}</th><th class="n">{always}</th><th class="n">{judge}</th></tr></thead>
         <tbody>
-          <tr><td>{비교 질문 55, dense}</td><td class="n"><u>24.1</u></td><td class="n"><b>33.3</b></td><td class="n"></td></tr>
-          <tr><td>{비교 질문 55, hybrid}</td><td class="n"><u>35.2</u></td><td class="n">31.5</td><td class="n"><b>37.1</b></td></tr>
+          <tr><td>{비교 질문 55, dense}</td><td class="n"><u>24%</u></td><td class="n"><b>33%</b></td><td class="n"></td></tr>
+          <tr><td>{비교 질문 55, hybrid}</td><td class="n"><u>35%</u></td><td class="n">32%</td><td class="n"><b>37%</b></td></tr>
         </tbody>
       </table>
-      <details class="res-more"><summary>주석: 단위, 빈칸, 승패, 계산</summary><p>{값은 %이고 높을수록 좋아요. 빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
+      <details class="res-more"><summary>주석: 빈칸, 승패, 계산</summary><p>{높을수록 좋아요. 빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
     </figure>
     선택: 조건마다 같은 부품의 있고 없음만 다른 경우는 상자를 행마다 반복하지 않고 포함 표(class="res ox")로 쓴다. 칸마다 그린 기호(.mk o, .mk x), 요점인 열의 있음 칸은 td.p.
     칸의 답이 있음과 없음이 아니면 값(3개, 0.2)이나 낱말(일부)을 적는다.
@@ -815,13 +815,13 @@
           <tr class="leaf"><th class="n g0">{열 1}</th><th class="n">{열 2}</th><th class="n g0">{열 3}</th><th class="n">{열 4}</th></tr>
         </thead>
         <tbody>
-          <tr class="gs"><td class="outer" rowspan="2">{모델 A}</td><td class="inner">{v1}</td><td class="n g0">8.6%</td><td class="n">91.4%</td><td class="n g0">56.4%</td><td class="n">35.0%</td></tr>
-          <tr><td class="inner">{v2}</td><td class="n g0">0.7%</td><td class="n"><b>99.3%</b></td><td class="n g0"><b>81.4%</b></td><td class="n">17.9%</td></tr>
+          <tr class="gs"><td class="outer" rowspan="2">{모델 A}</td><td class="inner">{v1}</td><td class="n g0">8.6%</td><td class="n">91.4%</td><td class="n g0">56.4%</td><td class="n">43.6%</td></tr>
+          <tr><td class="inner">{v2}</td><td class="n g0">0.7%</td><td class="n"><b>99.3%</b></td><td class="n g0"><b>81.4%</b></td><td class="n">18.6%</td></tr>
         </tbody>
       </table>
     </figure>
-    선택: 정해진 집합을 채점한 칸은 퍼센트만 쓴다(위 표 3). 집합이 작아 한 건이 몇 %p씩 움직이면 그 표의 채점 칸마다 개수를 괄호로 붙인다:
-    <td class="n"><b>{80%}</b><span class="c">({16})</span></td>. 굵은 글씨는 퍼센트에만 둔다.
+    선택: 정해진 집합을 채점한 칸은 퍼센트만 쓴다(위 표 3). 집합이 작아 한 건이 몇 %p씩 움직이면 그 표의 채점 칸마다 퍼센트 뒤에 개수를 괄호로 붙인다:
+    `80% (16)`, 개수는 class가 c인 span으로 감싸고(마크업은 SKILL.md "Results table") 굵은 글씨는 퍼센트에만 둔다.
     <div class="notes plain">
       <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
       <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</div></div>

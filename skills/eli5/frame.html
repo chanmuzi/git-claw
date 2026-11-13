@@ -323,6 +323,14 @@
   .res-no{ flex:none; white-space:nowrap; font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.04em; line-height:1.45; color:var(--brand); }
   .res-no::after{ content:"."; }
   .res-t{ min-width:0; font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.45; color:var(--ink); }
+  /* example head line (.res-cap.ex; SKILL.md "A case picked from a set is marked as an example"): the caption of a named-rows panel
+     whose case is one of several. It runs across the panel with a rule under it: `예시` (or `예시 1`) in .res-no with no period, the
+     case's name in .res-t, and at the right edge what the case was picked from (.res-of). */
+  .res-cap.ex{ flex-wrap:wrap; gap:2px 10px; margin:-16px -20px 14px; padding:8px 20px; border-bottom:1px solid var(--line-soft); }
+  .res-cap.ex .res-no{ font-family:var(--sans); letter-spacing:0; }   /* `예시 2`: a mono space between Hangul and the digit reads as two */
+  .res-cap.ex .res-no::after{ content:none; }
+  .res-of{ margin-left:auto; font-size:12.5px; color:var(--faint); }
+  @media (max-width:600px){ .res-of{ margin-left:0; flex-basis:100%; } }
   /* width: a table is as wide as its content and sits in the middle of the panel. When the content reaches 70% of the panel the
      script adds .fill: the table fills the panel and every column shares the spare width in proportion to its content. A table
      that stays in the middle gets .narrow: 36px between columns instead of 24px. */
@@ -673,6 +681,17 @@
           <dt>{조건 2}</dt><dd>{그 조건이 낸 것, 그대로}<span class="cap bad">{결과 이름}</span></dd>
         </dl>
       </figure>
+      beat가 센 건수보다 적게 보이는 건은 예시다. 캡션을 머리줄로 쓴다: 앞에 `예시`, 이름 뒤에 어디서 뽑았는지(건수, 묶음이 있으면 묶음 이름).
+      두세 건이면 `예시 1`, `예시 2`로 번호를 붙이고 건마다 패널 하나. 묶음이 서로 다르면 그 묶음의 건수를 적는다. 전부를 보이는 beat에는 `예시`가 없다.
+      <figure class="fig tab">
+        <div class="res-cap ex"><span class="res-no">예시</span><span class="res-t">{건의 이름}</span><span class="res-of">{N건 중 1건, 묶음 이름}</span></div>
+        <dl class="rows">…</dl>
+      </figure>
+      여러 건일 때의 둘째 패널 (첫 패널은 `예시 1`):
+      <figure class="fig tab">
+        <div class="res-cap ex"><span class="res-no">예시 2</span><span class="res-t">{건의 이름}</span><span class="res-of">{묶음 이름 M건 중 1건}</span></div>
+        <dl class="rows">…</dl>
+      </figure>
       prompt card: 프롬프트가 입력, 출력, 번역, 여러 버전과 함께 나오면 산문 카드를 늘어놓지 않고 이 카드 하나로 묶는다. 토글은 모두 머리줄 오른쪽 끝(버전, 모델 먼저, 언어 마지막).
       토글(.tg)은 선택지 3개까지, 4개부터는 .pop. 바뀌는 블록마다 data-when, 처음 상태와 맞지 않는 블록에는 hidden도 적는다. 결과 줄에는 .cap 하나만. 맨 아래 prompt card 스크립트를 함께 넣는다.
       <div class="pv" data-ver="v5" data-lang="en">
@@ -770,6 +789,7 @@
 
   <!-- 선택: 결과 표 beat (SKILL.md "Results table"). 조건 2개 이상 x 측정값 2개 이상(또는 조건 3개 이상)이 있을 때만 대가 beat 앞에 둔다. 격자가 없는 주제(동작, 사고, 설계)에는 없다.
        표 2(결과, 숫자만)가 본체이고, 표 1(세팅)은 세팅이 둘 이상의 점에서 다를 때만 둔다. 글 열은 왼쪽, 숫자 열(class="n", th와 td 모두)은 오른쪽. 행마다 최고 <b>, 셋 이상 비교면 둘째 <u>(모두 같은 값, 비교할 수 없다고 밝힌 값, 한 집합을 나눈 열 묶음의 나머지 열에는 두지 않는다). 정해진 집합을 채점한 칸은 퍼센트.
+       표 제목은 캡션(res-t)에 쓴다. 첫 열 머리글에는 행이 무엇인지만 한두 낱말로 적거나 비운다(제목을 적으면 첫 열이 제목만큼 넓어져 행 이름과 숫자가 멀어진다).
        칸에는 숫자 하나만: n은 행 이름에, 승패와 변화량은 접힌 res-more에. 값이 하나도 없는 열은 표에 넣지 않는다. 빈칸은 원문에 없는 값이고 채우지 않는다.
   <div class="beat" id="b{n}">
     <div class="sub-h"><div class="sub-no">{n}-{m}</div><h3>{실험 세팅 N가지와 세트별 결과}</h3></div>

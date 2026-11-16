@@ -29,6 +29,7 @@
 - `/eli5` 그림 안 제목은 굵게, 막대 묶음 제목에는 밑줄: 막대 묶음이 잰 것의 이름과 시스템 상자의 이름을 `.dg-t`(13px, 굵기 700)로 쓰고, 막대 묶음 제목 아래에는 묶음 폭만큼 가는 선(`.dg-rule`)을 긋는다. Render check 9번에 제목과 선의 개수 검사를 넣었다. 배경: docs/decisions/2026-08-eli5-history.md (개정 2026-11-11 2차)
 
 **Fixed**
+- `/eli5` SKILL.md의 표지 사실 줄 글자 크기: 글자 크기 문단이 16px이라고 적던 것을 `frame.html`과 결정 기록(개정 2026-11-12 3차)의 14.5px로 맞췄다. 표지 격자도 같은 크기라고 적었다. (#120)
 - Codex 동기화 절차(`docs/ops/plugin-sync.md`, `docs/ops/skills-cli.md`)의 직접 복사가 Codex 사본 보정(서명 문구를 Codex용으로 바꾼 것)을 지우던 것: 보정 스크립트가 있는 환경에서는 복사한 스킬마다 다시 돌리고, 검증에서 보정이 남았는지 확인한다.
 - cache 정리 스크립트(`docs/ops/plugin-sync.md`, `docs/testing.md`)가 `installPath`를 글자로 비교하던 것: plugins 디렉토리가 symlink라 같은 cache가 다른 경로로 적히면 쓰는 cache를 남길 대상으로 보지 못했다. 실제 경로(`pwd -P`)로 비교한다.
 - `/eli5` SKILL.md에 남아 있던 옛 문장 두 곳: 막대 행 이름을 `.dg-s`로, 그리지 않은 수치를 그림 맨 아래 `.dg-s` 줄로 적던 문장을 v1.27.0 규칙(`dg-l dg-row`, 그림 밖)과 맞췄다.

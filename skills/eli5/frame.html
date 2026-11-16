@@ -26,7 +26,7 @@
 <style>
   /* ── tokens (LOCKED). Lift 1.1.0: neutral = zinc-leaning gray, brand-500 = #5B52FF, highlight = #D2FF95.
      Page = white ground, one 880px column; the cover (hero + outline) sits on a brand-tint band; figures
-     are neutral-50 panels; nothing else is a card. */
+     are neutral-50 panels and the cover's fact rows sit in one white panel; nothing else is a card. */
   :root{
     --n0:#FFFFFF; --n50:#F9F9FC; --n100:#F3F3F7; --n200:#E3E3E8; --n300:#D0D0D7; --n400:#A0A0AB;
     --n500:#71717A; --n600:#52525B; --n700:#3F3F46; --n800:#27272A; --n900:#18181B;
@@ -95,8 +95,12 @@
   .eyebrow{ font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.04em; color:var(--sub); margin-bottom:14px; }
   .hero h1{ font-size:clamp(26px,3.6vw,32px); font-weight:800; line-height:1.3; letter-spacing:-0.035em; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0 0 14px; }
   .hero .lede{ font-size:16px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; margin:0; max-width:720px; }
-  /* fact rows: what the reader takes away, one row per result or conclusion (name, fact). A page with one takeaway uses .lede instead. */
-  .hero .facts{ margin:0; display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 16px; max-width:720px; }
+  /* fact rows: what the reader takes away, one row per result or conclusion (name, fact). A page with one takeaway uses .lede instead.
+     The rows (.facts, or the cover grid in .fg-wrap) sit in a white panel on the band, with the inset of every other panel (16px, 20px).
+     The panel is what parts them from the outline: both are lists with a brand-colored lead, and on one surface they read as one list.
+     The outline right after a panel drops its top rule (the panel's edge is the divider). A .lede has no panel. */
+  .hero .facts, .hero .fg-wrap{ margin:20px 0 0; background:var(--bg); border:1px solid var(--brand-100); border-radius:var(--r-lg); padding:16px 20px; }
+  .hero .facts{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 16px; }
   .hero .facts dt{ font-size:13px; font-weight:600; color:var(--brand-ink); padding-top:2px; white-space:nowrap; }
   .hero .facts dd{ margin:0; font-size:14.5px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
   /* a number is shown, not narrated (SKILL.md "The cover"). Everything on the value side is one size (14.5px, the size of the notes); only color and weight differ.
@@ -126,6 +130,7 @@
      nested <ol> under its parent's title and uses the same 36px number column, so every title starts on one of two
      vertical lines. No label, no card. */
   .outline{ margin-top:28px; border-top:1px solid var(--brand-100); }
+  .hero .facts + .outline, .hero .fg-wrap + .outline{ margin-top:20px; border-top:none; }   /* under the fact panel: its edge is the divider */
   .outline ol{ list-style:none; margin:0; padding:0; }
   .outline > ol > li{ padding:11px 0; border-bottom:1px solid var(--brand-100); font-size:15px; font-weight:600; line-height:1.5; word-break:keep-all; }
   .outline li b{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--brand); margin-right:10px; }
@@ -353,16 +358,22 @@
   .res tr:last-child td{ border-bottom:none; }
   /* presence table (.res.ox; SKILL.md "which setting has which part"): parts as column heads once, one row per setting, a drawn
      mark in every cell. .mk.o present, .mk.x absent: both in the same 12px box with the same stroke, because the characters ○ and ×
-     differ in size from font to font. The x is one step lighter; td.p marks the present cells of the column the beat is about. */
+     differ in size from font to font. The x is one step lighter; td.p marks the present cells of the column the beat is about.
+     A cell that holds a value or a word instead of a mark is in the text color, not the gray of the marks (no class: the rule finds
+     the cells without a .mk). A column of values is a text column: class="t" on its th and every td, left-aligned. A row that has no
+     value there because the part the value belongs to is absent holds .mk.na (a short line, `해당 없음`) in td.x.t, never the x. */
   .res.ox th:not(:first-child), .res.ox td:not(:first-child){ text-align:center; padding-left:12px; padding-right:12px; }
   .res.ox td:not(:first-child){ color:var(--n500); }
   .res.ox td.x{ color:var(--n400); }
   .res.ox td.p{ color:var(--brand); }
+  .res.ox td:not(:first-child):not(:has(.mk)){ color:var(--ink); }
+  .res.ox th.t, .res.ox td.t{ text-align:left; }
   @media (min-width:601px){ .res.ox.narrow th:not(:first-child), .res.ox.narrow td:not(:first-child){ padding-left:18px; padding-right:18px; } }   /* a centered presence table takes the same 36px gap as any centered table */
   .mk{ display:inline-block; position:relative; width:12px; height:12px; vertical-align:-1px; }
   .mk.o{ border:1.5px solid currentColor; border-radius:50%; }
   .mk.x::before, .mk.x::after{ content:""; position:absolute; left:50%; top:50%; width:14px; height:1.5px; background:currentColor; transform:translate(-50%,-50%) rotate(45deg); }
   .mk.x::after{ transform:translate(-50%,-50%) rotate(-45deg); }
+  .mk.na::before{ content:""; position:absolute; left:0; right:0; top:50%; height:1.5px; margin-top:-.75px; background:currentColor; }
   /* two-level header (.res.h2): a group name (th.grp) is centered over its columns with a rule only as wide as the group; the first
      column of each group takes .g0 (th and td) so a gap parts the groups; a column outside any group spans both header rows.
      two-level rows: the outer condition once (td.outer, rowspan) with tr.gs on the first row of its group, the inner one in td.inner. */
@@ -815,13 +826,14 @@
       <details class="res-more"><summary>주석: 빈칸, 승패, 계산</summary><p>{높을수록 좋아요. 빈칸은 원문 보고서에 없는 조합. 승패와 파생값 계산은 여기}</p></details>
     </figure>
     선택: 조건마다 같은 부품의 있고 없음만 다른 경우는 상자를 행마다 반복하지 않고 포함 표(class="res ox")로 쓴다. 칸마다 그린 기호(.mk o, .mk x), 요점인 열의 있음 칸은 td.p.
-    칸의 답이 있음과 없음이 아니면 값(3개, 0.2)이나 낱말(일부)을 적는다.
+    칸의 답이 있음과 없음이 아니면 값(3개, 0.2)이나 낱말(일부)을 적는다. 칸마다 값을 적는 열은 th와 td에 class="t"(왼쪽 정렬)이고,
+    그 값이 딸린 부품이 없는 행의 칸은 ×가 아니라 해당 없음 기호(td class="x t" 안의 .mk na)다. 값 열이 없는 표에는 아래 예시의 마지막 열이 없다.
     <figure class="fig tab">
       <table class="res ox">
-        <thead><tr><th>{조건}</th><th>{부품 1}</th><th>{부품 2}</th><th>{부품 3}</th></tr></thead>
+        <thead><tr><th>{조건}</th><th>{부품 1}</th><th>{부품 2}</th><th>{부품 3}</th><th class="t">{부품 2에 딸린 값의 이름}</th></tr></thead>
         <tbody>
-          <tr><td>{조건 1}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td></tr>
-          <tr><td>{조건 2}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="p"><span class="mk o" role="img" aria-label="있음"></span></td><td><span class="mk o" role="img" aria-label="있음"></span></td></tr>
+          <tr><td>{조건 1}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x t"><span class="mk na" role="img" aria-label="해당 없음"></span></td></tr>
+          <tr><td>{조건 2}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="p"><span class="mk o" role="img" aria-label="있음"></span></td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="t">{값}</td></tr>
         </tbody>
       </table>
     </figure>

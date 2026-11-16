@@ -31,6 +31,7 @@
   - `npx skills`는 자동 갱신되지 않고, update 계열 명령이 install 형태를 universal(`~/.agents/skills`)로 바꿔놓는 경우가 있다. 그렇게 되면 Claude Code에 plugin install과 symlink가 동시에 잡혀 **동일 skill이 중복 노출된다** (2026-04-25 실제 사고). `docs/ops/skills-cli.md` 참조.
   - 이 저장소의 Codex install은 **Codex 전용**(`~/.codex/skills`)이다. 이 형태를 유지하려면 marketplace에서 직접 복사하고 `.installed-ref`를 수동 기록한다.
   - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 동기화 후 **세션 재시작** 필요.
+  - Codex 사본을 고쳐 쓰는 환경(예: `chanmuzi-agent-harness`의 `normalize-git-claw.py`가 서명 문구를 Codex용으로 바꾼다)에서는 복사가 그 수정을 지운다. 아래 2번은 복사한 스킬마다 보정 스크립트를 다시 돌리고, 스크립트가 없는 환경에서는 그 줄을 건너뛴다 (2026-11-13, 2026-11-16에 보정이 지워져 harness `check.sh`가 실패했다).
   ```bash
   # 1. 동기화 상태 확인
   #    Codex 전용 install(~/.codex/skills) + universal install(~/.agents/skills) 모두 탐색
@@ -48,14 +49,18 @@
   MKT=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw
   git -C "$MKT" pull
   SHA=$(git -C "$MKT" rev-parse HEAD)
-  for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
+  SKILLS=(commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5)   # 배열로 둔다 (zsh는 문자열 변수를 낱말로 나누지 않는다)
+  NORM="${CHANMUZI_AGENT_HARNESS_HOME:-}/codex/scripts/normalize-git-claw.py"   # Codex 사본 보정 스크립트. 없으면 건너뛴다
+  for s in "${SKILLS[@]}"; do
     rm -rf ~/.codex/skills/$s
     cp -R "$MKT/skills/$s" ~/.codex/skills/$s
+    if [ -f "$NORM" ]; then python3 "$NORM" ~/.codex/skills/$s; fi
     echo "$SHA" > ~/.codex/skills/$s/.installed-ref
   done
 
-  # 3. 검증: 파일이 실제로 갱신됐는지(silent no-op 아닌지) + universal 오염 없는지
-  diff -q "$MKT/skills/code-review/SKILL.md" ~/.codex/skills/code-review/SKILL.md
+  # 3. 검증: 파일이 실제로 갱신됐는지(silent no-op 아닌지) + 보정이 남았는지 + universal 오염 없는지
+  for s in "${SKILLS[@]}"; do diff -rq -x .installed-ref "$MKT/skills/$s" ~/.codex/skills/$s; done   # 보정이 없으면 아무것도 나오지 않는다. 보정이 있으면 보정된 파일만 나온다
+  if [ -f "$NORM" ]; then for s in "${SKILLS[@]}"; do python3 "$NORM" ~/.codex/skills/$s --check || echo "보정 누락: $s"; done; fi
   ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/"   # git-claw skill이 보이면 universal install로 오염된 것
   ```
 - 스킬 rename / 제거 시 stale 폴더 cleanup:

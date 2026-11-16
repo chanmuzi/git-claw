@@ -40,9 +40,11 @@ git -C "$MKT" pull
 
 # 3. marketplace → ~/.codex/skills/ 직접 복사 + .installed-ref 수동 기록
 SHA=$(git -C "$MKT" rev-parse HEAD)
+NORM="${CHANMUZI_AGENT_HARNESS_HOME:-}/codex/scripts/normalize-git-claw.py"   # Codex 사본 보정 스크립트. 없으면 건너뛴다 (docs/ops/plugin-sync.md)
 for s in commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5; do
   rm -rf ~/.codex/skills/$s
   cp -R "$MKT/skills/$s" ~/.codex/skills/$s
+  if [ -f "$NORM" ]; then python3 "$NORM" ~/.codex/skills/$s; fi
   echo "$SHA" > ~/.codex/skills/$s/.installed-ref
 done
 

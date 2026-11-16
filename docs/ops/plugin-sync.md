@@ -49,9 +49,9 @@
   MKT=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw
   git -C "$MKT" pull
   SHA=$(git -C "$MKT" rev-parse HEAD)
-  SKILLS="commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5"
+  SKILLS=(commit pr issue review-reply code-review handoff explain-diff micro-world visual-doc eli5)   # 배열로 둔다 (zsh는 문자열 변수를 낱말로 나누지 않는다)
   NORM="${CHANMUZI_AGENT_HARNESS_HOME:-}/codex/scripts/normalize-git-claw.py"   # Codex 사본 보정 스크립트. 없으면 건너뛴다
-  for s in $SKILLS; do
+  for s in "${SKILLS[@]}"; do
     rm -rf ~/.codex/skills/$s
     cp -R "$MKT/skills/$s" ~/.codex/skills/$s
     if [ -f "$NORM" ]; then python3 "$NORM" ~/.codex/skills/$s; fi
@@ -59,8 +59,8 @@
   done
 
   # 3. 검증: 파일이 실제로 갱신됐는지(silent no-op 아닌지) + 보정이 남았는지 + universal 오염 없는지
-  for s in $SKILLS; do diff -rq -x .installed-ref "$MKT/skills/$s" ~/.codex/skills/$s; done   # 보정이 없으면 아무것도 나오지 않는다. 보정이 있으면 보정된 파일만 나온다
-  if [ -f "$NORM" ]; then for s in $SKILLS; do python3 "$NORM" ~/.codex/skills/$s --check || echo "보정 누락: $s"; done; fi
+  for s in "${SKILLS[@]}"; do diff -rq -x .installed-ref "$MKT/skills/$s" ~/.codex/skills/$s; done   # 보정이 없으면 아무것도 나오지 않는다. 보정이 있으면 보정된 파일만 나온다
+  if [ -f "$NORM" ]; then for s in "${SKILLS[@]}"; do python3 "$NORM" ~/.codex/skills/$s --check || echo "보정 누락: $s"; done; fi
   ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/"   # git-claw skill이 보이면 universal install로 오염된 것
   ```
 - 스킬 rename / 제거 시 stale 폴더 cleanup:

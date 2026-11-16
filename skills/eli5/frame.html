@@ -360,13 +360,13 @@
      mark in every cell. .mk.o present, .mk.x absent: both in the same 12px box with the same stroke, because the characters ○ and ×
      differ in size from font to font. The x is one step lighter; td.p marks the present cells of the column the beat is about.
      A cell that holds a value or a word instead of a mark is in the text color, not the gray of the marks (no class: the rule finds
-     the cells without a .mk). A column of values is a text column: class="t" on its th and every td, left-aligned. A row that has no
+     the cells without a .mk; a value cell that carries td.p keeps the brand color). A column of values is a text column: class="t" on its th and every td, left-aligned. A row that has no
      value there because the part the value belongs to is absent holds .mk.na (a short line, `해당 없음`) in td.x.t, never the x. */
   .res.ox th:not(:first-child), .res.ox td:not(:first-child){ text-align:center; padding-left:12px; padding-right:12px; }
   .res.ox td:not(:first-child){ color:var(--n500); }
   .res.ox td.x{ color:var(--n400); }
   .res.ox td.p{ color:var(--brand); }
-  .res.ox td:not(:first-child):not(:has(.mk)){ color:var(--ink); }
+  .res.ox td:not(:first-child):not(.p):not(:has(.mk)){ color:var(--ink); }
   .res.ox th.t, .res.ox td.t{ text-align:left; }
   @media (min-width:601px){ .res.ox.narrow th:not(:first-child), .res.ox.narrow td:not(:first-child){ padding-left:18px; padding-right:18px; } }   /* a centered presence table takes the same 36px gap as any centered table */
   .mk{ display:inline-block; position:relative; width:12px; height:12px; vertical-align:-1px; }
@@ -827,13 +827,14 @@
     </figure>
     선택: 조건마다 같은 부품의 있고 없음만 다른 경우는 상자를 행마다 반복하지 않고 포함 표(class="res ox")로 쓴다. 칸마다 그린 기호(.mk o, .mk x), 요점인 열의 있음 칸은 td.p.
     칸의 답이 있음과 없음이 아니면 값(3개, 0.2)이나 낱말(일부)을 적는다. 칸마다 값을 적는 열은 th와 td에 class="t"(왼쪽 정렬)이고,
-    그 값이 딸린 부품이 없는 행의 칸은 ×가 아니라 해당 없음 기호(td class="x t" 안의 .mk na)다. 값 열이 없는 표에는 아래 예시의 마지막 열이 없다.
+    값 열은 그 값이 딸린 부품의 열 바로 뒤에 둔다.
+    그 부품이 없는 행의 값 칸은 ×가 아니라 해당 없음 기호(td class="x t" 안의 .mk na)다. 값 열이 없는 표에는 아래 예시의 class="t" 열이 없다.
     <figure class="fig tab">
       <table class="res ox">
-        <thead><tr><th>{조건}</th><th>{부품 1}</th><th>{부품 2}</th><th>{부품 3}</th><th class="t">{부품 2에 딸린 값의 이름}</th></tr></thead>
+        <thead><tr><th>{조건}</th><th>{부품 1}</th><th>{부품 2}</th><th class="t">{부품 2에 딸린 값의 이름}</th><th>{부품 3}</th></tr></thead>
         <tbody>
-          <tr><td>{조건 1}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x t"><span class="mk na" role="img" aria-label="해당 없음"></span></td></tr>
-          <tr><td>{조건 2}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="p"><span class="mk o" role="img" aria-label="있음"></span></td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="t">{값}</td></tr>
+          <tr><td>{조건 1}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td><td class="x t"><span class="mk na" role="img" aria-label="해당 없음"></span></td><td class="x"><span class="mk x" role="img" aria-label="없음"></span></td></tr>
+          <tr><td>{조건 2}</td><td><span class="mk o" role="img" aria-label="있음"></span></td><td class="p"><span class="mk o" role="img" aria-label="있음"></span></td><td class="t">{값}</td><td><span class="mk o" role="img" aria-label="있음"></span></td></tr>
         </tbody>
       </table>
     </figure>

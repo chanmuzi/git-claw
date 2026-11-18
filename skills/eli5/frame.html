@@ -458,6 +458,9 @@
   .dg-t{ font-size:13px; font-weight:700; fill:currentColor; }  /* a title inside a figure: what a bar group measures, the name of a system box (SKILL.md "A title inside a figure is bold") */
   .dg-t.code{ font-family:var(--mono); font-size:12px; }    /* a system box named by an identifier */
   .dg-rule{ stroke:var(--dg-line); stroke-width:1; }        /* the hairline under a bar group's title, as wide as the group: it shows which rows the title covers */
+  .dg-sep{ stroke:var(--dg-line); stroke-width:1; stroke-dasharray:6 8; }   /* the dashed rule between rows of different kinds (SKILL.md "Rows of different kinds are parted"):
+     state rows of one path (AS-IS / TO-BE) across the whole drawing, or kinds of rows inside one bar group as wide as the group.
+     Its gaps are twice the 5 4 dash of `absent` and its tone one step lighter, so it does not read as a missing path. */
 
   /* ── figure strokes (eli5; SKILL.md "One stroke set") ── a flow, a strip and a bar chart read as one family because
      they share these strokes: box and cell outlines --dg-line 1px over a --bg fill, connectors and arrowheads --dg-flow

@@ -7,7 +7,8 @@
     .close, the optional .ev evidence card, .prose-card and .pv prompt card, the .res table, .ctl controls, the .m / .dg-m badges,
     the .dg-bar bars and .legend),
     the section hierarchy block (.progress, .sec-top, .sec-no, .sub-h and its script at the end of <body>; the same script
-    element also holds the table width function, which is eli5 only)
+    element also holds the table width function and the figure zoom, both eli5 only),
+    the figure zoom block (.fz box, .fz-bar, .fz-btn and the two bars; the script adds every element, so no markup is written for it)
     plus the SVG label classes. Copy them verbatim.
   Layer 2 (BESPOKE): every drawing. The example figures below are worked exemplars showing the conventions
     (viewBox sizing, the stroke classes dg-box/dg-arrow/dg-head/dg-cell, labeled arrows, one accent per picture, the layout-plan comment as
@@ -37,6 +38,7 @@
     --sans:"Geist","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;
     --mono:"Geist Mono",ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
     --r:8px; --r-lg:12px;
+    --gutter:20px; --inset-x:20px;   /* page side gutter and panel side inset; both narrow at phone width (see .shell) */
     /* figure strokes: one set for every drawing. They follow the neutrals, so the dark blocks need no second copy. */
     --dg-line:color-mix(in srgb, var(--n300) 45%, var(--n400)); --dg-flow:color-mix(in srgb, var(--n400) 50%, var(--n500));
     /* legacy aliases: pages built before this skin reference these names in inline SVG fills. Keep them so an
@@ -72,7 +74,8 @@
     font-family:var(--sans); background:var(--bg); color:var(--ink); font-size:15px;
     -webkit-font-smoothing:antialiased; line-height:1.7; letter-spacing:-0.01em;
   }
-  .shell{ max-width:880px; margin:0 auto; padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px)); }
+  .shell{ max-width:880px; margin:0 auto; padding-left:max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right:max(var(--gutter), env(safe-area-inset-right, 0px)); }
+  @media (max-width:600px){ :root{ --gutter:16px; --inset-x:12px; } }   /* phone: every px of side room goes to the drawing, which shrinks with the panel */
 
   /* ── theme toggle (LOCKED) ── the page follows the system setting until the reader presses this */
   .theme-btn{
@@ -99,7 +102,7 @@
      The rows (.facts, or the cover grid in .fg-wrap) sit in a white panel on the band, with the inset of every other panel (16px, 20px).
      The panel is what parts them from the outline: both are lists with a brand-colored lead, and on one surface they read as one list.
      The outline right after a panel drops its top rule (the panel's edge is the divider). A .lede has no panel. */
-  .hero .facts, .hero .fg-wrap{ margin:20px 0 0; background:var(--bg); border:1px solid var(--brand-100); border-radius:var(--r-lg); padding:16px 20px; }
+  .hero .facts, .hero .fg-wrap{ margin:20px 0 0; background:var(--bg); border:1px solid var(--brand-100); border-radius:var(--r-lg); padding:16px var(--inset-x); }
   .hero .facts{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 16px; }
   .hero .facts dt{ font-size:13px; font-weight:600; color:var(--brand-ink); padding-top:2px; white-space:nowrap; }
   .hero .facts dd{ margin:0; font-size:14.5px; line-height:1.6; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
@@ -176,12 +179,37 @@
      table as wide as the panel runs to that edge (a viewBox with no empty band, a table whose outer cells have no outer padding);
      a narrower one sits in the middle.
      one gap: the blocks of a beat are 16px apart in any order. */
-  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:16px 20px; overflow-x:auto; }
+  .fig{ margin:0; background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--r-lg); padding:16px var(--inset-x); overflow-x:auto; }
   .beat > * + .fig, .beat > * + .pv{ margin-top:16px; }
   /* legend: the part names of a bar split into parts, once, inside the panel under the drawing (same .sw as the notes) */
   .legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 18px; margin:12px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--sub); }
   .legend li{ display:inline-flex; align-items:center; }
   .fig svg{ display:block; max-width:100%; height:auto; margin:0 auto; color:var(--ink); }   /* never scaled up: every svg carries width and height equal to its viewBox, and only shrinks when the panel is narrower. A drawing narrower than the panel sits in the middle, and the legend under it with it */
+
+  /* ── figure zoom (LOCKED, with its script at the end of <body>): a drawing the panel shrinks below 85% of its drawn
+     size (a phone) starts whole, and zooms inside its own panel: a tap on it or the magnifier under it goes to 0.8x
+     around that point, two fingers pinch anywhere between whole and 1.6x, and a double tap or the magnifier goes back to
+     whole. The panel grows with the drawing up to 60% of the screen height and pans both ways past that; two thin bars
+     outside the drawing (under it and in the right inset) show where the view is. A drawing at its drawn size (a desktop)
+     gets nothing: the script does not touch its panel. ── */
+  .fz{ overflow:hidden; touch-action:pan-x pan-y; scrollbar-width:none; }
+  .fz::-webkit-scrollbar{ display:none; }
+  .fig[data-z]{ position:relative; }
+  .fig[data-z="0"] .fz svg{ cursor:zoom-in; }
+  .fig[data-z="1"] .fz{ overflow:auto; }
+  .fz-bar{ display:flex; align-items:center; gap:10px; margin:6px 0 -8px; }
+  .fz-track{ position:relative; flex:1; height:2px; }
+  .fz-vtrack{ position:absolute; right:calc(var(--inset-x) / 2 - 1px); width:2px; pointer-events:none; }
+  .fz-track, .fz-vtrack{ border-radius:1px; background:var(--line-soft); opacity:0; transition:opacity .2s ease; }
+  .fig[data-z="1"] .fz-track.on, .fig[data-z="1"] .fz-vtrack.on{ opacity:1; }
+  .fz-track i, .fz-vtrack i{ position:absolute; border-radius:1px; background:var(--n300); }
+  .fz-track i{ top:0; bottom:0; }
+  .fz-vtrack i{ left:0; right:0; }
+  .fz-btn{ flex:none; display:grid; place-items:center; width:28px; height:28px; padding:0; border:none; border-radius:50%; background:none; color:var(--faint); cursor:pointer; transition:color .15s ease, background .15s ease; }
+  .fz-btn:hover, .fz-btn:active{ color:var(--ink); background:var(--line-soft); }
+  .fz-btn svg{ display:block; width:16px; height:16px; margin:0; }
+  .fz-btn:focus-visible{ outline:2px solid var(--brand); outline-offset:1px; }
+  @media print{ .fz-bar, .fz-vtrack{ display:none; } }
 
   /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
   .notes{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
@@ -331,7 +359,7 @@
   /* example head line (.res-cap.ex; SKILL.md "A case picked from a set is marked as an example"): the caption of a named-rows panel
      whose case is one of several. It runs across the panel with a rule under it: `예시` (or `예시 1`) in .res-no with no period, the
      case's name in .res-t, and at the right edge what the case was picked from (.res-of). */
-  .res-cap.ex{ flex-wrap:wrap; gap:2px 10px; margin:-16px -20px 14px; padding:8px 20px; border-bottom:1px solid var(--line-soft); }
+  .res-cap.ex{ flex-wrap:wrap; gap:2px 10px; margin:-16px calc(-1 * var(--inset-x)) 14px; padding:8px var(--inset-x); border-bottom:1px solid var(--line-soft); }
   .res-cap.ex .res-no{ font-family:var(--sans); letter-spacing:0; }   /* `예시 2`: a mono space between Hangul and the digit reads as two */
   .res-cap.ex .res-no::after{ content:none; }
   .res-of{ margin-left:auto; font-size:12.5px; color:var(--faint); }
@@ -474,11 +502,11 @@
   /* ── prose card (SKILL.md "Evidence card", the prose form: a prompt, an error message, a notice) ──
      the words are verbatim and only whitespace changes; nothing is added inside (no highlight, tag, fold, gloss). */
   .prose-card{ margin-top:16px; border:1px solid var(--line-soft); border-radius:var(--r-lg); background:var(--panel); overflow:hidden; }
-  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px 20px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
+  .pc-h{ display:flex; align-items:center; gap:12px; min-height:36px; padding:6px var(--inset-x); border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:11.5px; color:var(--sub); }
   .pc-h .kind{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
   .pc-h .name{ color:var(--ink); font-weight:600; }
   .pc-h .src{ margin-left:auto; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-  .pc-b{ padding:16px 20px; max-width:76ch; }
+  .pc-b{ padding:16px var(--inset-x); max-width:76ch; }
   .pc-b p{ margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
   .pc-b p + p, .pc-b pre + p, .pc-b p + pre{ margin-top:12px; }
   .pc-b p.gap{ color:var(--faint); font-style:italic; }
@@ -507,7 +535,7 @@
   .pv{ border:1px solid var(--line); border-radius:var(--r-lg); background:var(--panel); }
   .pv [hidden]{ display:none !important; }                 /* .cap and .pop-m set a display of their own, which would undo the hidden attribute */
   .pv button{ font:inherit; cursor:pointer; }
-  .pv-h{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:7px 20px; border-bottom:1px solid var(--line); background:var(--bg); border-radius:var(--r-lg) var(--r-lg) 0 0; }
+  .pv-h{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:7px var(--inset-x); border-bottom:1px solid var(--line); background:var(--bg); border-radius:var(--r-lg) var(--r-lg) 0 0; }
   .pv-name{ font-size:14.5px; font-weight:700; letter-spacing:-0.02em; }
   .pv-tg{ margin-left:auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px 10px; }
   .tg{ display:inline-flex; gap:1px; padding:2px; border-radius:7px; background:var(--n200); flex:none; }
@@ -524,7 +552,7 @@
   .pop-m button:hover, .pop-m button[aria-selected="true"]{ background:var(--n100); color:var(--ink); }
   .pop-m button[aria-selected="true"]{ font-weight:700; }
   .pv button:focus-visible{ outline:2px solid var(--brand); outline-offset:1px; }
-  .pv-row{ display:grid; grid-template-columns:88px minmax(0,1fr); gap:16px; padding:16px 20px; }
+  .pv-row{ display:grid; grid-template-columns:88px minmax(0,1fr); gap:16px; padding:16px var(--inset-x); }
   .pv-row + .pv-row{ border-top:1px solid var(--line); }
   .pv-k{ display:flex; flex-direction:column; gap:2px; margin:2px 0 0; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
   .pv-k span{ font-family:var(--sans); font-size:12px; font-weight:500; letter-spacing:0; text-transform:none; color:var(--faint); }
@@ -535,12 +563,12 @@
   .pv pre.js{ margin:0; padding:10px 14px; border-radius:8px; background:var(--n100); font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink); white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; }
   .pv .cap{ margin-right:0; }
   .cmp-head, .cmp-row{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
-  .cmp-head > div{ padding:9px 20px; font-size:13.5px; font-weight:700; border-bottom:1px solid var(--line); }
+  .cmp-head > div{ padding:9px var(--inset-x); font-size:13.5px; font-weight:700; border-bottom:1px solid var(--line); }
   .cmp-head > div + div, .cmp-row > div + div{ border-left:1px solid var(--line); }
-  .cmp-sub{ display:flex; gap:8px; align-items:baseline; padding:7px 20px; font-size:12px; font-weight:600; color:var(--sub); background:var(--n100); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .cmp-sub{ display:flex; gap:8px; align-items:baseline; padding:7px var(--inset-x); font-size:12px; font-weight:600; color:var(--sub); background:var(--n100); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .cmp-head + .cmp-sub{ border-top:none; }
   .cmp-sub span{ font-weight:400; color:var(--faint); }
-  .cmp-row > div{ padding:16px 20px; min-width:0; }
+  .cmp-row > div{ padding:16px var(--inset-x); min-width:0; }
   .cmp-row .vtag{ display:none; margin-bottom:6px; font-family:var(--mono); font-size:11px; font-weight:700; color:var(--brand); }
   @media (max-width:680px){
     .pv-row{ grid-template-columns:minmax(0,1fr); gap:8px; }
@@ -979,6 +1007,142 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll("table.res"), function(t){ ro.observe(t.parentNode); });
   }
+})();
+/* figure zoom: wraps every drawing the panel shows below 85% of its drawn size in a .fz box, with a magnifier under it.
+   The drawing starts whole; a tap on it or the magnifier zooms to 0.8x holding that point still, two fingers pinch from
+   whole to 1.6x, a double tap or the magnifier goes back to whole. Re-measured after the fonts load and when the window
+   width changes (not its height: a phone fires resize when its address bar slides away), so a desktop window is never
+   touched and a phone turned sideways may lose the zoom. */
+(function(){
+  var MAXK = 1.6, TAPK = 0.8, DUR = 260;
+  var I_IN = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.4 10.4 14 14M5 7h4M7 5v4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  var I_OUT = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.4 10.4 14 14M5 7h4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches, lastW = window.innerWidth;
+  function each(list, fn){ Array.prototype.forEach.call(list, fn); }
+  function boxOf(fig){ return fig.querySelector(":scope > .fz"); }
+  function svgOf(fig){ return fig.querySelector(":scope > .fz > svg"); }
+  function reset(fig){
+    var svg = svgOf(fig);
+    svg.style.width = ""; svg.style.height = ""; svg.style.maxWidth = ""; boxOf(fig).style.height = "";
+    fig.setAttribute("data-z", "0");
+  }
+  function unwrap(fig){
+    var box = boxOf(fig); if (!box) return;
+    var svg = svgOf(fig); reset(fig);
+    box.parentNode.insertBefore(svg, box); box.remove();
+    each(fig.querySelectorAll(":scope > .fz-bar, :scope > .fz-vtrack"), function(el){ el.remove(); });
+    fig.removeAttribute("data-z");
+  }
+  function bars(fig){
+    var box = boxOf(fig), h = fig.querySelector(":scope > .fz-bar .fz-track"), v = fig.querySelector(":scope > .fz-vtrack");
+    var sw = box.scrollWidth, cw = box.clientWidth, sh = box.scrollHeight, ch = box.clientHeight;
+    h.classList.toggle("on", sw > cw + 1); v.classList.toggle("on", sh > ch + 1);
+    h.firstChild.style.left = (box.scrollLeft / sw * 100) + "%"; h.firstChild.style.width = (cw / sw * 100) + "%";
+    v.style.top = box.offsetTop + "px"; v.style.height = ch + "px";
+    v.firstChild.style.top = (box.scrollTop / sh * 100) + "%"; v.firstChild.style.height = (ch / sh * 100) + "%";
+  }
+  function label(fig){
+    var z = fig.getAttribute("data-z") === "1", b = fig.querySelector(":scope > .fz-bar .fz-btn");
+    b.innerHTML = z ? I_OUT : I_IN;
+    b.setAttribute("aria-label", z ? "그림 전체 보기" : "그림 크게 보기"); b.title = b.getAttribute("aria-label");
+    bars(fig);
+  }
+  /* the drawing at width w; the panel grows with it up to 60% of the screen height and pans past that */
+  function setW(fig, w){
+    var box = boxOf(fig), svg = svgOf(fig), vb = svg.viewBox.baseVal, r = vb.height / vb.width, h = w * r, fitH = fig._fit * r;
+    svg.style.maxWidth = "none"; svg.style.width = w + "px"; svg.style.height = h + "px";
+    box.style.height = Math.min(Math.max(h, fitH), Math.max(fitH, Math.round(window.innerHeight * 0.6))) + "px";
+    return h;
+  }
+  /* while the panel grows downward the held point would slide down with it; scrolling the page by that much holds it */
+  function pin(fig, fy, ty){
+    var r = svgOf(fig).getBoundingClientRect(), d = r.top + fy * r.height - ty;
+    if (Math.abs(d) >= 1) window.scrollBy(0, d);
+  }
+  /* animate to width w1 keeping the drawing point (fx, fy) at (ox, oy) inside the box */
+  function zoomTo(fig, w1, fx, fy, ox, oy){
+    var box = boxOf(fig), svg = svgOf(fig), w0 = svg.getBoundingClientRect().width, dur = reduce ? 0 : DUR, t0 = null;
+    var ty = box.getBoundingClientRect().top + oy;
+    fig.setAttribute("data-z", "1");
+    function step(ts){
+      if (t0 === null) t0 = ts;
+      var p = dur ? Math.min(1, (ts - t0) / dur) : 1, w = w0 + (w1 - w0) * (1 - Math.pow(1 - p, 3)), h = setW(fig, w);
+      box.scrollLeft = fx * w - ox; box.scrollTop = fy * h - oy; pin(fig, fy, ty); bars(fig);
+      if (p < 1) return requestAnimationFrame(step);
+      if (w1 <= fig._fit + 0.5) reset(fig);
+      label(fig);
+    }
+    requestAnimationFrame(step);
+  }
+  function toggle(fig){
+    var box = boxOf(fig), r = svgOf(fig).getBoundingClientRect(), mx = box.clientWidth / 2, my = box.clientHeight / 2;
+    var w1 = fig.getAttribute("data-z") === "1" ? fig._fit : svgOf(fig).viewBox.baseVal.width * TAPK;
+    zoomTo(fig, w1, (box.scrollLeft + mx) / r.width, (box.scrollTop + my) / r.height, mx, my);
+  }
+  /* the pinch starts on the second finger, whether or not it lands with the first. Native scrolling pauses for the pinch
+     so the drawing does not slide under the fingers, and resumes when a finger lifts. */
+  function bind(fig){
+    var box = boxOf(fig), P = null;
+    function mid(e){ var a = e.touches[0], b = e.touches[1]; return { x:(a.clientX + b.clientX) / 2, y:(a.clientY + b.clientY) / 2, d:Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) }; }
+    box.addEventListener("touchstart", function(e){
+      if (e.touches.length !== 2) return;
+      var m = mid(e), r = svgOf(fig).getBoundingClientRect();
+      P = { d0:m.d, w0:r.width, fx:(m.x - r.left) / r.width, fy:(m.y - r.top) / r.height };
+      fig.setAttribute("data-z", "1"); box.style.overflow = "hidden";
+    }, { passive:false });
+    box.addEventListener("touchmove", function(e){
+      if (!P || e.touches.length !== 2) return;
+      if (e.cancelable) e.preventDefault();
+      var m = mid(e), vb = svgOf(fig).viewBox.baseVal;
+      var w = Math.max(fig._fit * 0.7, Math.min(vb.width * MAXK, P.w0 * m.d / P.d0)), h = setW(fig, w), b = box.getBoundingClientRect();
+      box.scrollLeft = P.fx * w - (m.x - b.left); box.scrollTop = P.fy * h - (m.y - b.top); pin(fig, P.fy, m.y); bars(fig);
+    }, { passive:false });
+    function end(e){
+      if (!P || e.touches.length >= 2) return;
+      P = null; box.style.overflow = "";
+      if (svgOf(fig).getBoundingClientRect().width < fig._fit * 1.08) zoomTo(fig, fig._fit, 0.5, 0.5, box.clientWidth / 2, box.clientHeight / 2);
+      else label(fig);
+    }
+    box.addEventListener("touchend", end);
+    box.addEventListener("touchcancel", end);
+    /* WebKit runs its own page zoom on a pinch; stopping its gesture events keeps the pinch on the drawing */
+    ["gesturestart", "gesturechange", "gestureend"].forEach(function(t){ box.addEventListener(t, function(e){ e.preventDefault(); }, { passive:false }); });
+    box.addEventListener("scroll", function(){ bars(fig); }, { passive:true });
+  }
+  function mark(){
+    each(document.querySelectorAll("figure.fig:not(.tab)"), function(fig){
+      unwrap(fig);
+      var svgs = fig.querySelectorAll(":scope > svg"); if (svgs.length !== 1) return;
+      var svg = svgs[0], vb = svg.viewBox && svg.viewBox.baseVal, w = svg.getBoundingClientRect().width;
+      if (!vb || !vb.width || !(w > 0) || w >= vb.width * 0.85) return;
+      var box = document.createElement("div"); box.className = "fz";
+      svg.parentNode.insertBefore(box, svg); box.appendChild(svg);
+      var bar = document.createElement("div"); bar.className = "fz-bar";
+      bar.innerHTML = '<div class="fz-track"><i></i></div><button type="button" class="fz-btn"></button>';
+      var after = fig.querySelector(":scope > .legend") || box;
+      after.parentNode.insertBefore(bar, after.nextSibling);
+      var v = document.createElement("div"); v.className = "fz-vtrack"; v.innerHTML = "<i></i>"; fig.appendChild(v);
+      fig.setAttribute("data-z", "0"); fig._fit = box.clientWidth;
+      bind(fig); label(fig);
+    });
+  }
+  document.addEventListener("click", function(e){
+    var t = e.target; if (!t.closest) return;
+    var b = t.closest(".fz-btn");
+    if (b){ toggle(b.closest("figure.fig")); return; }
+    var svg = t.closest(".fz > svg"), fig = svg && svg.closest("figure.fig[data-z]");
+    if (!fig) return;
+    if (fig.getAttribute("data-z") === "0"){
+      var r = svg.getBoundingClientRect(), box = boxOf(fig).getBoundingClientRect();
+      zoomTo(fig, svg.viewBox.baseVal.width * TAPK, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height, e.clientX - box.left, e.clientY - box.top);
+      return;
+    }
+    var now = Date.now();   /* a double tap on a zoomed drawing goes back to whole */
+    if (fig._lt && now - fig._lt < 320){ fig._lt = 0; toggle(fig); } else fig._lt = now;
+  });
+  mark();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(mark);
+  window.addEventListener("resize", function(){ if (window.innerWidth !== lastW){ lastW = window.innerWidth; mark(); } });
 })();
 </script>
 <!-- prompt card (optional): copy this script only when the page has a .pv card.

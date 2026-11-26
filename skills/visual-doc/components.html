@@ -162,11 +162,16 @@
   .chart{ display:flex; flex-direction:column; gap:10px; }
   .bar-row{ display:grid; grid-template-columns:120px 1fr 48px; align-items:center; gap:12px; }
   .bar-row .bl{ font-size:13px; font-weight:600; color:var(--gray600); text-align:right; }
-  .bar-track{ background:var(--chipbg); border-radius:100px; height:12px; overflow:hidden; }
+  .bar-track{ position:relative; background:var(--chipbg); border-radius:100px; height:12px; overflow:hidden; }
   /* display:block 필수: .bar-track(block)의 자식 span은 기본 inline이라 width가 무시돼 폭 0이 된다 */
   .bar-fill{ display:block; height:100%; border-radius:100px; background:var(--blue); }
   .bar-fill.g{ background:var(--green); } .bar-fill.v{ background:var(--violet); } .bar-fill.a{ background:var(--amber); }
   .bar-row .bv{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--faint); }
+  /* 끊은 막대: 한 값이 다음으로 큰 값의 10배 이상일 때 그 막대 하나만 100%로 채우고 물결로 끊는다.
+     나머지는 다음으로 큰 값을 80%로 둔 한 스케일. 물결은 트랙 안의 svg 하나(left 88%), 정확한 값은 .bv가 말한다 */
+  .bar-brk{ position:absolute; top:0; width:8px; height:100%; }
+  .bar-brk .gap{ fill:var(--chipbg); }
+  .bar-brk .wv{ fill:none; stroke:var(--faint); stroke-width:1; }
 
   /* ── COMPONENT: comparison table ── */
   .ctable{ width:100%; border-collapse:collapse; font-size:13.5px; }
@@ -584,6 +589,14 @@
       <div class="bar-row"><span class="bl">챕터 페이저</span><span class="bar-track"><span class="bar-fill g" style="width:64%"></span></span><span class="bv">64%</span></div>
       <div class="bar-row"><span class="bl">접이식</span><span class="bar-track"><span class="bar-fill v" style="width:47%"></span></span><span class="bv">47%</span></div>
       <div class="bar-row"><span class="bl">하이브리드</span><span class="bar-track"><span class="bar-fill a" style="width:38%"></span></span><span class="bv">38%</span></div>
+    </div></div>
+
+    <div class="demo-label">막대 차트: 한 값이 나머지의 10배를 넘을 때 (물결로 끊은 막대)</div>
+    <div class="card"><div class="chart">
+      <div class="bar-row"><span class="bl">서울</span><span class="bar-track"><span class="bar-fill" style="width:2.2%"></span></span><span class="bv">1,750</span></div>
+      <div class="bar-row"><span class="bl">도쿄</span><span class="bar-track"><span class="bar-fill" style="width:14.4%"></span></span><span class="bv">11,300</span></div>
+      <div class="bar-row"><span class="bl">싱가포르</span><span class="bar-track"><span class="bar-fill" style="width:80%"></span></span><span class="bv">62,600</span></div>
+      <div class="bar-row"><span class="bl">미국 동부</span><span class="bar-track"><span class="bar-fill a" style="width:100%"></span><svg class="bar-brk" style="left:88%" viewBox="0 0 8 12" aria-hidden="true"><path class="gap" d="M1,0 c2.5,2 -2.5,4 0,6 c2.5,2 -2.5,4 0,6 L6,12 c-2.5,-2 2.5,-4 0,-6 c-2.5,-2 2.5,-4 0,-6 Z"/><path class="wv" d="M1,0 c2.5,2 -2.5,4 0,6 c2.5,2 -2.5,4 0,6"/><path class="wv" d="M6,0 c2.5,2 -2.5,4 0,6 c2.5,2 -2.5,4 0,6"/></svg></span><span class="bv">125만</span></div>
     </div></div>
 
     <div class="demo-label">스펙 표 (key-value)</div>

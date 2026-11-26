@@ -53,7 +53,7 @@ Do not open `components.html` and fill it top to bottom. Design the skeleton fir
 **Choose a component for each section by what it must show** (the palette in `components.html`):
 
 - Summary / thesis → `.tldr` highlight, `.takeaway`
-- Scale / metrics → `.stats` row (4 items max; use `.statchips` for 5+), `.chart` (CSS bars), `.linechart` / `.donut` (SVG)
+- Scale / metrics → `.stats` row (4 items max; use `.statchips` for 5+), `.chart` (CSS bars), `.linechart` / `.donut` (SVG). When one value is at least 10 times the next largest, so on one scale the others shrink to slivers, break that one bar instead of flattening the rest: the others share a scale that puts the next largest at 80%, the one bar fills its track and carries the `.bar-brk` wave (`components.html` has the demo), and its `.bv` gives the exact value. Only one bar per chart is broken; a broken bar no longer shows the ratio, so no takeaway rests on how much longer it looks.
 - Structure / layout → `.tree`, `.pillars`
 - Comparison → `.ctable`, `.proscons`
 - Sequence / process → `.timeline`, `.flow`

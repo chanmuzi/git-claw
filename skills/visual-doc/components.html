@@ -167,7 +167,7 @@
   .bar-fill{ display:block; height:100%; border-radius:100px; background:var(--blue); }
   .bar-fill.g{ background:var(--green); } .bar-fill.v{ background:var(--violet); } .bar-fill.a{ background:var(--amber); }
   .bar-row .bv{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--faint); }
-  /* 끊은 막대: 한 값이 다음으로 큰 값의 10배 이상일 때 그 막대 하나만 100%로 채우고 물결로 끊는다.
+  /* 끊은 막대: 한 값이 다음으로 큰 값의 10배 이상이고 나머지 중 0보다 큰 값이 둘 이상일 때 그 막대 하나만 100%로 채우고 물결로 끊는다.
      나머지는 다음으로 큰 값을 80%로 둔 한 스케일. 물결은 트랙 안의 svg 하나(left 88%), 정확한 값은 .bv가 말한다 */
   .bar-brk{ position:absolute; top:0; width:8px; height:100%; }
   .bar-brk .gap{ fill:var(--chipbg); }

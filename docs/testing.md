@@ -96,7 +96,7 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 > KEEP=$(grep -o '"installPath": *"[^"]*/cache/git-claw/[^"]*"' "$PLUG/installed_plugins.json" | cut -d'"' -f4 | while read -r p; do (cd "$p" 2>/dev/null && pwd -P); done)   # 항목이 여러 개면(user, project 범위) 전부. 없는 경로는 빠진다
 > [ -n "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
 >   echo "$KEEP" | grep -qxF "$(cd "$d" && pwd -P)" && continue
->   live=$(for f in "$d".in_use/*; do p=$(basename "$f"); [ -d "/proc/$p" ] && echo "$p"; done 2>/dev/null)
+>   live=$(for f in "$d".in_use/*; do p=$(basename "$f"); kill -0 "$p" 2>/dev/null && echo "$p"; done 2>/dev/null)
 >   [ -n "$live" ] && { echo "skip $d (세션 사용 중: $(echo $live))"; continue; }
 >   rm -rf "$d"
 > done

@@ -268,6 +268,10 @@
   .dg-hold{ stroke:var(--cost); stroke-width:2; stroke-linecap:round; }      /* a hold: two 12px vertical bars where the line pauses on purpose (not a failure, so not red) */
   .dg-s.dg-wait{ fill:var(--cost); opacity:1; font-weight:600; }            /* the one word under a hold mark */
   .dg-bar.mid{ fill:var(--n500); }                         /* a second neutral part of a split bar */
+  /* a broken bar (SKILL.md "One value far above the rest"): a panel-colored gap with two wavy edges cuts the one bar that is
+     10x the next; the other bars keep the scale. Draw it after the bar: <g class="dg-brk" transform="translate(x, bar y - 4)"> */
+  .dg-brk .gap{ fill:var(--panel); }
+  .dg-brk .wv{ fill:none; stroke:var(--dg-flow); stroke-width:1.1; }
   /* a bar split into parts: the value sits inside its segment (.dg-in; .ink on the plain gray fill). A value that does not fit
      (segment narrower than the label + 8, or zero) goes after the bar's end as .dg-out, in segment order, in its part's color
      (dg-out dg-em, dg-out dg-bad). The part names are in the .legend, never beside the bar. */
@@ -945,6 +949,30 @@
         <ul class="legend"><li><i class="sw em"></i>{부분 1}</li><li><i class="sw bad"></i>{부분 2}</li><li><i class="sw"></i>{부분 3}</li></ul>
         해설은 범례와 같은 색 조각을 굵은 이름 앞에 문장 안으로 넣는다 (.notes.plain):
         <div class="note"><div><i class="sw em"></i><b>{부분 1}</b>{은 무엇인지 한 문장.}</div></div> -->
+        <!-- 선택: 한 값이 다음으로 큰 값의 10배 이상이고 나머지 중 0보다 큰 막대가 둘 이상일 때 (SKILL.md "One value far above the rest"). 나뉜 막대에는 쓰지 않는다. 나머지 막대는 다음으로 큰 값이 정한 한 스케일,
+             튀는 막대 하나만 그 막대들 중 가장 긴 것보다 80px 길게 그리고, 끝에서 32px 앞을 물결(.dg-brk)로 끊는다. 정확한 값은 라벨이 말하고, 끊었다는 설명은 쓰지 않는다.
+             물결은 막대 뒤에 그린다: translate(막대 끝 - 32, 막대 y - 4). 한 그림에 하나만.
+             예시의 계산: 다음으로 큰 값 = 440px(x=110부터), 튀는 막대 440 + 80 = 520px, 물결 x = 110 + 520 - 32 = 598, 라벨은 막대 끝 + 8.
+        <svg viewBox="0 0 760 160" width="760" height="160" role="img" aria-label="{가장 큰 값이 나머지보다 몇 배 큰지 한 문장}">
+          <text class="dg-t" x="1" y="14">{잰 것}</text><line class="dg-rule" x1="1" y1="26" x2="700" y2="26"/>
+          <rect class="dg-bar" x="110" y="42" width="12" height="22" rx="3"/>
+          <rect class="dg-bar" x="110" y="72" width="79" height="22" rx="3"/>
+          <rect class="dg-bar" x="110" y="102" width="440" height="22" rx="3"/>
+          <rect class="dg-bar em" x="110" y="132" width="520" height="22" rx="3"/>
+          <g class="dg-brk" transform="translate(598,128)">
+            <path class="gap" d="M0,0 c4,5 -4,10 0,15 c4,5 -4,10 0,15 L7,30 c-4,-5 4,-10 0,-15 c-4,-5 4,-10 0,-15 Z"/>
+            <path class="wv" d="M0,0 c4,5 -4,10 0,15 c4,5 -4,10 0,15"/>
+            <path class="wv" d="M7,0 c4,5 -4,10 0,15 c4,5 -4,10 0,15"/>
+          </g>
+          <text class="dg-l dg-row" x="1" y="58">{행 1}</text>
+          <text class="dg-l dg-row" x="1" y="88">{행 2}</text>
+          <text class="dg-l dg-row" x="1" y="118">{행 3}</text>
+          <text class="dg-l dg-row" x="1" y="148">{행 4}</text>
+          <text class="dg-l" x="130" y="58">{1,748}</text>
+          <text class="dg-l" x="197" y="88">{11,270}</text>
+          <text class="dg-l" x="558" y="118">{62,558}</text>
+          <text class="dg-l dg-em" x="638" y="148">{125만}</text>
+        </svg> -->
         <!-- 선택: 이 줄이 없으면 그림을 잘못 읽게 되는 조건(모집단, 단위, 기준)이 있을 때만. 그리지 않은 수치는 여기도 넣지 않고 보고서로 보낸다.
         <details class="res-more"><summary>{무엇이 들었는지: 측정 조건}</summary><p>{어느 집합의 어떤 값인지 한두 문장}</p></details> -->
       </figure>

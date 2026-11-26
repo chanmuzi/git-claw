@@ -5,7 +5,7 @@
 - main push 후 Claude Code 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
   1. `git -C "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces/git-claw" pull`: marketplace 최신화
   2. 이 세션에서 `/reload-plugins` 실행: 최신 cache 생성
-  3. `installed_plugins.json`(`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트. git-claw 항목이 여러 개면(user 범위, project 범위) **전부** 바꾼다. 하나만 바꾸고 4번을 실행하면 나머지 항목이 가리키는 cache가 지워진다 (2026-11-11 실제 사고). `/reload-plugins`가 user 범위 항목만 스스로 새 cache로 바꾸고 project 범위 항목은 그대로 두는 경우가 있으므로(2026-11-13 확인) reload 뒤에 모든 항목을 확인한다
+  3. `installed_plugins.json`(`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트. git-claw 항목이 여러 개면(user 범위, project 범위) **전부** 바꾼다. 하나만 바꾸고 4번을 실행하면 나머지 항목이 가리키는 cache가 지워진다 (2026-11-11 실제 사고). `/reload-plugins`는 항목을 바꾸지 않을 수 있다. user 범위 항목만 바꾸고 project 범위 항목은 그대로 둔 경우(2026-11-13)도, 두 항목 모두 그대로 둔 경우(2026-11-26)도 있었다. reload 뒤에 모든 항목을 확인하고, 옛 cache를 가리키는 항목은 직접 바꾼다
      - 새로 시작하는 다른 프로젝트 세션은 수정된 `installPath`를 자동으로 사용
      - 이미 실행 중인 다른 프로젝트 세션은 자동 반영되지 않으므로 `/reload-plugins` 실행 또는 세션 재시작 필요
   ```bash
@@ -19,10 +19,11 @@
   ```bash
   PLUG=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins
   # 같은 cache가 ~/.claude/... 와 ~/.claude-upstage/... 처럼 다른 경로로 적힐 수 있어(plugins가 symlink일 때) 글자가 아니라 실제 경로로 비교한다
+  # 살아 있는 pid는 kill -0으로 확인한다. macOS에는 /proc이 없어 [ -d /proc/$p ] 검사는 늘 거짓이 되고, 다른 세션이 쓰는 cache까지 지운다 (2026-11-26 발견)
   KEEP=$(grep -o '"installPath": *"[^"]*/cache/git-claw/[^"]*"' "$PLUG/installed_plugins.json" | cut -d'"' -f4 | while read -r p; do (cd "$p" 2>/dev/null && pwd -P); done)   # 항목이 여러 개면(user, project 범위) 전부. 없는 경로는 빠진다
   [ -n "$KEEP" ] && for d in "$PLUG"/cache/git-claw/git-claw/*/; do
     echo "$KEEP" | grep -qxF "$(cd "$d" && pwd -P)" && continue
-    live=$(for f in "$d".in_use/*; do p=$(basename "$f"); [ -d "/proc/$p" ] && echo "$p"; done 2>/dev/null)
+    live=$(for f in "$d".in_use/*; do p=$(basename "$f"); kill -0 "$p" 2>/dev/null && echo "$p"; done 2>/dev/null)
     [ -n "$live" ] && { echo "skip $d (세션 사용 중: $(echo $live))"; continue; }
     rm -rf "$d"
   done

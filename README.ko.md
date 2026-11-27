@@ -132,8 +132,6 @@ staged/unstaged 변경 사항을 분석하고 conventional commit 메시지를 �
 /pr release      # Release PR (dev → main 통합)
 ```
 
-Individual PR을 만든 뒤, 이 변경의 이해용 설명 문서(`/explain-diff`)를 만들지 한 줄로 물어봅니다 (기본 No, 재질문 없음).
-
 ### `/issue`: GitHub 이슈 생성
 
 구조화된 템플릿으로 이슈를 생성하고, type/priority label을 자동으로 부여합니다.

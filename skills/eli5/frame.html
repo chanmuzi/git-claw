@@ -173,6 +173,17 @@
   .sub-no::after{ content:"."; }
   .sub-h h3{ font-size:17.5px; font-weight:700; letter-spacing:-0.025em; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; text-wrap:balance; margin:0; }
   .sub-h .deck{ margin-bottom:0; }
+  /* a folded reference beat (SKILL.md "A reference beat may fold"): a details.beat element whose summary is the beat's .sub-h with
+     `참고, {what is inside}` at the right edge. A triangle before the number shows it opens; the beat's other blocks are as usual. */
+  details.beat > summary{ list-style:none; cursor:pointer; }
+  details.beat > summary::-webkit-details-marker{ display:none; }
+  details.beat > summary .sub-h{ margin:0; }
+  details.beat > summary .sub-h::before{ content:""; align-self:center; flex:none; width:0; height:0; border:5px solid transparent; border-left:6px solid var(--faint); margin-right:2px; transition:transform .12s; }
+  details.beat[open] > summary .sub-h::before{ transform:rotate(90deg) translateX(-2px); }
+  details.beat[open] > summary{ margin-bottom:14px; }
+  details.beat .ref{ margin-left:auto; padding-left:12px; flex:none; font-size:12.5px; font-weight:500; color:var(--faint); white-space:nowrap; }
+  details.beat > summary:hover .sub-h h3{ color:var(--brand-ink); }
+  details.beat > summary:focus-visible{ outline:2px solid var(--brand); outline-offset:4px; border-radius:4px; }
 
   /* ── figure: the only panel in the body. Neutral-50, hairline, no shadow. ── */
   /* one inset: every panel (.fig, .fig.tab, .prose-card, .pv) pads 16px above and below, 20px at the sides, and a drawing or
@@ -212,7 +223,7 @@
   @media print{ .fz-bar, .fz-vtrack{ display:none; } }
 
   /* ── notes: a label column, one row per badge in the drawing (SKILL.md "The word budget") ──
-     dt: the mark the figure uses (.m, .cap, .sw, .tg) and the part's name as the figure prints it; dd: the predicate only.
+     dt: the mark the figure uses (.m, .cap, .sw) and the part's name as the figure prints it; dd: the predicate only.
      The label column is as wide as its longest label up to 10em and wraps past that; below 600px each label sits above its line. */
   .kv{ display:grid; grid-template-columns:fit-content(10em) minmax(0,1fr); column-gap:24px; margin:16px 0 0; font-size:14.5px; line-height:1.7; }
   .kv > dt, .kv > dd{ margin:0; padding:9px 0; border-top:1px solid var(--line); min-width:0; }
@@ -223,7 +234,7 @@
   .kv > dt .m{ display:inline-block; overflow:hidden; text-align:center; line-height:18px; margin-right:6px; vertical-align:-4px; }
   .kv > dt .m.code{ line-height:14px; }                      /* the digit sits under the 4px title strip */
   .kv > dt .m + .m{ margin-left:-2px; }
-  .kv > dt .tg{ margin-right:4px; }
+  .kv > dt .tg{ margin-right:4px; }                         /* pages before 2026-11-27 named rows with a toggle-shaped chip; new pages use .cap */
   .kv > dt .sw{ margin-right:6px; }
   .kv > dt .cap{ margin-right:0; }
   .kv > dd{ color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
@@ -398,6 +409,7 @@
   /* example head line (.res-cap.ex; SKILL.md "A case picked from a set is marked as an example"): the caption of a named-rows panel
      whose case is one of several. It runs across the panel with a rule under it: `예시` (or `예시 1`) in .res-no with no period, the
      case's name in .res-t, and at the right edge what the case was picked from (.res-of). */
+  /* the same head line opens a figure drawn as an illustration (not measured, not from the source): `예시`, its name, and in .res-of what is not real */
   .res-cap.ex{ flex-wrap:wrap; gap:2px 10px; margin:-16px calc(-1 * var(--inset-x)) 14px; padding:8px var(--inset-x); border-bottom:1px solid var(--line-soft); }
   .res-cap.ex .res-no{ font-family:var(--sans); letter-spacing:0; }   /* `예시 2`: a mono space between Hangul and the digit reads as two */
   .res-cap.ex .res-no::after{ content:none; }
@@ -452,9 +464,9 @@
   .res.h2 th.g0, .res.h2 td.g0{ padding-left:28px; }
   @media (min-width:601px){ .res.h2.narrow tr.leaf th, .res.h2.narrow th.grp{ padding-right:18px; } }   /* headers keep the cells' right edge in a centered table */
   .res.h2 td.outer{ font-weight:600; color:var(--ink); padding-right:28px; }
-  .res.h2 td.inner{ color:var(--sub); font-weight:400; font-family:var(--mono); font-size:12.5px; padding-left:12px; }
+  .res.h2 td.inner{ color:var(--sub); font-weight:400; font-size:13px; padding-left:12px; }   /* body face: a Hangul group name in mono breaks badly; an identifier goes in <code> */
   .res.h2 tr.gs td:not(.outer){ border-bottom-color:var(--line-soft); }
-  .res.h2 tr.gs:nth-last-child(2) td.outer{ border-bottom:none; }
+  .res.h2 tr.gs:not(:has(~ tr.gs)) td.outer{ border-bottom:none; }   /* the last group's outer cell, however many rows it spans */
   /* notes fold away: a <details> whose summary names what it holds; nothing else sits under the table */
   /* ── folded detail (optional, SKILL.md "The word budget"): the one place for an explanation the notes cannot hold.
      Closed by default; the summary names what is inside; at most 3 sentences; never a figure number said again. ── */
@@ -824,7 +836,7 @@
         </div>
       </div> -->
       <!-- .kv: 그림의 배지마다 한 행. 라벨(dt)은 그림에서 찾을 수 있는 표시와 그림에 적힌 그대로의 이름: 번호 배지, 행 칩(.cap, 칩만),
-           채움색으로 구분하면 범례와 같은 색 조각(<i class="sw em"></i>), 세팅 칩(.tg), 그림이 이름을 글자로 적고 있으면 그 이름만.
+           채움색으로 구분하면 범례와 같은 색 조각(<i class="sw em"></i>), 그림이 이름을 글자로 적고 있으면 그 이름만.
            설명(dd)은 서술부만 1~2문장, 80자 이내. 라벨이 주어라서 이름을 다시 쓰지 않는다. 문서 안 다른 절을 가리키면 번호에 링크(<a href="#b{nn}">{n-n}</a>, 조사는 밖). -->
       <dl class="kv">
         <dt><span class="m">1</span>{들어오는 것}</dt><dd>{무엇인지와 그림이 보여주지 못한 조건 하나.}</dd>
@@ -1023,9 +1035,16 @@
     </div>
   </section>
 
+  <!-- 선택: 접는 참고 절 (SKILL.md "A reference beat may fold"). 표지, 정리, 형광 마무리 줄, 판정표에서 적용하는 행의 링크가 가리키지 않고 대가 절이 아니며
+       뒤 절이 읽는 데 필요로 하지 않는 절만. 긴 페이지에서만 접는다. 요약 줄은 그 절의 .sub-h 그대로이고 오른쪽 끝에 `참고, {무엇이 들었는지}`.
+    <details class="beat" id="b{nn}">
+      <summary><div class="sub-h"><div class="sub-no">{n-n}</div><h3>{그림의 대상을 말하는 짧은 명사구}</h3><span class="ref">참고, {표 2개}</span></div></summary>
+      <figure class="fig tab">…</figure>
+    </details> -->
+
   <!-- 선택: 선택지마다 판단이 있는 페이지 (SKILL.md "A verdict table"). 판정표는 .close 바로 앞, 마지막 절에 있다. 첫 절이 아니다:
        표지가 이미 결론을 말하고, 본문은 먼저 알아야 하는 것에서 시작해 차례 순서로 읽힌다. 판정표는 위 절들이 다룬 판단을 모은다.
-       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명한 절의 링크다.
+       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부, 기준 행에는 이유 없이 기준)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명한 절의 링크다.
        표 아래 라벨 열은 표가 담지 못하는 것만 두고 마지막 행은 남은 확인. 자세한 설명이 어디 있는지 말하는 줄은 두지 않는다(차례와 설명 열이 한다).
   <section class="sec-top single" id="g{n}">
     <div class="sec-no"><b>{n}</b></div>

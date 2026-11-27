@@ -695,6 +695,36 @@
 <div class="shell">
 
   <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호는 .sec-no에 숫자만 넣는다(프레임이 `1. 제목` 한 줄로 그린다). 제목 글자에는 숫자를 넣지 않는다. -->
+  <!-- 선택: 선택지마다 판단이 있는 페이지 (SKILL.md "A verdict table"). 첫 절이 판정표 절이고 패널 안에 표 하나다.
+       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명하는 절의 링크다.
+       표 아래 라벨 열은 표가 담지 못하는 것만 두고 마지막 행은 남은 확인, 그 뒤 자세한 설명이 어디 있는지 말하는 마무리 줄 하나.
+  <section class="sec-top single" id="g1">
+    <div class="sec-no"><b>1</b></div>
+    <h2>{결정을 말하는 짧은 명사구}</h2>
+    <div class="beat">
+      <figure class="fig tab">
+        <table class="res">
+          <thead><tr><th>{선택지}</th><th class="n">{값}</th><th>판단</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>{선택지 1}</td><td class="n">{값}</td><td class="why"><b>적용</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a><a href="#b{nn}">{n-n}</a></td></tr>
+            <tr><td>{선택지 2}</td><td class="n">{값}</td><td class="why"><b>쓰지 않음</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a></td></tr>
+          </tbody>
+        </table>
+      </figure>
+      <dl class="kv">
+        <dt>{표가 담지 못하는 것}</dt><dd>{한두 문장.}</dd>
+        <dt>남은 확인</dt><dd>{확인 못 한 것을 몇 글자로} (<a href="#b{nn}">{n-n}</a>)</dd>
+      </dl>
+      <p class="say"><span class="lab q">자세한 설명</span>{무엇은} <a href="#g{n}">{n}장</a>{, 무엇은} <a href="#g{n}">{n}장</a>{에 있어요.}</p>
+    </div>
+  </section>
+       선택: 그림이 그리지 않는 용어가 있을 때 (SKILL.md "Terms that no figure shows"). 두 장 이상에서 쓰는 말은 결론이 아닌 첫 절의 h2 바로 다음, 첫 beat 앞에 한 번 둔다.
+    <div class="beat" id="terms">
+      <div class="terms-h">이 문서에서 쓰는 말</div>
+      <dl class="kv">
+        <dt>{용어}</dt><dd>{뜻 한두 문장.}</dd>
+      </dl>
+    </div> -->
   <section class="sec-top single" id="g1">
     <div class="sec-no"><b>1</b></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
@@ -926,27 +956,6 @@
       <dt>표 1</dt><dd>{세팅 사이에 무엇이 다른지 한 문장.}</dd>
       <dt>표 2</dt><dd>{어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</dd>
     </dl>
-    선택: 선택지마다 판단이 있는 페이지의 첫 절 (SKILL.md "A verdict table"). 판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자,
-    끝 열은 그 행을 설명하는 절의 링크. 표 아래 라벨 열은 표가 담지 못하는 것만, 마지막 행은 남은 확인, 그 뒤 자세한 설명이 어디 있는지 말하는 마무리 줄.
-    <table class="res">
-      <thead><tr><th>{선택지}</th><th class="n">{값}</th><th>판단</th><th>설명</th></tr></thead>
-      <tbody>
-        <tr><td>{선택지 1}</td><td class="n">{값}</td><td class="why"><b>적용</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a><a href="#b{nn}">{n-n}</a></td></tr>
-        <tr><td>{선택지 2}</td><td class="n">{값}</td><td class="why"><b>쓰지 않음</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a></td></tr>
-      </tbody>
-    </table>
-    <dl class="kv">
-      <dt>{표가 담지 못하는 것}</dt><dd>{한두 문장.}</dd>
-      <dt>남은 확인</dt><dd>{확인 못 한 것을 몇 글자로} (<a href="#b{nn}">{n-n}</a>)</dd>
-    </dl>
-    <p class="say"><span class="lab q">자세한 설명</span>{무엇은} <a href="#g{n}">{n}장</a>{, 무엇은} <a href="#g{n}">{n}장</a>{에 있어요.}</p>
-    선택: 그림이 그리지 않는 용어가 있을 때 (SKILL.md "Terms that no figure shows"). 두 장 이상에서 쓰는 말은 결론이 아닌 첫 절 맨 앞에 한 번.
-    <div class="beat" id="terms">
-      <div class="terms-h">이 문서에서 쓰는 말</div>
-      <dl class="kv">
-        <dt>{용어}</dt><dd>{뜻 한두 문장.}</dd>
-      </dl>
-    </div>
     <p class="say"><span class="lab q">{이 줄이 무엇인지 1~3단어}</span>{표에서 읽히는 사실 한 줄, 60자 이내.}</p>
   </div> -->
 

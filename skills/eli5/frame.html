@@ -274,7 +274,8 @@
   /* ── numbered badge: the same mark in the drawing (.dg-m), the evidence card head and the notes (.m) ──
      Two kinds, one 18x18 square. The gray square means a note follows; the terminal square (.code: dark window, a title
      strip with three dots, a white digit, the same colors in both themes) means an evidence card with code follows.
-     Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing. */
+     Badges carry no meaning color: red for what breaks belongs to the cells, lines and boxes of the drawing.
+     A badge holds a digit, or the one-character index the page already gives an option (가, A): never both for one thing. */
   .m{ display:inline-grid; place-items:center; width:18px; height:18px; border-radius:4px; background:var(--n500); color:var(--n0); font-family:var(--mono); font-size:10.5px; font-weight:500; line-height:1; flex:none; vertical-align:-3px; }
   .m.code{ box-shadow:0 0 0 1px var(--line); position:relative; background:#141A24; color:#FFFFFF; padding-top:4px; overflow:hidden; font-size:10px; }
   .m.code::before{ content:""; position:absolute; top:0; left:0; right:0; height:4.5px; background:#2A3342; }
@@ -698,30 +699,7 @@
 <div class="shell">
 
   <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호는 .sec-no에 숫자만 넣는다(프레임이 `1. 제목` 한 줄로 그린다). 제목 글자에는 숫자를 넣지 않는다. -->
-  <!-- 선택: 선택지마다 판단이 있는 페이지 (SKILL.md "A verdict table"). 첫 절이 판정표 절이고 패널 안에 표 하나다.
-       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명하는 절의 링크다.
-       표 아래 라벨 열은 표가 담지 못하는 것만 두고 마지막 행은 남은 확인, 그 뒤 자세한 설명이 어디 있는지 말하는 마무리 줄 하나.
-  <section class="sec-top single" id="g1">
-    <div class="sec-no"><b>1</b></div>
-    <h2>{결정을 말하는 짧은 명사구}</h2>
-    <div class="beat">
-      <figure class="fig tab">
-        <table class="res">
-          <thead><tr><th>{선택지}</th><th class="n">{값}</th><th>판단</th><th>설명</th></tr></thead>
-          <tbody>
-            <tr><td>{선택지 1}</td><td class="n">{값}</td><td class="why"><b>적용</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a><a href="#b{nn}">{n-n}</a></td></tr>
-            <tr><td>{선택지 2}</td><td class="n">{값}</td><td class="why"><b>쓰지 않음</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a></td></tr>
-          </tbody>
-        </table>
-      </figure>
-      <dl class="kv">
-        <dt>{표가 담지 못하는 것}</dt><dd>{한두 문장.}</dd>
-        <dt>남은 확인</dt><dd>{확인 못 한 것을 몇 글자로} (<a href="#b{nn}">{n-n}</a>)</dd>
-      </dl>
-      <p class="say"><span class="lab q">자세한 설명</span>{무엇은} <a href="#g{n}">{n}장</a>{, 무엇은} <a href="#g{n}">{n}장</a>{에 있어요.}</p>
-    </div>
-  </section>
-       선택: 그림이 그리지 않는 용어가 있을 때 (SKILL.md "Terms that no figure shows"). 두 장 이상에서 쓰는 말은 결론이 아닌 첫 절의 h2 바로 다음, 첫 beat 앞에 한 번 둔다.
+  <!-- 선택: 그림이 그리지 않는 용어가 있을 때 (SKILL.md "Terms that no figure shows"). 두 장 이상에서 쓰는 말은 결론이 아닌 첫 절의 h2 바로 다음, 첫 beat 앞에 한 번 둔다.
     <div class="beat" id="terms">
       <div class="terms-h">이 문서에서 쓰는 말</div>
       <dl class="kv">
@@ -1044,6 +1022,30 @@
       <p class="say">{숫자가 무엇을 뜻하고 어떤 조건에서 그런지 한두 문장. 비용이 있으면 여기서 말해요.}</p>
     </div>
   </section>
+
+  <!-- 선택: 선택지마다 판단이 있는 페이지 (SKILL.md "A verdict table"). 판정표는 .close 바로 앞, 마지막 절에 있다. 첫 절이 아니다:
+       표지가 이미 결론을 말하고, 본문은 먼저 알아야 하는 것에서 시작해 차례 순서로 읽힌다. 판정표는 위 절들이 다룬 판단을 모은다.
+       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명한 절의 링크다.
+       표 아래 라벨 열은 표가 담지 못하는 것만 두고 마지막 행은 남은 확인. 자세한 설명이 어디 있는지 말하는 줄은 두지 않는다(차례와 설명 열이 한다).
+  <section class="sec-top single" id="g{n}">
+    <div class="sec-no"><b>{n}</b></div>
+    <h2>{결정을 말하는 짧은 명사구}</h2>
+    <div class="beat">
+      <figure class="fig tab">
+        <table class="res">
+          <thead><tr><th>{선택지}</th><th class="n">{값}</th><th>판단</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>{선택지 1}</td><td class="n">{값}</td><td class="why"><b>적용</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a><a href="#b{nn}">{n-n}</a></td></tr>
+            <tr><td>{선택지 2}</td><td class="n">{값}</td><td class="why"><b>쓰지 않음</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a></td></tr>
+          </tbody>
+        </table>
+      </figure>
+      <dl class="kv">
+        <dt>{표가 담지 못하는 것}</dt><dd>{한두 문장.}</dd>
+        <dt>남은 확인</dt><dd>{확인 못 한 것을 몇 글자로} (<a href="#b{nn}">{n-n}</a>)</dd>
+      </dl>
+    </div>
+  </section> -->
 
   <!-- CLOSE: 상자 없음. 위에 h2를 두지 않는다. 페이지는 여기서 끝난다. -->
   <div class="close">

@@ -218,7 +218,10 @@
   .kv > dt, .kv > dd{ margin:0; padding:9px 0; border-top:1px solid var(--line); min-width:0; }
   .kv > dt:first-of-type, .kv > dt:first-of-type + dd{ border-top:none; padding-top:2px; }
   .kv > dt{ font-size:13px; font-weight:600; line-height:1.85; color:var(--brand-ink); word-break:keep-all; overflow-wrap:anywhere; }
-  .kv > dt .m{ margin-right:6px; vertical-align:-4px; }
+  /* a badge in a label: inline-block with overflow hidden, so its baseline is its bottom edge and -4px centers it on the letters.
+     As inline-grid (the .m default) it sits on its digit's baseline and drops 4 to 6px below the label. */
+  .kv > dt .m{ display:inline-block; overflow:hidden; text-align:center; line-height:18px; margin-right:6px; vertical-align:-4px; }
+  .kv > dt .m.code{ line-height:14px; }                      /* the digit sits under the 4px title strip */
   .kv > dt .m + .m{ margin-left:-2px; }
   .kv > dt .tg{ margin-right:4px; }
   .kv > dt .sw{ margin-right:6px; }

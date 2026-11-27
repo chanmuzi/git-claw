@@ -2,7 +2,7 @@
 name: visual-doc
 description: >-
   Turn researched or analyzed content (a research brief, a repo analysis, a concept explainer, a comparison, a design writeup) into a structured HTML document. The reader is a colleague who knows the domain.
-version: "1.9.1"
+version: "1.10.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Bash(google-chrome *), Bash(chromium *), Bash(cat *), Bash(python3 *), Bash(which *), Bash(grep *), Read, Grep, Glob, Write
 ---
 

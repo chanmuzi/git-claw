@@ -3,7 +3,7 @@ name: issue
 description: >-
   Create a GitHub issue in the project's format with matching labels. Use when the user asks to file a bug, a feature request, or work to track.
 argument-hint: "[bug|feature|enhancement|chore|docs|...]"
-version: "1.5.0"
+version: "1.5.1"
 allowed-tools: Bash(gh issue *), Bash(gh label *), Read, Grep, Glob
 ---
 

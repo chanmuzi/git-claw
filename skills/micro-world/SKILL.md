@@ -2,7 +2,7 @@
 name: micro-world
 description: >-
   Build a throwaway interactive HTML simulation of one behavior (a state machine, an algorithm, a data transform, a protocol flow). The reader learns the behavior by operating it.
-version: "1.6.1"
+version: "1.7.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(google-chrome *), Bash(chromium *), Bash(cat *), Bash(python3 *), Bash(which *), Bash(grep *), Read, Grep, Glob, Write
 ---
 

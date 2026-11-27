@@ -3,7 +3,7 @@ name: review-reply
 description: >-
   Go through the review comments left on a PR, decide with the user what to change, and reply with how each was resolved. Use when the user asks to check or address review feedback. To review code yourself, use code-review.
 argument-hint: "[PR번호]"
-version: "1.5.1"
+version: "1.5.2"
 allowed-tools: Bash(gh *), Bash(git *), Read, Grep, Glob
 ---
 

@@ -2,7 +2,7 @@
 name: handoff
 description: >-
   Write a copy-ready prompt that hands the current work over to a new session. Use when the user asks to hand off, wrap up, or continue the work in another session.
-version: "1.2.0"
+version: "1.2.1"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 

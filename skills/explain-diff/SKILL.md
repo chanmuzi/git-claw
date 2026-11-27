@@ -2,7 +2,7 @@
 name: explain-diff
 description: >-
   Explain a diff, commit, branch, or PR as an interactive HTML page with a comprehension quiz. The reader is the developer who has to understand the change before merging it. For defect findings, use code-review.
-version: "1.7.1"
+version: "1.8.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(google-chrome *), Bash(chromium *), Bash(cat *), Bash(python3 *), Bash(which *), Bash(grep *), Read, Grep, Glob, Write
 ---
 

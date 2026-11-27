@@ -2,7 +2,7 @@
 name: eli5
 description: >-
   Explain a subject (a concept, a system, a code change) as an HTML page where large diagrams carry the meaning and the text stays short. The reader is someone outside the domain.
-version: "1.10.0"
+version: "1.11.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(npx *), Bash(google-chrome *), Bash(chromium *), Bash(cat *), Bash(python3 *), Bash(which *), Bash(grep *), Read, Grep, Glob, Write
 ---
 

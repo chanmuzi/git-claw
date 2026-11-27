@@ -211,7 +211,38 @@
   .fz-btn:focus-visible{ outline:2px solid var(--brand); outline-offset:1px; }
   @media print{ .fz-bar, .fz-vtrack{ display:none; } }
 
-  /* ── notes: one line per badge in the drawing (SKILL.md "The word budget") ── */
+  /* ── notes: a label column, one row per badge in the drawing (SKILL.md "The word budget") ──
+     dt: the mark the figure uses (.m, .cap, .sw, .tg) and the part's name as the figure prints it; dd: the predicate only.
+     The label column is as wide as its longest label up to 10em and wraps past that; below 600px each label sits above its line. */
+  .kv{ display:grid; grid-template-columns:fit-content(10em) minmax(0,1fr); column-gap:24px; margin:16px 0 0; font-size:14.5px; line-height:1.7; }
+  .kv > dt, .kv > dd{ margin:0; padding:9px 0; border-top:1px solid var(--line); min-width:0; }
+  .kv > dt:first-of-type, .kv > dt:first-of-type + dd{ border-top:none; padding-top:2px; }
+  .kv > dt{ font-size:13px; font-weight:600; line-height:1.85; color:var(--brand-ink); word-break:keep-all; overflow-wrap:anywhere; }
+  .kv > dt .m{ margin-right:6px; vertical-align:-4px; }
+  .kv > dt .m + .m{ margin-left:-2px; }
+  .kv > dt .tg{ margin-right:4px; }
+  .kv > dt .sw{ margin-right:6px; }
+  .kv > dt .cap{ margin-right:0; }
+  .kv > dd{ color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
+  .kv > dd b{ color:var(--ink); font-weight:600; }
+  @media (max-width:600px){ .kv{ grid-template-columns:minmax(0,1fr); } .kv > dt{ padding-bottom:0; } .kv > dd{ border-top:none !important; padding-top:2px; } }
+  /* terms no figure shows (SKILL.md "Terms that no figure shows"): one heading over a label column */
+  .terms-h{ font-size:12.5px; font-weight:600; color:var(--faint); padding-bottom:6px; border-bottom:1px solid var(--line-soft); }
+  .terms-h + .kv{ margin-top:8px; }
+  /* links (SKILL.md "References inside the page are links"): body text in the brand color with a thin underline, never a chip.
+     A link to another site gets ↗ after it. The script at the end of <body> flashes the heading a link lands on (.landed). */
+  .sec-top a, .close a{ color:var(--brand); font-weight:500; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:4px; text-decoration-color:color-mix(in srgb, var(--brand) 40%, transparent); }
+  .sec-top a:hover, .close a:hover{ text-decoration-color:var(--brand); }
+  .sec-top a:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; border-radius:2px; }
+  .sec-top a[href^="http"]::after, .close a[href^="http"]::after{ content:"↗"; display:inline-block; margin-left:1px; font-size:.78em; vertical-align:.18em; text-decoration:none; }
+  @keyframes land{ 0%, 35%{ background:color-mix(in srgb, var(--brand) 16%, transparent); box-shadow:0 0 0 8px color-mix(in srgb, var(--brand) 16%, transparent); } 100%{ background:transparent; box-shadow:0 0 0 8px transparent; } }
+  .landed{ animation:land 1.6s ease-out; border-radius:4px; }
+  @media (prefers-reduced-motion: reduce){ .landed{ animation-duration:.8s; animation-timing-function:steps(1, end); } }
+  /* the verdict table (SKILL.md "A verdict table"): td.why holds the bold verdict word, a comma and the reason; the last column links */
+  .res td.why b{ color:var(--ink); font-weight:600; }
+  .res td a{ white-space:nowrap; }
+  .res td a + a{ margin-left:10px; }
+  /* .notes / .note: the list form used before 2026-11-27, kept only so older pages still render */
   .notes{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
   .note{ display:grid; grid-template-columns:18px minmax(0,1fr); gap:12px; align-items:start; font-size:14.5px; line-height:1.7; color:var(--sub); word-break:keep-all; overflow-wrap:anywhere; text-wrap:pretty; }
   .note .m{ margin-top:4px; }
@@ -664,6 +695,36 @@
 <div class="shell">
 
   <!-- SECTION 1 (beat 하나뿐인 섹션: class="sec-top single", .sub-h 없음). 번호는 .sec-no에 숫자만 넣는다(프레임이 `1. 제목` 한 줄로 그린다). 제목 글자에는 숫자를 넣지 않는다. -->
+  <!-- 선택: 선택지마다 판단이 있는 페이지 (SKILL.md "A verdict table"). 첫 절이 판정표 절이고 패널 안에 표 하나다.
+       판단은 정해진 말(적용, 쓰지 않음, 백로그, 참고값, 보류, 조건부)을 굵게 쓰고 쉼표 뒤에 이유 몇 글자, 끝 열은 그 행을 설명하는 절의 링크다.
+       표 아래 라벨 열은 표가 담지 못하는 것만 두고 마지막 행은 남은 확인, 그 뒤 자세한 설명이 어디 있는지 말하는 마무리 줄 하나.
+  <section class="sec-top single" id="g1">
+    <div class="sec-no"><b>1</b></div>
+    <h2>{결정을 말하는 짧은 명사구}</h2>
+    <div class="beat">
+      <figure class="fig tab">
+        <table class="res">
+          <thead><tr><th>{선택지}</th><th class="n">{값}</th><th>판단</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>{선택지 1}</td><td class="n">{값}</td><td class="why"><b>적용</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a><a href="#b{nn}">{n-n}</a></td></tr>
+            <tr><td>{선택지 2}</td><td class="n">{값}</td><td class="why"><b>쓰지 않음</b>, {이유 몇 글자}</td><td><a href="#b{nn}">{n-n}</a></td></tr>
+          </tbody>
+        </table>
+      </figure>
+      <dl class="kv">
+        <dt>{표가 담지 못하는 것}</dt><dd>{한두 문장.}</dd>
+        <dt>남은 확인</dt><dd>{확인 못 한 것을 몇 글자로} (<a href="#b{nn}">{n-n}</a>)</dd>
+      </dl>
+      <p class="say"><span class="lab q">자세한 설명</span>{무엇은} <a href="#g{n}">{n}장</a>{, 무엇은} <a href="#g{n}">{n}장</a>{에 있어요.}</p>
+    </div>
+  </section>
+       선택: 그림이 그리지 않는 용어가 있을 때 (SKILL.md "Terms that no figure shows"). 두 장 이상에서 쓰는 말은 결론이 아닌 첫 절의 h2 바로 다음, 첫 beat 앞에 한 번 둔다.
+    <div class="beat" id="terms">
+      <div class="terms-h">이 문서에서 쓰는 말</div>
+      <dl class="kv">
+        <dt>{용어}</dt><dd>{뜻 한두 문장.}</dd>
+      </dl>
+    </div> -->
   <section class="sec-top single" id="g1">
     <div class="sec-no"><b>1</b></div>
     <h2>{그림의 대상을 말하는 짧은 명사구, 20자 안팎}</h2>
@@ -781,12 +842,13 @@
           <div class="ev-body"><pre><span class="ln"><span class="sign"> </span><span class="t">SYSTEM_PROMPT = (</span></span><span class="ln del"><span class="sign">-</span><span class="t">    <span class="sx-s">"At most 4 words."</span></span><span class="tag">{빠진 규칙 한 마디}</span></span><span class="ln add"><span class="sign">+</span><span class="t">    <span class="sx-s">"A concise noun phrase. No word limit."</span></span><span class="tag">{생긴 규칙 한 마디}</span></span><span class="ln gap"><span class="sign"> </span><span class="t">    … {N}줄 생략</span></span><span class="ln"><span class="sign"> </span><span class="t">)</span></span></pre></div>
         </div>
       </div> -->
-      <!-- .notes: 그림의 배지마다 한 줄. 배지 + 대상 이름(굵게) + 1~2문장, 80자 이내. 사실만, 본문 크기.
-           해설의 머리는 그림에서 찾을 수 있는 표시다: 번호 배지, 행 칩(.cap), 그림이 채움색으로 구분하면 범례와 같은 색 조각을 굵은 이름 앞에 문장 안으로(<i class="sw em"></i><b>이름</b>), 그림이 이름을 글자로 적고 있으면 그 글자 그대로(굵게, 표시 없음). -->
-      <div class="notes">
-        <div class="note"><span class="m">1</span><div><b>{들어오는 것}</b>{은 무엇이고, 그림이 보여주지 못한 조건 하나.}</div></div>
-        <div class="note"><span class="m code">2</span><div><b>{좁은 관문}</b>{이 하는 일 한두 문장. 근거 카드가 있는 배지는 해설에서도 같은 터미널 모양.}</div></div>
-      </div>
+      <!-- .kv: 그림의 배지마다 한 행. 라벨(dt)은 그림에서 찾을 수 있는 표시와 그림에 적힌 그대로의 이름: 번호 배지, 행 칩(.cap, 칩만),
+           채움색으로 구분하면 범례와 같은 색 조각(<i class="sw em"></i>), 세팅 칩(.tg), 그림이 이름을 글자로 적고 있으면 그 이름만.
+           설명(dd)은 서술부만 1~2문장, 80자 이내. 라벨이 주어라서 이름을 다시 쓰지 않는다. 문서 안 다른 절을 가리키면 번호에 링크(<a href="#b{nn}">{n-n}</a>, 조사는 밖). -->
+      <dl class="kv">
+        <dt><span class="m">1</span>{들어오는 것}</dt><dd>{무엇인지와 그림이 보여주지 못한 조건 하나.}</dd>
+        <dt><span class="m code">2</span>{좁은 관문}</dt><dd>{하는 일 한두 문장. 근거 카드가 있는 배지는 라벨에서도 같은 터미널 모양.}</dd>
+      </dl>
       <!-- 선택: 해설에 다 못 담는 조건이나 예외가 있을 때만. 접힌 채로 나오고, 요약 줄이 안에 무엇이 있는지 말한다. 3문장까지, 그림의 숫자는 다시 쓰지 않는다.
       <details class="more"><summary>{무엇을 설명하는지 한 마디: 예외 2건, 왜 2차 호출이 기준인지}</summary><p>{조건이나 예외 1~3문장, 해요체}</p></details> -->
       <!-- 마무리 줄. 해설 목록 뒤에서는 항상 배지로 시작한다. 형광 배지(lab)는 맨 끝 정리 머리 문장이 다시 말하는 줄에만, 그 밖의 줄은 테두리 배지(lab q)이고 문구는 그 줄이 무엇인지 주제의 말로 1~3단어. 확인하지 못한 것이 있으면 그 앞에 lab warn 줄 하나 -->
@@ -890,10 +952,10 @@
     </figure>
     선택: 정해진 집합을 채점한 칸은 퍼센트만 쓴다(위 표 3). 집합이 작아 한 건이 몇 %p씩 움직이면 그 표의 채점 칸마다 퍼센트 뒤에 개수를 괄호로 붙인다:
     `80% (16)`, 개수는 class가 c인 span으로 감싸고(마크업은 SKILL.md "Results table") 굵은 글씨는 퍼센트에만 둔다.
-    <div class="notes plain">
-      <div class="note"><div><b>표 1</b>{은 세팅 사이에 무엇이 다른지 한 문장.}</div></div>
-      <div class="note"><div><b>표 2</b>{는 어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</div></div>
-    </div>
+    <dl class="kv">
+      <dt>표 1</dt><dd>{세팅 사이에 무엇이 다른지 한 문장.}</dd>
+      <dt>표 2</dt><dd>{어떻게 읽는지 한 문장. 값은 되풀이하지 않아요.}</dd>
+    </dl>
     <p class="say"><span class="lab q">{이 줄이 무엇인지 1~3단어}</span>{표에서 읽히는 사실 한 줄, 60자 이내.}</p>
   </div> -->
 
@@ -947,8 +1009,8 @@
           <text class="dg-in" x="358" y="83.5">81%</text><text class="dg-in" x="661" y="83.5">18%</text><text class="dg-out" x="726" y="83.5">1%</text>
         </svg>
         <ul class="legend"><li><i class="sw em"></i>{부분 1}</li><li><i class="sw bad"></i>{부분 2}</li><li><i class="sw"></i>{부분 3}</li></ul>
-        해설은 범례와 같은 색 조각을 굵은 이름 앞에 문장 안으로 넣는다 (.notes.plain):
-        <div class="note"><div><i class="sw em"></i><b>{부분 1}</b>{은 무엇인지 한 문장.}</div></div> -->
+        해설은 범례와 같은 색 조각을 라벨의 이름 앞에 넣는다 (.kv):
+        <dl class="kv"><dt><i class="sw em"></i>{부분 1}</dt><dd>{무엇인지 한 문장.}</dd></dl> -->
         <!-- 선택: 한 값이 다음으로 큰 값의 10배 이상이고 나머지 중 0보다 큰 막대가 둘 이상일 때 (SKILL.md "One value far above the rest"). 나뉜 막대에는 쓰지 않는다. 나머지 막대는 다음으로 큰 값이 정한 한 스케일,
              튀는 막대 하나만 그 막대들 중 가장 긴 것보다 80px 길게 그리고, 끝에서 32px 앞을 물결(.dg-brk)로 끊는다. 정확한 값은 라벨이 말하고, 끊었다는 설명은 쓰지 않는다.
              물결은 막대 뒤에 그린다: translate(막대 끝 - 32, 막대 y - 4). 한 그림에 하나만.
@@ -988,6 +1050,29 @@
   </div>
 
 </div>
+<script>
+/* in-page links (SKILL.md "References inside the page are links"): a link to a folded beat opens it, and the heading the
+   link lands on flashes once (.landed). A #hash in the address on load does the same. */
+(function(){
+  function land(hash){
+    if (!hash || hash.length < 2) return;
+    var t = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!t) return;
+    if (t.tagName === "DETAILS") t.open = true;
+    var h = t.querySelector(".sub-h, :scope > h2, .terms-h") || t;
+    h.classList.remove("landed"); void h.offsetWidth; h.classList.add("landed");
+    h.addEventListener("animationend", function(){ h.classList.remove("landed"); }, { once:true });
+  }
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute("href"), t = id.length > 1 && document.getElementById(decodeURIComponent(id.slice(1)));
+    if (t && t.tagName === "DETAILS") t.open = true;
+    setTimeout(function(){ land(id); }, 60);
+  });
+  if (location.hash) setTimeout(function(){ land(location.hash); }, 200);
+})();
+</script>
 <script>
 /* section hierarchy: the .progress bar fills with the scroll ratio; an .outline link scrolls to its section */
 (function(){
